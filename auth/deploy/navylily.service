@@ -1,0 +1,30 @@
+# Navy Lily auth + payments server (systemd unit).
+#
+# Install:
+#   cd ~/navylily/auth && go build -o navylily-auth .
+#   sudo cp auth/deploy/navylily.service /etc/systemd/system/navylily.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now navylily
+#   journalctl -u navylily -f          # watch logs
+#
+# WorkingDirectory is REQUIRED: the server resolves web/, ../public, ../protected
+# relative to it, and loads auth/.env from it.
+
+[Unit]
+Description=Navy Lily auth + payments server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=tiago
+WorkingDirectory=/home/tiago/navylily/auth
+ExecStart=/home/tiago/navylily/auth/navylily-auth
+Restart=always
+RestartSec=3
+# Modest hardening — the process only needs to read the repo and talk HTTP out.
+NoNewPrivileges=true
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

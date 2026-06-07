@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recuperar senha — Navy Lily</title>
+  <style>
+    body { font-family: serif; }
+  </style>
+</head>
+<body>
+  <form method="POST" action="/auth/recover">
+    <h1>Recuperar senha</h1>
+    <p>Digite seu e-mail e enviaremos um link para criar uma nova senha.</p>
+    <p>
+      <label for="email">E-mail</label><br>
+      <input id="email" name="email" type="email" required placeholder="voce@email.com" autofocus>
+    </p>
+    <button type="submit">Enviar link de recuperação</button>
+    <p><a href="/login">Voltar para o login</a></p>
+  </form>
+  <script>
+    (function () {
+      const email = new URLSearchParams(location.search).get('email') || '';
+      if (email.includes('@')) document.getElementById('email').value = email;
+    })();
+  </script>
+</body>
+</html>

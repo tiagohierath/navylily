@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar — Navy Lily</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+    body { font-family: serif; margin: 0; }
+    header.site {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      padding: .75rem 1rem; border-bottom: 1px solid #ddd;
+    }
+    header.site .brand {
+      font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
+    }
+    header.site .btn {
+      font: inherit; text-decoration: none; color: inherit;
+      border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
+    }
+    main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
+  </style>
+</head>
+<body>
+  <header class="site">
+    <a class="brand" href="/lessons.html">Navy Lily Works</a>
+    <a class="btn" href="/comprar">Navy</a>
+    <a class="btn" href="/login">Profile</a>
+  </header>
+  <main>
+  <form method="POST" action="/auth/login">
+    <h1>Entrar na Navy Lily</h1>
+    <p id="erro" style="color:#b00;" hidden>E-mail ou senha incorretos.</p>
+    <p>
+      <label for="email">E-mail</label><br>
+      <input id="email" name="email" type="email" required placeholder="voce@email.com" autofocus>
+    </p>
+    <p>
+      <label for="password">Senha</label><br>
+      <input id="password" name="password" type="password" required placeholder="sua senha">
+    </p>
+    <input id="next" name="next" type="hidden">
+    <button type="submit">Entrar</button>
+    <p><a id="forgot" href="/forgot">Esqueci minha senha</a></p>
+    <p>Ainda não tem conta? <a id="signup" href="/signup">Criar conta</a>.</p>
+  </form>
+  </main>
+  <script>
+    // Preserve the page the user wanted (?next=/protected/...) through login,
+    // so they land back on it. Only same-origin relative paths.
+    (function () {
+      const params = new URLSearchParams(location.search);
+      if (params.get('erro')) {
+        document.getElementById('erro').hidden = false;
+      }
+      const next = params.get('next') || '';
+      if (next.startsWith('/') && !next.startsWith('//')) {
+        document.getElementById('next').value = next;
+        // Carry next over to the signup / forgot links too.
+        const qs = '?next=' + encodeURIComponent(next);
+        document.getElementById('signup').href = '/signup' + qs;
+        document.getElementById('forgot').href = '/forgot' + qs;
+      }
+      // Welcome / gift links arrive with ?email= so members don't have to
+      // retype it — prefill the field.
+      const email = params.get('email') || '';
+      if (email.includes('@')) {
+        document.getElementById('email').value = email;
+        document.getElementById('password').focus();
+      }
+    })();
+  </script>
+</body>
+</html>

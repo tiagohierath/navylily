@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Navy Assinatura — Navy Lily</title>
+  <style>
+    :root { --ink:#1a1a1a; --muted:#666; --line:#ddd; --accent:#1f6feb; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: serif; color: var(--ink); line-height: 1.5;
+      margin: 0; min-height: 100vh; display: flex;
+    }
+    /* On its own page the checkout sits in the middle of the screen. margin:auto
+       inside a flex body centers both axes, and still lets the taller PIX state
+       (QR + copy-paste code) scroll instead of getting clipped at the top. */
+    main { margin: auto; width: 100%; max-width: 540px; padding: 2rem 1.25rem; }
+    h1 { font-size: 1.6rem; margin: 0 0 .25rem; }
+    .price { font-size: 2rem; font-weight: 700; margin: .5rem 0; }
+    .price small { font-size: 1rem; font-weight: 400; color: var(--muted); }
+    .lead { color: var(--muted); margin: 0 0 1.5rem; }
+    .methods { display: grid; gap: .75rem; margin: 1.5rem 0; }
+    button, a[role=button] {
+      display: block; font: inherit; padding: .85rem 1rem; border: 1px solid var(--line);
+      border-radius: 8px; background: #fff; cursor: pointer; text-align: left;
+      color: inherit; text-decoration: none;
+    }
+    button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    button[disabled] { color: var(--muted); cursor: not-allowed; }
+    .tag { float: right; font-size: .75rem; color: var(--muted); }
+    .card { border: 1px solid var(--line); border-radius: 8px; padding: 1.25rem; }
+    .qr { display: block; margin: 1rem auto; }
+    textarea { width: 100%; font-family: monospace; }
+    .muted { color: var(--muted); font-size: .9rem; }
+    [hidden] { display: none; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Navy Assinatura</h1>
+  <p class="price">R$ 197 <small>/ ano</small></p>
+  <p class="lead">Acesso a todas as aulas pagas por 12 meses. Liberação automática assim que o pagamento for confirmado.</p>
+
+  <!-- Optional coupon -->
+  <div id="couponBox" class="card" style="margin-bottom:1.5rem;">
+    <label for="coupon" class="muted">Tem um cupom de desconto?</label>
+    <div style="display:flex; gap:.5rem; margin-top:.4rem;">
+      <input id="coupon" type="text" autocapitalize="characters" autocomplete="off"
+             placeholder="CUPOM" style="flex:1; padding:.6rem; border:1px solid var(--line); border-radius:8px; font:inherit; text-transform:uppercase;">
+      <button id="applyCoupon" type="button" style="width:auto;">Aplicar</button>
+    </div>
+    <p id="couponMsg" class="muted" style="margin:.5rem 0 0;" hidden></p>
+  </div>
+
+  <!-- Step 1: choose a payment method -->
+  <div id="choose" class="methods">
+    <button id="pickPix" class="primary" type="button">
+      Pagar com PIX <span class="tag">liberação imediata</span>
+    </button>
+    <a id="pickCard" href="/card/new" role="button">
+      Cartão de crédito <span class="tag">até 12x</span>
+    </a>
+  </div>
+
+  <!-- Step 2: PIX -->
+  <div id="loading" class="card" hidden><p>Gerando seu PIX…</p></div>
+
+  <div id="pix" class="card" hidden>
+    <p>Escaneie o QR Code com o app do seu banco:</p>
+    <img id="qr" class="qr" alt="QR Code PIX" width="240" height="240">
+    <p>Ou use o PIX copia e cola:</p>
+    <textarea id="brcode" rows="3" readonly></textarea>
+    <p><button id="copy" type="button">Copiar código</button></p>
+    <p id="status" class="muted">Aguardando pagamento…</p>
+  </div>
+
+  <div id="paid" class="card" hidden>
+    <h2>✅ Pagamento confirmado!</h2>
+    <p>Seu acesso foi liberado. <a href="/protected/">Ir para as aulas</a></p>
+  </div>
+
+  <div id="error" class="card" hidden>
+    <p>Não foi possível gerar o PIX agora. <a href="/comprar">Tentar de novo</a></p>
+  </div>
+  </main>
+
+  <script>
+    let chargeId = null;
+
+    const show = (id) => document.getElementById(id).hidden = false;
+    const hide = (id) => document.getElementById(id).hidden = true;
+
+    let appliedCoupon = '';
+
+    const couponInput = document.getElementById('coupon');
+    const couponMsg = document.getElementById('couponMsg');
+
+    function setCouponMsg(text, okState) {
+      couponMsg.textContent = text;
+      couponMsg.hidden = !text;
+      couponMsg.style.color = okState ? '#1a7f37' : (okState === false ? '#cf222e' : '');
+    }
+
+    // If the server bounced an invalid coupon back here, tell the buyer.
+    if (new URLSearchParams(location.search).get('cupom') === 'invalido') {
+      setCouponMsg('Cupom inválido ou esgotado.', false);
+    }
+
+    document.getElementById('applyCoupon').addEventListener('click', async function () {
+      const code = couponInput.value.trim().toUpperCase();
+      if (!code) { appliedCoupon = ''; setCouponMsg('', null); return; }
+      setCouponMsg('Verificando…', null);
+      try {
+        const r = await fetch('/coupon/check?code=' + encodeURIComponent(code));
+        const d = await r.json();
+        if (d.valid) {
+          appliedCoupon = code;
+          setCouponMsg('Cupom aplicado ✓ — o desconto aparece no checkout.', true);
+        } else {
+          appliedCoupon = '';
+          setCouponMsg('Cupom inválido ou esgotado.', false);
+        }
+      } catch (e) {
+        appliedCoupon = '';
+        setCouponMsg('Não foi possível verificar o cupom agora.', false);
+      }
+    });
+
+    // With a coupon, both methods go through the hosted checkout (AbacatePay
+    // applies the discount there). Without one, keep the inline PIX / card flow.
+    document.getElementById('pickPix').addEventListener('click', function () {
+      if (appliedCoupon) { location.href = '/checkout/new?coupon=' + encodeURIComponent(appliedCoupon); return; }
+      startPix();
+    });
+    document.getElementById('pickCard').addEventListener('click', function (e) {
+      if (appliedCoupon) { e.preventDefault(); location.href = '/checkout/new?coupon=' + encodeURIComponent(appliedCoupon); }
+    });
+
+    async function startPix() {
+      hide('choose');
+      show('loading');
+      try {
+        const r = await fetch('/pix/new');
+        if (!r.ok) throw new Error('pix/new ' + r.status);
+        const d = await r.json();
+        chargeId = d.id;
+        document.getElementById('qr').src = d.brCodeBase64;
+        document.getElementById('brcode').value = d.brCode;
+        hide('loading');
+        show('pix');
+        poll();
+      } catch (e) {
+        hide('loading');
+        show('error');
+      }
+    }
+
+    document.getElementById('copy').addEventListener('click', function () {
+      const t = document.getElementById('brcode');
+      t.select();
+      navigator.clipboard && navigator.clipboard.writeText(t.value);
+    });
+
+    async function poll() {
+      try {
+        const r = await fetch('/pix/status?id=' + encodeURIComponent(chargeId));
+        const d = await r.json();
+        if (d.status === 'PAID' || d.status === 'APPROVED') {
+          hide('pix');
+          show('paid');
+          setTimeout(function () { location.href = '/protected/'; }, 1500);
+          return;
+        }
+        if (d.status === 'EXPIRED' || d.status === 'CANCELLED' || d.status === 'FAILED') {
+          document.getElementById('status').textContent =
+            'PIX expirado. Recarregue a página para gerar outro.';
+          return;
+        }
+      } catch (e) { /* keep polling */ }
+      setTimeout(poll, 4000);
+    }
+  </script>
+</body>
+</html>

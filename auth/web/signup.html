@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Criar conta — Navy Lily</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+    body { font-family: serif; margin: 0; }
+    header.site {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      padding: .75rem 1rem; border-bottom: 1px solid #ddd;
+    }
+    header.site .brand {
+      font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
+    }
+    header.site .btn {
+      font: inherit; text-decoration: none; color: inherit;
+      border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
+    }
+    main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
+  </style>
+</head>
+<body>
+  <header class="site">
+    <a class="brand" href="/lessons.html">Navy Lily Works</a>
+    <a class="btn" href="/comprar">Navy</a>
+    <a class="btn" href="/login">Profile</a>
+  </header>
+  <main>
+  <form method="POST" action="/auth/signup">
+    <h1>Criar conta na Navy Lily</h1>
+    <p id="erro" style="color:#b00;" hidden></p>
+    <p>
+      <label for="email">E-mail</label><br>
+      <input id="email" name="email" type="email" required placeholder="voce@email.com" autofocus>
+    </p>
+    <p>
+      <label for="password">Senha</label><br>
+      <input id="password" name="password" type="password" required minlength="8" maxlength="72" placeholder="8 a 72 caracteres">
+    </p>
+    <p>
+      <label for="confirm">Confirmar senha</label><br>
+      <input id="confirm" name="confirm" type="password" required minlength="8" maxlength="72" placeholder="repita a senha">
+    </p>
+    <input id="next" name="next" type="hidden">
+    <button type="submit">Criar conta</button>
+    <p>Enviaremos um e-mail para confirmar seu endereço antes do primeiro acesso.</p>
+    <p>Já tem conta? <a id="login" href="/login">Entrar</a>.</p>
+  </form>
+  </main>
+  <script>
+    (function () {
+      const params = new URLSearchParams(location.search);
+      const erro = params.get('erro');
+      if (erro) {
+        const el = document.getElementById('erro');
+        el.textContent =
+          erro === 'email' ? 'Digite um e-mail válido.' :
+          erro === 'senha' ? 'As senhas devem ter entre 8 e 72 caracteres e ser iguais.' :
+          'Não foi possível criar a conta. O e-mail pode já estar em uso.';
+        el.hidden = false;
+      }
+      const next = params.get('next') || '';
+      if (next.startsWith('/') && !next.startsWith('//')) {
+        document.getElementById('next').value = next;
+        document.getElementById('login').href = '/login?next=' + encodeURIComponent(next);
+      }
+    })();
+  </script>
+</body>
+</html>

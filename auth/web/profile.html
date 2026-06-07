@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Perfil — Navy Lily</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+    body { font-family: serif; margin: 0; }
+    header.site {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      padding: .75rem 1rem; border-bottom: 1px solid #ddd;
+    }
+    header.site .brand {
+      font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
+    }
+    header.site .btn {
+      font: inherit; text-decoration: none; color: inherit;
+      border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
+    }
+    main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
+  </style>
+</head>
+<body>
+  <header class="site">
+    <a class="brand" href="/lessons.html">Navy Lily Works</a>
+    <a class="btn" href="/comprar">Navy</a>
+    <a class="btn" href="/login">Profile</a>
+  </header>
+  <main>
+  <h1>Minha conta</h1>
+  <p id="loading">Carregando…</p>
+  <div id="profile" hidden>
+    <p><strong>E-mail:</strong> <span id="email"></span></p>
+    <p><strong>Assinatura:</strong> <span id="member"></span></p>
+    <p id="lessons-link" hidden><a href="/protected/">Ir para as aulas pagas →</a></p>
+    <p id="buy-link" hidden><a href="/comprar">Assinar a Navy (R$ 197/ano) →</a></p>
+    <p><a href="/auth/logout">Sair</a></p>
+  </div>
+  </main>
+  <script>
+    // Profile is gated client-side off /me (which reads the session cookie).
+    // Not logged in -> bounce to the login form, preserving the intent to
+    // return here. Logged in -> show e-mail + membership and the right CTA.
+    (function () {
+      fetch('/me', { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.logged_in) {
+            location.replace('/login?next=' + encodeURIComponent('/profile'));
+            return;
+          }
+          document.getElementById('email').textContent = d.email || '';
+          document.getElementById('member').textContent = d.member ? 'Ativa' : 'Inativa';
+          document.getElementById(d.member ? 'lessons-link' : 'buy-link').hidden = false;
+          document.getElementById('loading').hidden = true;
+          document.getElementById('profile').hidden = false;
+        })
+        .catch(function () {
+          document.getElementById('loading').textContent =
+            'Não foi possível carregar sua conta. ';
+          var a = document.createElement('a');
+          a.href = '/login'; a.textContent = 'Entrar';
+          document.getElementById('loading').appendChild(a);
+        });
+    })();
+  </script>
+</body>
+</html>

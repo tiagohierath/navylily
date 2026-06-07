@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrando… — Navy Lily</title>
+  <style>
+    body { font-family: serif; }
+  </style>
+</head>
+<body>
+  <p id="msg">Entrando…</p>
+  <script>
+    // Link-based flows (email confirmation, the post-purchase login link,
+    // password recovery) put a token in the URL fragment (#access_token=...),
+    // which never reaches the server. Read it here.
+    //   - recovery: forward the fragment to /reset so the user sets a new password.
+    //   - everything else: hand the access_token to the backend, which mints our
+    //     own session cookie, then continue.
+    (async function () {
+      const msg = document.getElementById('msg');
+      const params = new URLSearchParams(location.hash.slice(1));
+      const token = params.get('access_token');
+      const type = params.get('type');
+      const err = params.get('error_description') || params.get('error');
+      if (err) { msg.innerHTML = 'Falha ao entrar: ' + err + '<br><a href="/login">Tentar novamente</a>'; return; }
+      if (!token) { msg.innerHTML = 'Link inválido ou expirado.<br><a href="/login">Pedir novo link</a>'; return; }
+      if (type === 'recovery') {
+        // Carry the fragment (with the recovery token) over to the reset page.
+        location.replace('/reset' + location.hash);
+        return;
+      }
+      try {
+        const res = await fetch('/auth/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ access_token: token })
+        });
+        if (!res.ok) throw new Error('session');
+        // Go to the page they originally wanted, or the first paid lesson.
+        const next = new URLSearchParams(location.search).get('next') || '/protected/';
+        location.replace(next);
+      } catch (e) {
+        msg.innerHTML = 'Não foi possível concluir o login.<br><a href="/login">Tentar novamente</a>';
+      }
+    })();
+  </script>
+</body>
+</html>

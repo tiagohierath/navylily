@@ -1,0 +1,53 @@
+# Secrets — never commit these
+.env
+.env.*
+!.env.example
+
+# Databases / runtime state
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Built binaries
+auth/navylily-auth
+auth/auth
+go/main
+*.exe
+*.out
+*.test
+
+# Customer PII — NEVER commit (names, emails, CPF/CNPJ, addresses)
+gift.csv
+auth/gift-members.txt
+
+# Leaked/rotated secret notes
+apiresend.md
+
+# Supabase CLI local state
+supabase/.temp/
+
+# Vendored external skills repo (own .git, machine-specific symlink)
+skills/
+
+# Obsidian vault config
+.obsidian/
+content/.obsidian/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# --- Open-core: paid lessons are private (kept in the navylily-paid repo) ---
+# Everything under content/paid and protected is ignored except the SAMPLE
+# placeholders, so the app builds/runs without shipping any paid content.
+/content/paid/*
+!/content/paid/SAMPLE.md
+/protected/*
+!/protected/SAMPLE.html

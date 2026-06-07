@@ -1,0 +1,6 @@
+project_id = "navylily"
+
+# NOTE: auth settings (site URL, redirect URLs, signup/confirm, SMTP) are managed
+# in the Supabase dashboard for this project — intentionally NOT in this file.
+# Do not add an [auth] block here: `supabase config push` is one-directional and
+# would overwrite the dashboard settings with whatever is written here.

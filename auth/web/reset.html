@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nova senha — Navy Lily</title>
+  <style>
+    body { font-family: serif; }
+  </style>
+</head>
+<body>
+  <h1>Definir nova senha</h1>
+  <p id="msg" hidden></p>
+  <form id="form">
+    <p>
+      <label for="password">Nova senha</label><br>
+      <input id="password" type="password" required minlength="8" maxlength="72" placeholder="8 a 72 caracteres" autofocus>
+    </p>
+    <p>
+      <label for="confirm">Confirmar senha</label><br>
+      <input id="confirm" type="password" required minlength="8" maxlength="72" placeholder="repita a senha">
+    </p>
+    <button type="submit">Salvar nova senha</button>
+  </form>
+  <script>
+    // The recovery link lands on /auth/callback, which forwards the URL fragment
+    // (#access_token=...&type=recovery) here. Read the token from the fragment —
+    // it never reaches the server on its own — and post it with the new password.
+    (function () {
+      const msg = document.getElementById('msg');
+      const form = document.getElementById('form');
+      const params = new URLSearchParams(location.hash.slice(1));
+      const token = params.get('access_token');
+      const err = params.get('error_description') || params.get('error');
+
+      function fail(text) {
+        msg.innerHTML = text + '<br><a href="/forgot">Pedir novo link</a>';
+        msg.hidden = false;
+        form.hidden = true;
+      }
+      if (err) { fail('Falha: ' + err); return; }
+      if (!token) { fail('Link inválido ou expirado.'); return; }
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const password = document.getElementById('password').value;
+        const confirm = document.getElementById('confirm').value;
+        if (password.length < 8 || password !== confirm) {
+          msg.textContent = 'As senhas devem ter ao menos 8 caracteres e ser iguais.';
+          msg.hidden = false;
+          return;
+        }
+        try {
+          const res = await fetch('/auth/reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ access_token: token, password: password })
+          });
+          if (!res.ok) throw new Error('reset');
+          location.replace('/protected/');
+        } catch (e) {
+          msg.textContent = 'Não foi possível alterar a senha. Tente um novo link.';
+          msg.hidden = false;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

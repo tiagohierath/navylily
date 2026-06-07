@@ -1,0 +1,27 @@
+# Cloudflare Tunnel for Navy Lily (systemd unit).
+#
+# Runs as user `tiago` so it can read the credentials in ~/.cloudflared/ that
+# `cloudflared tunnel login/create` wrote there. (Do NOT use `cloudflared
+# service install` here — that installs a ROOT service reading
+# /etc/cloudflared/config.yml, which can't see /home/tiago/.cloudflared and
+# fails with "credentials file not found".)
+#
+# Install (after ~/.cloudflared/config.yml is filled in — see DEPLOY.md):
+#   sudo cp auth/deploy/cloudflared.service /etc/systemd/system/cloudflared.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now cloudflared
+#   journalctl -u cloudflared -f
+
+[Unit]
+Description=Cloudflare Tunnel for Navy Lily
+After=network-online.target navylily.service
+Wants=network-online.target
+
+[Service]
+User=tiago
+ExecStart=/usr/local/bin/cloudflared tunnel --no-autoupdate --config /home/tiago/.cloudflared/config.yml run
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aulas — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+    body { font-family: serif; margin: 0; }
+    header.site {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      padding: .75rem 1rem; border-bottom: 1px solid #ddd;
+    }
+    header.site .brand {
+      font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
+    }
+    header.site form { display: flex; gap: .25rem; }
+    header.site input[name=q] { font: inherit; padding: .25rem .5rem; }
+    header.site .btn {
+      font: inherit; text-decoration: none; color: inherit;
+      border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
+    }
+    main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
+  </style>
+</head>
+<body>
+  <header class="site">
+    <a class="brand" href="/lessons.html">Navy Lily Works</a>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit">Buscar</button>
+    </form>
+    <a class="btn" href="/comprar">Navy</a>
+    <a class="btn" href="/login">Profile</a>
+  </header>
+  <main>
+    <h1 id="aulas">Aulas</h1>
+    <h2 id="aulas-gratuitas">Aulas gratuitas</h2>
+    <ul>
+    <li><a href="/001.html">Bem vindo!</a></li>
+    <li><a href="/002.html">Bem vindo ao curso de desenho de
+    imaginação.</a></li>
+    <li><a href="/003.html">Idiomas</a></li>
+    <li><a href="/004.html">Desenho é não-linear</a></li>
+    <li><a href="/005.html">teste.</a></li>
+    <li><a href="/006.html">Como fazer perguntas</a></li>
+    <li><a href="/007.html">Começar do zero &gt; consertar</a></li>
+    <li><a href="/008.html">Não existem soluções, apenas trocas</a></li>
+    <li><a href="/009.html">teste</a></li>
+    </ul>
+    <h2 id="aulas-pagas">Aulas pagas</h2>
+    <ul>
+    <li><a href="/protected/001.html">Intuição</a></li>
+    </ul>
+  </main>
+  <script>
+    // Lessons index: prefill the header search box from ?q= and filter the
+    // lesson list live (by title text) without leaving the page.
+    (function () {
+      var box = document.querySelector('header.site input[name=q]');
+      var items = [].slice.call(document.querySelectorAll('main li'));
+      function apply(q) {
+        q = q.trim().toLowerCase();
+        items.forEach(function (li) {
+          li.style.display = (!q || li.textContent.toLowerCase().indexOf(q) >= 0) ? '' : 'none';
+        });
+      }
+      var q0 = new URLSearchParams(location.search).get('q') || '';
+      if (box) box.value = q0;
+      apply(q0);
+      if (box) {
+        box.addEventListener('input', function () { apply(box.value); });
+        if (box.form) box.form.addEventListener('submit', function (e) { e.preventDefault(); apply(box.value); });
+      }
+    })();
+  </script>
+  <script src="/join.js"></script>
+</body>
+</html>

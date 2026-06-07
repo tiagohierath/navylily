@@ -1,0 +1,31 @@
+# Cloudflare Tunnel config for Navy Lily.
+#
+# This is a TEMPLATE. Copy it to ~/.cloudflared/config.yml and fill in <UUID>:
+#
+#   mkdir -p ~/.cloudflared
+#   cp auth/deploy/cloudflared/config.yml ~/.cloudflared/config.yml
+#   # then edit ~/.cloudflared/config.yml and replace <UUID> in both places
+#
+# Where <UUID> comes from (run these once, see auth/deploy/DEPLOY.md):
+#   cloudflared tunnel login                 # browser auth -> ~/.cloudflared/cert.pem
+#   cloudflared tunnel create navylily       # prints the tunnel <UUID> + writes
+#                                            # ~/.cloudflared/<UUID>.json (credentials)
+#   cloudflared tunnel route dns navylily tiagohierath.com
+#
+# The tunnel dials OUT to Cloudflare, so no router port-forwarding is needed and
+# no inbound port is exposed on this machine. Public HTTPS terminates at the
+# Cloudflare edge; cloudflared forwards plaintext to the local Go server.
+
+tunnel: <UUID>
+credentials-file: /home/tiago/.cloudflared/<UUID>.json
+
+ingress:
+  # Public hostname -> the local Navy Lily server (PORT=8090).
+  - hostname: tiagohierath.com
+    service: http://localhost:8090
+  # Optional: also serve the www. host. Add the DNS route for it too:
+  #   cloudflared tunnel route dns navylily www.tiagohierath.com
+  # - hostname: www.tiagohierath.com
+  #   service: http://localhost:8090
+  # Catch-all: anything not matched above gets a 404 (required last rule).
+  - service: http_status:404
