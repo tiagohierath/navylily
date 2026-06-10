@@ -19,51 +19,300 @@
       border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
     }
     main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
+    /* The big square avatar on the profile itself. */
+    .avatar {
+      width: 128px; height: 128px; border-radius: 8px; overflow: hidden;
+      border: 1px solid #ccc; box-sizing: border-box; background: #eee;
+      display: inline-flex; align-items: center; justify-content: center;
+      font: 600 56px serif; color: #333;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .row { margin: 1rem 0; }
+    .hint { color: #666; font-size: .9rem; }
+    .err { color: #b00; font-size: .9rem; }
+    .ok { color: #070; font-size: .9rem; }
+    textarea { font: inherit; width: 100%; box-sizing: border-box; }
+    input[type=text] { font: inherit; padding: .25rem .4rem; }
+    button { font: inherit; }
+    .edit { font-size: .85rem; margin-left: .4rem; }
+    .cancel { margin-left: .25rem; }
+    .at { color: #666; }
+    .bio { white-space: pre-wrap; margin: .35rem 0; }
+    #email { font-size: .9rem; color: #555; }
+    /* Phone: let the forms breathe and stop the file picker / username field
+       from overflowing the screen and forcing a horizontal scroll. */
+    @media (max-width: 480px) {
+      main { padding: 1rem .75rem; }
+      header.site { gap: .5rem; }
+      .avatar { width: 96px; height: 96px; font-size: 42px; }
+      .row form > * { margin-bottom: .4rem; }
+      input[type=file], input[type=text] { max-width: 100%; }
+      input[type=text] { width: 100%; }
+      #username-form button, #bio-form button, #avatar-form button { display: block; }
+    }
   </style>
 </head>
 <body>
   <header class="site">
-    <a class="brand" href="/lessons.html">Navy Lily Works</a>
+    <a class="brand" href="/"><img src="/logo.png?v=2" alt="Navy Lily Works" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community">Comunidade</a>
     <a class="btn" href="/comprar">Navy</a>
-    <a class="btn" href="/login">Profile</a>
+    <a class="btn" href="/login">Perfil</a>
   </header>
   <main>
-  <h1>Minha conta</h1>
   <p id="loading">Carregando…</p>
+
   <div id="profile" hidden>
-    <p><strong>E-mail:</strong> <span id="email"></span></p>
+    <h1 id="display-name"></h1>
+    <p id="public-link" class="hint" hidden></p>
+
+    <!-- Avatar: free to change whenever. -->
+    <div class="row">
+      <div class="avatar" id="avatar"></div>
+      <form id="avatar-form" class="row">
+        <input type="file" name="avatar" id="avatar-file" accept="image/*" required
+               aria-label="Escolher foto de perfil">
+        <button type="submit">Enviar foto</button>
+        <span id="avatar-msg"></span>
+        <div class="hint">Vira um quadrado pequeno (128px). PNG, JPEG ou GIF.</div>
+      </form>
+    </div>
+
+    <!-- Username: shown as plain text; the input only appears on "editar".
+         First pick free, then a limited number of changes for life. -->
+    <div class="row">
+      <strong>Nome de usuário:</strong>
+      <span id="username-view"></span>
+      <a href="#" id="username-edit" class="edit">editar</a>
+      <form id="username-form" hidden>
+        <span class="at">@</span><input type="text" name="username" id="username-input"
+               minlength="3" maxlength="20" pattern="[a-z0-9_]+" required
+               autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"
+               aria-label="Nome de usuário" style="text-transform: lowercase">
+        <button type="submit">Salvar</button>
+        <button type="button" class="cancel" id="username-cancel">Cancelar</button>
+      </form>
+      <div class="hint" id="username-hint"></div>
+      <span id="username-msg"></span>
+    </div>
+
+    <!-- Bio: shown as plain text; the textarea only appears on "editar". -->
+    <div class="row">
+      <strong>Bio:</strong>
+      <a href="#" id="bio-edit" class="edit">editar</a>
+      <p class="bio" id="bio-view"></p>
+      <form id="bio-form" hidden>
+        <span class="hint" id="bio-count"></span>
+        <textarea name="bio" id="bio-input" rows="4" maxlength="1000" aria-label="Bio"></textarea><br>
+        <button type="submit">Salvar</button>
+        <button type="button" class="cancel" id="bio-cancel">Cancelar</button>
+      </form>
+      <span id="bio-msg"></span>
+    </div>
+
+    <hr>
+    <p class="hint"><strong>E-mail:</strong> <span id="email"></span></p>
     <p><strong>Assinatura:</strong> <span id="member"></span></p>
     <p id="lessons-link" hidden><a href="/protected/">Ir para as aulas pagas →</a></p>
     <p id="buy-link" hidden><a href="/comprar">Assinar a Navy (R$ 197/ano) →</a></p>
     <p><a href="/auth/logout">Sair</a></p>
   </div>
   </main>
+
+  <script src="/header.js" defer></script>
   <script>
-    // Profile is gated client-side off /me (which reads the session cookie).
-    // Not logged in -> bounce to the login form, preserving the intent to
-    // return here. Logged in -> show e-mail + membership and the right CTA.
-    (function () {
-      fetch('/me', { headers: { 'Accept': 'application/json' } })
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
-          if (!d || !d.logged_in) {
-            location.replace('/login?next=' + encodeURIComponent('/profile'));
-            return;
-          }
-          document.getElementById('email').textContent = d.email || '';
-          document.getElementById('member').textContent = d.member ? 'Ativa' : 'Inativa';
-          document.getElementById(d.member ? 'lessons-link' : 'buy-link').hidden = false;
-          document.getElementById('loading').hidden = true;
-          document.getElementById('profile').hidden = false;
+  (function () {
+    var MAX_CHARS = 1000;
+    // Last values loaded from the server, so "Cancelar" can restore the field
+    // instead of leaving the half-typed edit behind for the next open.
+    var curUsername = '', curBio = '';
+
+    function el(id) { return document.getElementById(id); }
+    function initialFor(d) { return ((d.username || d.email || '?').charAt(0)).toUpperCase(); }
+
+    function renderAvatar(d) {
+      var box = el('avatar');
+      box.textContent = '';
+      if (d.has_avatar) {
+        var img = document.createElement('img');
+        img.src = '/avatar/me?v=' + (d.avatar_ver || Date.now());
+        img.alt = 'Foto de perfil';
+        // If the stored picture 404s (e.g. cleared on disk) fall back to the
+        // initial instead of showing a broken-image icon.
+        img.onerror = function () { box.textContent = initialFor(d); };
+        box.appendChild(img);
+      } else {
+        box.textContent = initialFor(d);
+      }
+    }
+
+    function renderUsernameHint(d) {
+      var h = el('username-hint');
+      if (!d.username_set) {
+        h.textContent = 'Escolha seu nome de usuário (3–20 caracteres: a–z, 0–9, _). ' +
+          'Você poderá alterá-lo depois até ' + (d.edits_left) + ' vezes.';
+      } else if (d.edits_left > 0) {
+        h.textContent = 'Você ainda pode alterar seu nome de usuário ' + d.edits_left + ' vez(es).';
+      } else {
+        h.textContent = 'Você atingiu o limite de alterações do nome de usuário.';
+        el('username-edit').hidden = true; // no edits left -> no way to open the form
+      }
+    }
+
+    // Toggle a section between its plain-text view and its edit form.
+    function setUsernameEdit(on, focus) {
+      el('username-form').hidden = !on;
+      el('username-view').hidden = on;
+      el('username-edit').hidden = on;
+      if (on && focus !== false) el('username-input').focus();
+    }
+    function setBioEdit(on, focus) {
+      el('bio-form').hidden = !on;
+      el('bio-view').hidden = on;
+      el('bio-edit').hidden = on;
+      if (on && focus !== false) el('bio-input').focus();
+    }
+
+    function renderBioCount() {
+      var n = el('bio-input').value.trim().length;
+      var c = el('bio-count');
+      c.textContent = n + '/' + MAX_CHARS + ' caracteres';
+      c.className = n > MAX_CHARS ? 'err' : 'hint';
+    }
+
+    function fill(d) {
+      curUsername = d.username || '';
+      curBio = d.bio || '';
+      el('display-name').textContent = d.username ? '@' + d.username : 'Sem nome de usuário';
+      el('username-view').textContent = d.username ? '@' + d.username : '(não definido)';
+      el('username-edit').textContent = d.username ? 'editar' : 'escolher';
+      el('bio-view').textContent = d.bio || '(sem bio)';
+      el('email').textContent = d.email || '';
+      var until = d.member_until ? new Date(d.member_until).toLocaleDateString('pt-BR') : '';
+      el('member').textContent = d.member
+        ? 'Ativa' + (until ? ' — acesso até ' + until : '')
+        : (until ? 'Inativa — expirou em ' + until : 'Inativa');
+      el(d.member ? 'lessons-link' : 'buy-link').hidden = false;
+      el('username-input').value = curUsername;
+      el('bio-input').value = curBio;
+      // Public vanity link, once a username exists.
+      var pl = el('public-link');
+      if (d.username) {
+        pl.textContent = 'Seu perfil público: ';
+        var a = document.createElement('a');
+        a.href = '/@' + d.username;
+        a.textContent = location.origin + '/@' + d.username;
+        pl.appendChild(a);
+        pl.hidden = false;
+      } else {
+        pl.textContent = '';
+        pl.hidden = true;
+      }
+      renderAvatar(d);
+      // Collapse forms back to plain text after a reload. A brand-new account with
+      // no username yet gets the picker opened up front (without grabbing focus, so
+      // a phone keyboard doesn't pop on load) so the first thing to do is obvious.
+      setUsernameEdit(!d.username_set, false);
+      setBioEdit(false);
+      renderUsernameHint(d);
+      renderBioCount();
+      el('loading').hidden = true;
+      el('profile').hidden = false;
+    }
+
+    function load() {
+      return fetch('/api/profile', { headers: { Accept: 'application/json' } })
+        .then(function (r) {
+          if (r.status === 401) { location.replace('/login?next=' + encodeURIComponent('/profile')); return null; }
+          if (!r.ok) throw new Error('load');
+          return r.json();
         })
-        .catch(function () {
-          document.getElementById('loading').textContent =
-            'Não foi possível carregar sua conta. ';
-          var a = document.createElement('a');
-          a.href = '/login'; a.textContent = 'Entrar';
-          document.getElementById('loading').appendChild(a);
-        });
-    })();
+        .then(function (d) { if (d) fill(d); });
+    }
+
+    // POST a form body to url; on success reload the profile, else show msg.
+    function submit(url, body, msgEl, okText) {
+      msgEl.textContent = '…'; msgEl.className = 'hint';
+      return fetch(url, { method: 'POST', body: body })
+        .then(function (r) {
+          if (r.ok) {
+            return load().then(function () { msgEl.textContent = okText; msgEl.className = 'ok'; });
+          }
+          return r.text().then(function (t) { msgEl.textContent = t || 'Erro.'; msgEl.className = 'err'; });
+        })
+        .catch(function () { msgEl.textContent = 'Erro de conexão.'; msgEl.className = 'err'; });
+    }
+
+    el('bio-input').addEventListener('input', renderBioCount);
+
+    // Keep the username field in its stored shape (lowercase a-z, 0-9, _) as the
+    // user types, so the native pattern check can't block submit with a cryptic
+    // "match the requested format" popup over a stray capital or space.
+    el('username-input').addEventListener('input', function () {
+      var v = this.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+      if (v !== this.value) this.value = v;
+    });
+
+    el('username-edit').addEventListener('click', function (e) { e.preventDefault(); setUsernameEdit(true); });
+    el('username-cancel').addEventListener('click', function () {
+      el('username-msg').textContent = '';
+      el('username-input').value = curUsername; // discard unsaved edits
+      setUsernameEdit(false);
+    });
+    el('bio-edit').addEventListener('click', function (e) { e.preventDefault(); setBioEdit(true); });
+    el('bio-cancel').addEventListener('click', function () {
+      el('bio-msg').textContent = '';
+      el('bio-input').value = curBio; // discard unsaved edits
+      renderBioCount();
+      setBioEdit(false);
+    });
+
+    // Preview a freshly chosen avatar locally before it's uploaded, so the user
+    // sees what they picked (cropped square, like the server will store it).
+    el('avatar-file').addEventListener('change', function () {
+      var f = this.files[0];
+      if (!f) return;
+      var url = URL.createObjectURL(f);
+      var box = el('avatar');
+      box.textContent = '';
+      var img = document.createElement('img');
+      img.src = url;
+      img.alt = 'Pré-visualização';
+      img.onload = function () { URL.revokeObjectURL(url); };
+      box.appendChild(img);
+      el('avatar-msg').textContent = 'Pré-visualização — clique em "Enviar foto" para salvar.';
+      el('avatar-msg').className = 'hint';
+    });
+
+    el('username-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var b = new FormData(); b.append('username', el('username-input').value.trim().toLowerCase());
+      submit('/api/profile/username', b, el('username-msg'), 'Salvo!');
+    });
+
+    el('bio-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (el('bio-input').value.trim().length > MAX_CHARS) {
+        el('bio-msg').textContent = 'Máximo de ' + MAX_CHARS + ' caracteres.'; el('bio-msg').className = 'err'; return;
+      }
+      var b = new FormData(); b.append('bio', el('bio-input').value);
+      submit('/api/profile/bio', b, el('bio-msg'), 'Salvo!');
+    });
+
+    el('avatar-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var f = el('avatar-file').files[0];
+      if (!f) { el('avatar-msg').textContent = 'Escolha um arquivo.'; el('avatar-msg').className = 'err'; return; }
+      var b = new FormData(); b.append('avatar', f);
+      submit('/api/avatar', b, el('avatar-msg'), 'Foto atualizada!');
+    });
+
+    load().catch(function () {
+      el('loading').textContent = 'Não foi possível carregar sua conta. ';
+      var a = document.createElement('a'); a.href = '/login'; a.textContent = 'Entrar';
+      el('loading').appendChild(a);
+    });
+  })();
   </script>
 </body>
 </html>

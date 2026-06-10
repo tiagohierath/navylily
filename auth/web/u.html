@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Perfil — Navy Lily</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+    body { font-family: serif; margin: 0; }
+    header.site {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      padding: .75rem 1rem; border-bottom: 1px solid #ddd;
+    }
+    header.site .brand {
+      font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
+    }
+    header.site .btn {
+      font: inherit; text-decoration: none; color: inherit;
+      border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
+    }
+    main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
+    .avatar {
+      width: 128px; height: 128px; border-radius: 8px; overflow: hidden;
+      border: 1px solid #ccc; box-sizing: border-box; background: #eee;
+      display: inline-flex; align-items: center; justify-content: center;
+      font: 600 56px serif; color: #333;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    h1 { margin: .75rem 0 .25rem; }
+    .bio { white-space: pre-wrap; margin: 1rem 0; }
+    .hint { color: #666; font-size: .9rem; }
+
+    /* Contribution-style heatmap of completed lessons. No custom fonts: it
+       inherits the page's serif. */
+    .heatmap { display: flex; align-items: center; gap: 1rem; margin: 1.25rem 0; }
+    .heatmap .stat { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .heatmap .num { font-size: 40px; line-height: 1; color: #111; }
+    .heatmap .label { font-size: 10px; color: #888; margin-top: 5px; letter-spacing: 0.04em; }
+    .heatmap .divider { align-self: stretch; width: 1px; background: #e0e0e0; }
+    .heatmap .grid { overflow: visible; }
+    /* 12 rolling months, one chunky vertical block each (~3:7 tall rectangle).
+       The rightmost block is the current month and always sits at the edge. */
+    .heatmap .months { display: flex; gap: 5px; align-items: flex-end; }
+    .heatmap .month { width: 18px; height: 42px; border-radius: 5px; background: #EBEBEB; flex-shrink: 0; }
+    .heatmap .l1 { background: #B8C9E8; }
+    .heatmap .l2 { background: #7A9FD4; }
+    .heatmap .l3 { background: #3A6EB5; }
+    .heatmap .l4 { background: #1A3F7A; }
+    .heatmap .today { text-align: right; font-size: 10px; color: #888; margin-top: 5px; }
+    @media (max-width: 480px) {
+      main { padding: 1rem .75rem; }
+      .avatar { width: 96px; height: 96px; font-size: 42px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site">
+    <a class="brand" href="/"><img src="/logo.png?v=2" alt="Navy Lily Works" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community">Comunidade</a>
+    <a class="btn" href="/comprar">Navy</a>
+    <a class="btn" href="/login">Perfil</a>
+  </header>
+  <main>
+    <p id="loading">Carregando…</p>
+
+    <div id="profile" hidden>
+      <div class="avatar" id="avatar"></div>
+      <h1 id="display-name"></h1>
+      <p id="member" class="hint" hidden>Membro Navy</p>
+      <p class="bio" id="bio"></p>
+
+      <!-- Heatmap of completed lessons. Lazy-loaded: the data is only fetched
+           once this scrolls into view (see lazyHeatmap below). -->
+      <div class="heatmap" id="heatmap" hidden>
+        <div class="stat">
+          <span class="num" id="hm-count">0</span>
+          <span class="label">Aulas<br>completadas</span>
+        </div>
+        <div class="divider"></div>
+        <div class="grid">
+          <div class="months" id="hm-months"></div>
+          <div class="today">Hoje</div>
+        </div>
+      </div>
+
+      <p id="owner-edit" hidden><a href="/profile">Editar perfil →</a></p>
+    </div>
+
+    <p id="notfound" hidden>Usuário não encontrado.</p>
+  </main>
+
+  <script src="/header.js" defer></script>
+  <script>
+  (function () {
+    function el(id) { return document.getElementById(id); }
+
+    // /@username -> "username". Decode in case of legacy encoding; lowercase it.
+    var name = decodeURIComponent(location.pathname.replace(/^\/@/, '')).trim().toLowerCase();
+
+    function renderAvatar(d) {
+      var box = el('avatar');
+      box.textContent = '';
+      var initial = (d.username.charAt(0)).toUpperCase();
+      if (d.has_avatar) {
+        var img = document.createElement('img');
+        img.src = '/avatar/u/' + encodeURIComponent(d.username) + '?v=' + (d.avatar_ver || 0);
+        img.alt = 'Foto de ' + d.username;
+        // Fall back to the initial if the picture 404s instead of showing a
+        // broken-image icon.
+        img.onerror = function () { box.textContent = initial; };
+        box.appendChild(img);
+      } else {
+        box.textContent = initial;
+      }
+    }
+
+    function show(d) {
+      el('display-name').textContent = '@' + d.username;
+      document.title = '@' + d.username + ' — Navy Lily';
+      renderAvatar(d);
+      el('member').hidden = !d.member;
+      el('bio').textContent = d.bio || '';
+      el('loading').hidden = true;
+      el('profile').hidden = false;
+      lazyHeatmap(d.username);
+      // Show an edit link only to the owner (compare against /me).
+      fetch('/me', { headers: { Accept: 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (m) {
+          if (m && m.logged_in && (m.username || '').toLowerCase() === d.username.toLowerCase()) {
+            el('owner-edit').hidden = false;
+          }
+        })
+        .catch(function () {});
+    }
+
+    function notFound() {
+      el('loading').hidden = true;
+      el('notfound').hidden = false;
+    }
+
+    var MONTH_NAMES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun',
+                       'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+
+    // Draw 12 rolling months, one chunky vertical block each, oldest on the left.
+    // The rightmost block is the current month (the "tip") and rolls forward with
+    // the calendar — it's relative to today, never a fixed Jan–Dec year. The API
+    // gives us sparse "YYYY-MM-DD" day counts, which we sum into months here.
+    function renderHeatmap(data) {
+      var box = el('hm-months');
+      box.textContent = '';
+      var today = new Date();
+
+      // The 12 months ending on (and including) the current month.
+      var months = [];
+      var index = {}; // "year-month" -> position in months[]
+      for (var i = 11; i >= 0; i--) {
+        var d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        index[d.getFullYear() + '-' + d.getMonth()] = months.length;
+        months.push({ year: d.getFullYear(), month: d.getMonth(), count: 0 });
+      }
+
+      // Fold each day's count into its month bucket (ignore days outside the window).
+      Object.keys(data).forEach(function (key) {
+        var p = key.split('-');
+        var pos = index[(+p[0]) + '-' + ((+p[1]) - 1)];
+        if (pos !== undefined) months[pos].count += data[key];
+      });
+
+      // Absolute shading: a flat 1-a-day-ish ladder where 30 completions in a
+      // month reaches the darkest blue, regardless of other months.
+      months.forEach(function (mo) {
+        var v = mo.count;
+        var cls = 'month';
+        if      (v >= 30) cls += ' l4';
+        else if (v >= 20) cls += ' l3';
+        else if (v >= 10) cls += ' l2';
+        else if (v >= 1)  cls += ' l1';
+        var block = document.createElement('div');
+        block.className = cls;
+        var n = v === 0 ? 'Nenhuma aula' : v === 1 ? '1 aula' : v + ' aulas';
+        block.title = n + ' em ' + MONTH_NAMES[mo.month] + '/' + mo.year;
+        box.appendChild(block);
+      });
+    }
+
+    // Fetch + render the heatmap only when it scrolls into view (lazy-load).
+    function lazyHeatmap(username) {
+      var box = el('heatmap');
+      var loaded = false;
+      function load() {
+        if (loaded) return;
+        loaded = true;
+        fetch('/api/heatmap?name=' + encodeURIComponent(username), { headers: { Accept: 'application/json' } })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            if (!d) return;
+            el('hm-count').textContent = d.total || 0;
+            renderHeatmap(d.days || {});
+            box.hidden = false;
+          })
+          .catch(function () {});
+      }
+      // Observe the bio (always visible, sits right above the heatmap) rather
+      // than the box itself — a display:none element never intersects.
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+          if (entries[0].isIntersecting) { io.disconnect(); load(); }
+        }, { rootMargin: '200px' });
+        io.observe(el('bio'));
+      } else {
+        load(); // no IO support -> just load it
+      }
+    }
+
+    if (!name) { notFound(); return; }
+
+    fetch('/api/u?name=' + encodeURIComponent(name), { headers: { Accept: 'application/json' } })
+      .then(function (r) {
+        if (r.status === 404) { notFound(); return null; }
+        if (!r.ok) throw new Error('load');
+        return r.json();
+      })
+      .then(function (d) { if (d) show(d); })
+      .catch(function () {
+        el('loading').textContent = 'Não foi possível carregar este perfil.';
+      });
+  })();
+  </script>
+</body>
+</html>

@@ -23,6 +23,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"image"
+	_ "image/gif" // register GIF decoder for image.Decode
+	"image/jpeg"  // avatars are stored as small JPEGs
+	_ "image/png" // register PNG decoder for image.Decode
 	"io"
 	"log"
 	"net/http"
@@ -33,6 +37,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 )
 
 // ---------------------------------------------------------------------------
@@ -54,6 +59,9 @@ type Config struct {
 	SiteURL          string // public URL of the site, for magic-link redirect
 	ProtectedDir     string // filesystem dir with paid lessons (gated, outside PublicDir)
 	PublicDir        string // filesystem dir with free lessons (served openly at /)
+	AvatarDir        string // filesystem dir where uploaded profile pictures are stored
+	PostImageDir     string // filesystem dir where forum post images are stored
+	OwnerEmail       string // forum owner; may delete any post/comment (empty = no owner powers)
 	SessionCookie    string
 	SessionTTLDays   int  // how long a login session lives before it must be re-created
 	Secure           bool // set Secure flag on cookie (true behind HTTPS)
@@ -107,6 +115,9 @@ func loadConfig() Config {
 		SiteURL:          strings.TrimRight(env("SITE_URL", "http://localhost:8090"), "/"),
 		ProtectedDir:     env("PROTECTED_DIR", "../protected"),
 		PublicDir:        env("PUBLIC_DIR", "../public"),
+		AvatarDir:        env("AVATAR_DIR", "data/avatars"),
+		PostImageDir:     env("POST_IMAGE_DIR", "data/posts"),
+		OwnerEmail:       strings.ToLower(strings.TrimSpace(env("OWNER_EMAIL", ""))),
 		SessionCookie:    "nl_session",
 		SessionTTLDays:   sessionTTLDays(),
 		Secure:           env("COOKIE_SECURE", "false") == "true",
@@ -201,6 +212,82 @@ func supabaseDo(method, path string, body any, headers map[string]string) (*http
 	return httpClient.Do(req)
 }
 
+// svcHeaders is the service-role auth pair every PostgREST call uses.
+func svcHeaders() map[string]string {
+	return map[string]string{
+		"apikey":        cfg.ServiceRoleKey,
+		"Authorization": "Bearer " + cfg.ServiceRoleKey,
+	}
+}
+
+// anonHeaders is the GoTrue auth pair: the anon apikey plus a bearer — the anon
+// key itself, or a user's access token when one is supplied.
+func anonHeaders(bearer string) map[string]string {
+	if bearer == "" {
+		bearer = cfg.AnonKey
+	}
+	return map[string]string{"apikey": cfg.AnonKey, "Authorization": "Bearer " + bearer}
+}
+
+// restSelect runs a PostgREST GET (service role) and decodes the JSON rows.
+// ctx names the call in error messages.
+func restSelect[T any](ctx, q string) ([]T, error) {
+	resp, err := supabaseDo("GET", q, nil, svcHeaders())
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		b, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("%s %d: %s", ctx, resp.StatusCode, b)
+	}
+	var rows []T
+	if err := json.NewDecoder(resp.Body).Decode(&rows); err != nil {
+		return nil, err
+	}
+	return rows, nil
+}
+
+// restWrite runs a PostgREST write (service role). prefer, when non-empty, is
+// sent as the Prefer header. Returns the response body (useful with
+// return=representation); a >=300 status becomes an error carrying the body.
+func restWrite(ctx, method, path string, body any, prefer string) ([]byte, error) {
+	h := svcHeaders()
+	if prefer != "" {
+		h["Prefer"] = prefer
+	}
+	resp, err := supabaseDo(method, path, body, h)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	b, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("%s %d: %s", ctx, resp.StatusCode, b)
+	}
+	return b, nil
+}
+
+// gotrueRequest sends a GoTrue request whose response body we don't need,
+// reporting a non-2xx status as an error carrying the body.
+func gotrueRequest(ctx, method, path string, body any) error {
+	resp, err := supabaseDo(method, path, body, anonHeaders(""))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		b, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("%s %d: %s", ctx, resp.StatusCode, b)
+	}
+	return nil
+}
+
+func writeJSON(w http.ResponseWriter, v any) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(v)
+}
+
 // sendMagicLink asks GoTrue to email a one-time login link to the address.
 // create_user defaults to true, so first-time buyers get an account made.
 // next, if set, is the path the user wanted before logging in; it rides along
@@ -210,25 +297,13 @@ func sendMagicLink(email, next string) error {
 	if next != "" {
 		redirect += "?next=" + url.QueryEscape(next)
 	}
-	body := map[string]any{
-		"email": email,
-		"options": map[string]any{
-			"email_redirect_to": redirect,
-		},
-	}
-	resp, err := supabaseDo("POST", "/auth/v1/otp", body, map[string]string{
-		"apikey":        cfg.AnonKey,
-		"Authorization": "Bearer " + cfg.AnonKey,
-	})
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		b, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("gotrue otp %d: %s", resp.StatusCode, b)
-	}
-	return nil
+	// GoTrue takes the post-confirmation redirect from the `redirect_to` query
+	// param; anything in the request body is ignored and it falls back to the
+	// dashboard Site URL (the homepage). Pass it as a query param so the email
+	// link lands on /auth/callback, where the token-reading JS lives.
+	return gotrueRequest("gotrue otp", "POST",
+		"/auth/v1/otp?redirect_to="+url.QueryEscape(redirect),
+		map[string]any{"email": email})
 }
 
 // userFromToken validates a GoTrue access token and returns the user's id and
@@ -236,10 +311,7 @@ func sendMagicLink(email, next string) error {
 // buyer's one-time login link, password reset) that land a token in the URL
 // fragment and post it to us, so we can mint our own session for that user.
 func userFromToken(token string) (userID, email string, err error) {
-	resp, err := supabaseDo("GET", "/auth/v1/user", nil, map[string]string{
-		"apikey":        cfg.AnonKey,
-		"Authorization": "Bearer " + token,
-	})
+	resp, err := supabaseDo("GET", "/auth/v1/user", nil, anonHeaders(token))
 	if err != nil {
 		return "", "", err
 	}
@@ -270,24 +342,12 @@ func signUp(email, password, next string) error {
 	if next != "" {
 		redirect += "?next=" + url.QueryEscape(next)
 	}
-	body := map[string]any{
-		"email":    email,
-		"password": password,
-		"options":  map[string]any{"email_redirect_to": redirect},
-	}
-	resp, err := supabaseDo("POST", "/auth/v1/signup", body, map[string]string{
-		"apikey":        cfg.AnonKey,
-		"Authorization": "Bearer " + cfg.AnonKey,
-	})
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		b, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("gotrue signup %d: %s", resp.StatusCode, b)
-	}
-	return nil
+	// redirect_to must be a query param; GoTrue ignores it in the body (see
+	// sendMagicLink), which is why confirmation links would otherwise land on
+	// the homepage instead of /auth/callback.
+	return gotrueRequest("gotrue signup", "POST",
+		"/auth/v1/signup?redirect_to="+url.QueryEscape(redirect),
+		map[string]any{"email": email, "password": password})
 }
 
 // passwordSignIn verifies an email+password against GoTrue. On success it
@@ -296,10 +356,7 @@ func signUp(email, password, next string) error {
 // surface as a generic invalid-credentials error.
 func passwordSignIn(email, password string) (userID, verifiedEmail string, err error) {
 	resp, err := supabaseDo("POST", "/auth/v1/token?grant_type=password",
-		map[string]any{"email": email, "password": password}, map[string]string{
-			"apikey":        cfg.AnonKey,
-			"Authorization": "Bearer " + cfg.AnonKey,
-		})
+		map[string]any{"email": email, "password": password}, anonHeaders(""))
 	if err != nil {
 		return "", "", err
 	}
@@ -326,64 +383,64 @@ func passwordSignIn(email, password string) (userID, verifiedEmail string, err e
 // /auth/callback, which routes recovery links to /reset). Delivered by GoTrue's
 // SMTP (Resend), like every other auth email.
 func sendPasswordReset(email string) error {
-	body := map[string]any{
-		"email":   email,
-		"options": map[string]any{"email_redirect_to": cfg.SiteURL + "/auth/callback"},
-	}
-	resp, err := supabaseDo("POST", "/auth/v1/recover", body, map[string]string{
-		"apikey":        cfg.AnonKey,
-		"Authorization": "Bearer " + cfg.AnonKey,
-	})
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		b, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("gotrue recover %d: %s", resp.StatusCode, b)
-	}
-	return nil
+	// redirect_to must be a query param; GoTrue ignores it in the body (see
+	// sendMagicLink). Without it the recovery link falls back to the dashboard
+	// Site URL (the homepage) and never reaches /reset.
+	return gotrueRequest("gotrue recover", "POST",
+		"/auth/v1/recover?redirect_to="+url.QueryEscape(cfg.SiteURL+"/auth/callback"),
+		map[string]any{"email": email})
 }
 
 // updatePassword sets a new password for the user identified by a GoTrue access
-// token (the recovery token from the reset email link).
-func updatePassword(accessToken, newPassword string) error {
+// token (the recovery token from the reset email link). On a GoTrue rejection it
+// also returns the machine-readable error_code (e.g. "same_password") so the
+// caller can show a specific message instead of a generic "try a new link".
+func updatePassword(accessToken, newPassword string) (code string, err error) {
 	resp, err := supabaseDo("PUT", "/auth/v1/user",
-		map[string]any{"password": newPassword}, map[string]string{
-			"apikey":        cfg.AnonKey,
-			"Authorization": "Bearer " + accessToken,
-		})
+		map[string]any{"password": newPassword}, anonHeaders(accessToken))
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
 		b, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("gotrue update password %d: %s", resp.StatusCode, b)
+		var ge struct {
+			ErrorCode string `json:"error_code"`
+		}
+		json.Unmarshal(b, &ge)
+		return ge.ErrorCode, fmt.Errorf("gotrue update password %d: %s", resp.StatusCode, b)
 	}
-	return nil
+	return "", nil
+}
+
+// resetErrMsg maps a GoTrue password-update error_code to a friendly Portuguese
+// message for the reset form; unknown codes fall back to a generic retry.
+func resetErrMsg(code string) string {
+	switch code {
+	case "same_password":
+		return "A nova senha precisa ser diferente da senha atual."
+	case "weak_password":
+		return "Senha muito fraca. Escolha uma senha mais forte."
+	default:
+		return "Não foi possível alterar a senha. Tente novamente."
+	}
 }
 
 // isActiveMember checks the active_members view for this email.
 func isActiveMember(email string) (bool, error) {
-	q := "/rest/v1/active_members?select=email&email=eq." + url.QueryEscape(strings.ToLower(email))
-	resp, err := supabaseDo("GET", q, nil, map[string]string{
-		"apikey":        cfg.ServiceRoleKey,
-		"Authorization": "Bearer " + cfg.ServiceRoleKey,
-	})
+	rows, err := restSelect[struct{}]("active_members",
+		"/rest/v1/active_members?select=email&email=eq."+url.QueryEscape(strings.ToLower(email)))
+	return len(rows) > 0, err
+}
+
+// isMember is isActiveMember for UI paths where a lookup failure just renders
+// as "not a member" (the /protected/ gate handles the error explicitly instead).
+func isMember(email string) bool {
+	ok, err := isActiveMember(email)
 	if err != nil {
-		return false, err
+		log.Printf("isActiveMember: %v", err)
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		b, _ := io.ReadAll(resp.Body)
-		return false, fmt.Errorf("postgrest %d: %s", resp.StatusCode, b)
-	}
-	var rows []map[string]any
-	if err := json.NewDecoder(resp.Body).Decode(&rows); err != nil {
-		return false, err
-	}
-	return len(rows) > 0, nil
+	return ok
 }
 
 // memberChargeID returns the abacate_charge_id currently on file for email and
@@ -392,20 +449,11 @@ func isActiveMember(email string) (bool, error) {
 // abandoned duplicate PIX (or a fresh renewal attempt) expiring must not revoke
 // a membership granted by a different, paid charge.
 func memberChargeID(email string) (chargeID string, exists bool) {
-	q := "/rest/v1/members?select=abacate_charge_id&email=eq." +
-		url.QueryEscape(strings.ToLower(email)) + "&limit=1"
-	resp, err := supabaseDo("GET", q, nil, map[string]string{
-		"apikey":        cfg.ServiceRoleKey,
-		"Authorization": "Bearer " + cfg.ServiceRoleKey,
-	})
-	if err != nil {
-		return "", false
-	}
-	defer resp.Body.Close()
-	var rows []struct {
+	rows, err := restSelect[struct {
 		ChargeID *string `json:"abacate_charge_id"`
-	}
-	if json.NewDecoder(resp.Body).Decode(&rows) != nil || len(rows) == 0 {
+	}]("member charge", "/rest/v1/members?select=abacate_charge_id&email=eq."+
+		url.QueryEscape(strings.ToLower(email))+"&limit=1")
+	if err != nil || len(rows) == 0 {
 		return "", false
 	}
 	if rows[0].ChargeID == nil {
@@ -416,32 +464,27 @@ func memberChargeID(email string) (chargeID string, exists bool) {
 
 // upsertMember grants or updates paid access keyed by email.
 func upsertMember(m map[string]any) error {
-	resp, err := supabaseDo("POST", "/rest/v1/members", m, map[string]string{
-		"apikey":        cfg.ServiceRoleKey,
-		"Authorization": "Bearer " + cfg.ServiceRoleKey,
-		"Prefer":        "resolution=merge-duplicates",
-	})
-	if err != nil {
-		return err
+	_, err := restWrite("upsert member", "POST", "/rest/v1/members", m, "resolution=merge-duplicates")
+	return err
+}
+
+// memberUntil returns the paid-access expiry on file for email. found is false
+// when there's no member row at all (an account that never had access).
+func memberUntil(email string) (until time.Time, found bool, err error) {
+	rows, err := restSelect[struct {
+		ExpiresAt time.Time `json:"expires_at"`
+	}]("member until", "/rest/v1/members?select=expires_at&email=eq."+
+		url.QueryEscape(strings.ToLower(email))+"&limit=1")
+	if err != nil || len(rows) == 0 {
+		return time.Time{}, false, err
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		b, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("upsert member %d: %s", resp.StatusCode, b)
-	}
-	return nil
+	return rows[0].ExpiresAt, true, nil
 }
 
 func logPaymentEvent(ev map[string]any) {
-	resp, err := supabaseDo("POST", "/rest/v1/payment_events", ev, map[string]string{
-		"apikey":        cfg.ServiceRoleKey,
-		"Authorization": "Bearer " + cfg.ServiceRoleKey,
-	})
-	if err != nil {
-		log.Printf("payment_events log error: %v", err)
-		return
+	if _, err := restWrite("payment_events log", "POST", "/rest/v1/payment_events", ev, ""); err != nil {
+		log.Printf("%v", err)
 	}
-	resp.Body.Close()
 }
 
 // eventAlreadyProcessed reports whether we've already logged an AbacatePay
@@ -453,23 +496,14 @@ func eventAlreadyProcessed(chargeID, eventType, chargeStatus string) bool {
 	if chargeID == "" {
 		return false // can't dedupe without a key; non-purchase noise anyway
 	}
-	q := "/rest/v1/payment_events?select=id" +
-		"&charge_id=eq." + url.QueryEscape(chargeID) +
-		"&event_type=eq." + url.QueryEscape(eventType) +
-		"&charge_status=eq." + url.QueryEscape(chargeStatus) +
-		"&limit=1"
-	resp, err := supabaseDo("GET", q, nil, map[string]string{
-		"apikey":        cfg.ServiceRoleKey,
-		"Authorization": "Bearer " + cfg.ServiceRoleKey,
-	})
+	rows, err := restSelect[struct{}]("payment_events dedupe",
+		"/rest/v1/payment_events?select=id"+
+			"&charge_id=eq."+url.QueryEscape(chargeID)+
+			"&event_type=eq."+url.QueryEscape(eventType)+
+			"&charge_status=eq."+url.QueryEscape(chargeStatus)+"&limit=1")
 	if err != nil {
 		log.Printf("eventAlreadyProcessed: %v", err)
 		return false // fail open: better to risk a re-grant than to drop a sale
-	}
-	defer resp.Body.Close()
-	var rows []map[string]any
-	if json.NewDecoder(resp.Body).Decode(&rows) != nil {
-		return false
 	}
 	return len(rows) > 0
 }
@@ -718,23 +752,14 @@ func parseSessionToken(token string) (id string, secret []byte, ok bool) {
 func createServerSession(userID, email string) (string, error) {
 	id := base64.RawURLEncoding.EncodeToString(randBytes(20))
 	secret := randBytes(32)
-	row := map[string]any{
+	_, err := restWrite("create session", "POST", "/rest/v1/auth_sessions", map[string]any{
 		"id":          id,
 		"user_id":     userID,
 		"email":       strings.ToLower(email),
 		"secret_hash": hashSecret(secret),
-	}
-	resp, err := supabaseDo("POST", "/rest/v1/auth_sessions", row, map[string]string{
-		"apikey":        cfg.ServiceRoleKey,
-		"Authorization": "Bearer " + cfg.ServiceRoleKey,
-	})
+	}, "")
 	if err != nil {
 		return "", err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		b, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("create session %d: %s", resp.StatusCode, b)
 	}
 	return makeSessionToken(id, secret), nil
 }
@@ -747,22 +772,13 @@ func validateServerSession(token string) string {
 	if !ok {
 		return ""
 	}
-	q := "/rest/v1/auth_sessions?select=email,secret_hash,created_at&id=eq." +
-		url.QueryEscape(id) + "&limit=1"
-	resp, err := supabaseDo("GET", q, nil, map[string]string{
-		"apikey":        cfg.ServiceRoleKey,
-		"Authorization": "Bearer " + cfg.ServiceRoleKey,
-	})
-	if err != nil {
-		return ""
-	}
-	defer resp.Body.Close()
-	var rows []struct {
+	rows, err := restSelect[struct {
 		Email      string    `json:"email"`
 		SecretHash string    `json:"secret_hash"`
 		CreatedAt  time.Time `json:"created_at"`
-	}
-	if json.NewDecoder(resp.Body).Decode(&rows) != nil || len(rows) == 0 {
+	}]("auth_sessions", "/rest/v1/auth_sessions?select=email,secret_hash,created_at&id=eq."+
+		url.QueryEscape(id)+"&limit=1")
+	if err != nil || len(rows) == 0 {
 		return ""
 	}
 	r0 := rows[0]
@@ -778,18 +794,9 @@ func validateServerSession(token string) string {
 
 // deleteServerSession revokes a session by deleting its row. Best-effort.
 func deleteServerSession(id string) {
-	if id == "" {
-		return
+	if id != "" {
+		restWrite("delete session", "DELETE", "/rest/v1/auth_sessions?id=eq."+url.QueryEscape(id), nil, "")
 	}
-	resp, err := supabaseDo("DELETE", "/rest/v1/auth_sessions?id=eq."+url.QueryEscape(id),
-		nil, map[string]string{
-			"apikey":        cfg.ServiceRoleKey,
-			"Authorization": "Bearer " + cfg.ServiceRoleKey,
-		})
-	if err != nil {
-		return
-	}
-	resp.Body.Close()
 }
 
 func setSession(w http.ResponseWriter, token string) {
@@ -815,6 +822,49 @@ func clearSession(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name: cfg.SessionCookie, Value: "", Path: "/", MaxAge: -1, HttpOnly: true,
 	})
+	clearHint(w)
+}
+
+// nl_hint is the small, JS-readable companion to the (HttpOnly) session cookie.
+// header.js reads it to paint the avatar + profile link immediately on the next
+// page load, before /me returns — so a slow link no longer shows the logged-out
+// "Profile/login" header for seconds. It carries only public display data, never
+// the auth secret: username, whether an avatar exists and its version (to
+// cache-bust /avatar/me), and a one-letter fallback initial.
+const hintCookie = "nl_hint"
+
+func writeHint(w http.ResponseWriter, p profile) {
+	ver := avatarVer(p.AvatarUpdatedAt)
+	initial := "?"
+	if p.Username != "" {
+		initial = strings.ToUpper(p.Username[:1])
+	} else if p.Email != "" {
+		initial = strings.ToUpper(p.Email[:1])
+	}
+	b, _ := json.Marshal(map[string]any{"u": p.Username, "a": p.HasAvatar, "v": ver, "i": initial})
+	http.SetCookie(w, &http.Cookie{
+		Name:     hintCookie,
+		Value:    url.QueryEscape(string(b)),
+		Path:     "/",
+		HttpOnly: false, // header.js must be able to read it
+		Secure:   cfg.Secure,
+		SameSite: http.SameSiteLaxMode,
+		MaxAge:   cfg.SessionTTLDays * 24 * 60 * 60,
+	})
+}
+
+// setHint loads the profile for email and refreshes the header hint cookie so
+// the very next page paints the avatar without waiting on /me. Best-effort: a
+// failure just means that page falls back to the /me round-trip.
+func setHint(w http.ResponseWriter, email string) {
+	if p, err := getProfile(email); err == nil {
+		p.Email = email
+		writeHint(w, p)
+	}
+}
+
+func clearHint(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{Name: hintCookie, Value: "", Path: "/", MaxAge: -1})
 }
 
 // currentEmail returns the verified email for the request, or "" if none. It is
@@ -825,6 +875,349 @@ func currentEmail(r *http.Request) string {
 		return ""
 	}
 	return validateServerSession(c.Value)
+}
+
+// ---------------------------------------------------------------------------
+// Profiles — display username (limited edits), short bio, and avatar.
+//
+// The username can be set once for free, then changed up to maxUsernameChanges
+// times for the lifetime of the account; the picture and bio are editable
+// freely. Avatar bytes live on disk (cfg.AvatarDir, one small JPEG per email);
+// public.profiles only records that one exists + when it last changed, so the
+// UI can cache-bust /avatar/me.
+// ---------------------------------------------------------------------------
+
+const (
+	maxUsernameChanges = 3    // changes allowed AFTER the first (free) pick
+	maxBioChars        = 1000 // bio length cap, in characters (matches the form's counter)
+	avatarSize         = 128  // square side, in px, of the stored thumbnail
+)
+
+// Sentinel errors for the profile edit handlers, mapped to user-facing messages.
+var (
+	errUsernameFormat  = fmt.Errorf("nome de usuário inválido")
+	errUsernameTaken   = fmt.Errorf("nome de usuário já está em uso")
+	errUsernameNoEdits = fmt.Errorf("limite de alterações de nome de usuário atingido")
+	errBioTooLong      = fmt.Errorf("bio muito longa")
+)
+
+type profile struct {
+	Email           string     `json:"email"`
+	Username        string     `json:"username"`
+	UsernameChanges int        `json:"username_changes"`
+	Bio             string     `json:"bio"`
+	HasAvatar       bool       `json:"has_avatar"`
+	AvatarUpdatedAt *time.Time `json:"avatar_updated_at"`
+}
+
+// validUsername enforces the username shape (3-20 chars, lowercase a-z, digits,
+// underscore). Done by hand to keep the zero-dependency rule (no regexp import).
+func validUsername(s string) bool {
+	if len(s) < 3 || len(s) > 20 {
+		return false
+	}
+	for _, c := range s {
+		if !(c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c == '_') {
+			return false
+		}
+	}
+	return true
+}
+
+const profileSelect = "select=email,username,username_changes,bio,has_avatar,avatar_updated_at"
+
+// getProfile reads the profile row for email, or a zero-value profile (no
+// username yet) if none exists.
+func getProfile(email string) (profile, error) {
+	email = strings.ToLower(email)
+	rows, err := restSelect[profile]("get profile",
+		"/rest/v1/profiles?"+profileSelect+"&email=eq."+url.QueryEscape(email)+"&limit=1")
+	if err != nil {
+		return profile{}, err
+	}
+	if len(rows) == 0 {
+		return profile{Email: email}, nil
+	}
+	return rows[0], nil
+}
+
+// getProfileByUsername reads the profile row for a username (case-insensitive),
+// or a zero-value profile if none exists / the name is malformed. Used by the
+// public /@username pages, so it never exposes anything the caller shouldn't see
+// — the handlers decide which fields to return (never the e-mail).
+func getProfileByUsername(username string) (profile, error) {
+	username = strings.ToLower(strings.TrimSpace(username))
+	if !validUsername(username) {
+		return profile{}, nil // malformed -> treat as not found
+	}
+	// ilike with no wildcards is a case-insensitive exact match, matching the
+	// lower(username) unique index.
+	rows, err := restSelect[profile]("get profile by username",
+		"/rest/v1/profiles?"+profileSelect+"&username=ilike."+url.QueryEscape(username)+"&limit=1")
+	if err != nil || len(rows) == 0 {
+		return profile{}, err
+	}
+	return rows[0], nil
+}
+
+// upsertProfile writes (insert or merge) a profiles row. A Postgres
+// unique-violation (code 23505) means the username is taken; surface that as
+// errUsernameTaken so the form can show a precise message.
+func upsertProfile(m map[string]any) error {
+	_, err := restWrite("upsert profile", "POST", "/rest/v1/profiles", m, "resolution=merge-duplicates")
+	if err != nil && strings.Contains(err.Error(), "23505") {
+		return errUsernameTaken
+	}
+	return err
+}
+
+// setUsername validates and stores a new username, enforcing the lifetime edit
+// cap. The first pick (no username yet) is free; each later change counts toward
+// maxUsernameChanges. A no-op (same username) succeeds without spending a change.
+func setUsername(email, username string) error {
+	username = strings.ToLower(strings.TrimSpace(username))
+	if !validUsername(username) {
+		return errUsernameFormat
+	}
+	p, err := getProfile(email)
+	if err != nil {
+		return err
+	}
+	if p.Username == username {
+		return nil // unchanged — don't spend an edit
+	}
+	changes := p.UsernameChanges
+	if p.Username != "" {
+		if changes >= maxUsernameChanges {
+			return errUsernameNoEdits
+		}
+		changes++ // count only changes after the initial free pick
+	}
+	return upsertProfile(map[string]any{
+		"email":            strings.ToLower(email),
+		"username":         username,
+		"username_changes": changes,
+		"updated_at":       time.Now().UTC().Format(time.RFC3339),
+	})
+}
+
+// setBio stores a bio, rejecting anything over maxBioChars characters.
+func setBio(email, bio string) error {
+	bio = strings.TrimSpace(bio)
+	if utf8.RuneCountInString(bio) > maxBioChars {
+		return errBioTooLong
+	}
+	return upsertProfile(map[string]any{
+		"email":      strings.ToLower(email),
+		"bio":        bio,
+		"updated_at": time.Now().UTC().Format(time.RFC3339),
+	})
+}
+
+// avatarPath is the on-disk path for an account's avatar JPEG. The filename is a
+// hash of the e-mail so the avatars dir never leaks addresses.
+func avatarPath(email string) string {
+	sum := sha256.Sum256([]byte(strings.ToLower(strings.TrimSpace(email))))
+	return filepath.Join(cfg.AvatarDir, hex.EncodeToString(sum[:])+".jpg")
+}
+
+// ---------------------------------------------------------------------------
+// Lesson completions / profile heatmap
+// ---------------------------------------------------------------------------
+
+// recordCompletion marks a lesson done for an account. The (email, lesson_slug)
+// primary key makes it idempotent: re-marking the same lesson is ignored, so the
+// original completion date — and the heatmap — never shifts. resolution=
+// ignore-duplicates turns the conflicting insert into a quiet no-op.
+func recordCompletion(email, slug string) error {
+	_, err := restWrite("record completion", "POST", "/rest/v1/lesson_completions",
+		map[string]any{"email": strings.ToLower(email), "lesson_slug": slug},
+		"resolution=ignore-duplicates")
+	return err
+}
+
+// removeCompletion undoes a completion (the lesson page's "Desfazer" link), in
+// case the button was clicked by accident. Deleting a row that isn't there is a
+// no-op success, so this is idempotent like recordCompletion.
+func removeCompletion(email, slug string) error {
+	_, err := restWrite("remove completion", "DELETE",
+		"/rest/v1/lesson_completions?email=eq."+url.QueryEscape(strings.ToLower(email))+
+			"&lesson_slug=eq."+url.QueryEscape(slug), nil, "")
+	return err
+}
+
+// getHeatmap returns an account's completion calendar: a "YYYY-MM-DD" -> count
+// map (only days with at least one completion) plus the grand total. The frontend
+// builds the empty year grid and just looks days up, so we send the sparse data.
+func getHeatmap(email string) (days map[string]int, total int, err error) {
+	rows, err := restSelect[struct {
+		CompletedOn string `json:"completed_on"`
+	}]("get heatmap", "/rest/v1/lesson_completions?select=completed_on&email=eq."+
+		url.QueryEscape(strings.ToLower(email)))
+	if err != nil {
+		return nil, 0, err
+	}
+	days = make(map[string]int, len(rows))
+	for _, r := range rows {
+		days[r.CompletedOn]++
+		total++
+	}
+	return days, total, nil
+}
+
+// isCompleted reports whether an account has already marked a given lesson done.
+// Used to paint the lesson page's button in its right state on load.
+func isCompleted(email, slug string) (bool, error) {
+	rows, err := restSelect[struct{}]("is completed",
+		"/rest/v1/lesson_completions?select=lesson_slug&email=eq."+
+			url.QueryEscape(strings.ToLower(email))+
+			"&lesson_slug=eq."+url.QueryEscape(slug)+"&limit=1")
+	return len(rows) > 0, err
+}
+
+// getCompletedSlugs returns every lesson slug an account has completed — the
+// lesson lists tick those and link "continuar" to the first one still open.
+func getCompletedSlugs(email string) ([]string, error) {
+	rows, err := restSelect[struct {
+		Slug string `json:"lesson_slug"`
+	}]("completed slugs", "/rest/v1/lesson_completions?select=lesson_slug&email=eq."+
+		url.QueryEscape(strings.ToLower(email)))
+	if err != nil {
+		return nil, err
+	}
+	slugs := make([]string, 0, len(rows))
+	for _, row := range rows {
+		slugs = append(slugs, row.Slug)
+	}
+	return slugs, nil
+}
+
+// handleCompletedAPI returns the logged-in account's completed lesson slugs as
+// {"slugs": [...]}. 401 when logged out — the lists just skip their progress line.
+func handleCompletedAPI(w http.ResponseWriter, r *http.Request) {
+	email := currentEmail(r)
+	if email == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	slugs, err := getCompletedSlugs(email)
+	if err != nil {
+		log.Printf("getCompletedSlugs: %v", err)
+		http.Error(w, "erro ao carregar", http.StatusBadGateway)
+		return
+	}
+	writeJSON(w, map[string]any{"slugs": slugs})
+}
+
+// completeWidget renders the per-viewer "mark lesson complete" control that the
+// lesson page's <!--COMPLETE--> marker is replaced with. It's a single toggle
+// button: one click marks the lesson done, another undoes it. The click is sent
+// to /api/complete with fetch (no page reload) and the button re-renders from
+// the response. Logged-out visitors get nothing — the feature is members-only,
+// and the page is served per-session anyway. slug is the lesson id (e.g. "001" /
+// "protected/004"); it's validated by the caller, so it's safe to drop straight
+// into the data attribute.
+func completeWidget(email, slug string) string {
+	if email == "" {
+		return ""
+	}
+	done, err := isCompleted(email, slug)
+	if err != nil {
+		// Fail open to the "not done" control: a stray re-complete is idempotent
+		// and harmless, whereas hiding the control would look broken.
+		log.Printf("completeWidget isCompleted: %v", err)
+	}
+	state, label, flag := "todo", "Completar aula", "0"
+	if done {
+		state, label, flag = "done", "✓ Aula concluída", "1"
+	}
+	return `<div class="lesson-complete" data-slug="` + slug + `">` +
+		`<button type="button" class="lesson-complete-btn is-` + state + `" data-done="` + flag + `">` +
+		label + `</button></div>` + completeScript
+}
+
+// completeScript drives the toggle button: it POSTs the new state to
+// /api/complete with fetch and re-renders the button from the JSON reply, so the
+// page never reloads. There's exactly one widget per lesson page, and the script
+// follows the button in the DOM, so it can bind immediately.
+const completeScript = `<script>
+(function(){
+  var box = document.querySelector('.lesson-complete');
+  if(!box) return;
+  var btn = box.querySelector('.lesson-complete-btn');
+  var slug = box.getAttribute('data-slug');
+  function render(done){
+    btn.classList.toggle('is-done', done);
+    btn.classList.toggle('is-todo', !done);
+    btn.textContent = done ? '✓ Aula concluída' : 'Completar aula';
+    btn.title = done ? 'Clique para desfazer' : '';
+    btn.dataset.done = done ? '1' : '0';
+  }
+  btn.addEventListener('click', function(){
+    var undo = btn.dataset.done === '1';
+    btn.disabled = true;
+    var body = new URLSearchParams();
+    body.set('lesson', slug);
+    if(undo) body.set('undo', '1');
+    fetch('/api/complete', {method:'POST', headers:{'X-Requested-With':'fetch'}, body: body})
+      .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function(d){ render(!!d.done); })
+      .catch(function(){ alert('Não foi possível salvar. Tente novamente.'); })
+      .then(function(){ btn.disabled = false; });
+  });
+})();
+</script>`
+
+// serveLessonHTML serves a lesson page from disk, swapping its <!--COMPLETE-->
+// marker for completeWidget. Because the result depends on the session it is
+// never cached (browser or Cloudflare edge) — unlike the rest of the lesson
+// tree. Pages without the marker are served untouched by the caller.
+func serveLessonHTML(w http.ResponseWriter, r *http.Request, file, slug, email string) {
+	b, err := os.ReadFile(file)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	b = bytes.Replace(b, []byte("<!--COMPLETE-->"), []byte(completeWidget(email, slug)), 1)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Cache-Control", "private, no-store")
+	w.Write(b)
+}
+
+// lessonSlug derives a lesson's completion slug from its request path:
+//
+//	/001.html           -> "001"
+//	/protected/004.html -> "protected/004"
+//
+// matching how recordCompletion keys rows. Returns "" if the path isn't a valid
+// lesson slug (so the caller falls back to serving the file unpersonalized).
+func lessonSlug(path string) string {
+	s := strings.TrimSuffix(strings.TrimPrefix(path, "/"), ".html")
+	if s == "" || len(s) > 64 || !validSlug(s) {
+		return ""
+	}
+	return s
+}
+
+// squareThumb center-crops src to a square and nearest-neighbour scales it down
+// to size×size. Nearest-neighbour keeps it dependency-free (no x/image) and the
+// slight pixelation on a 128px thumbnail is fine for a profile picture.
+func squareThumb(src image.Image, size int) *image.RGBA {
+	b := src.Bounds()
+	side := b.Dx()
+	if b.Dy() < side {
+		side = b.Dy()
+	}
+	ox := b.Min.X + (b.Dx()-side)/2
+	oy := b.Min.Y + (b.Dy()-side)/2
+	dst := image.NewRGBA(image.Rect(0, 0, size, size))
+	for y := 0; y < size; y++ {
+		sy := oy + y*side/size
+		for x := 0; x < size; x++ {
+			dst.Set(x, y, src.At(ox+x*side/size, sy))
+		}
+	}
+	return dst
 }
 
 // ---------------------------------------------------------------------------
@@ -873,20 +1266,11 @@ func lookupChargeEmailDB(chargeID string) string {
 	if chargeID == "" {
 		return ""
 	}
-	q := "/rest/v1/payment_events?select=email&charge_id=eq." + url.QueryEscape(chargeID) +
-		"&email=not.is.null&order=received_at.desc&limit=1"
-	resp, err := supabaseDo("GET", q, nil, map[string]string{
-		"apikey":        cfg.ServiceRoleKey,
-		"Authorization": "Bearer " + cfg.ServiceRoleKey,
-	})
-	if err != nil {
-		return ""
-	}
-	defer resp.Body.Close()
-	var rows []struct {
+	rows, err := restSelect[struct {
 		Email string `json:"email"`
-	}
-	if json.NewDecoder(resp.Body).Decode(&rows) != nil || len(rows) == 0 {
+	}]("charge email", "/rest/v1/payment_events?select=email&charge_id=eq."+
+		url.QueryEscape(chargeID)+"&email=not.is.null&order=received_at.desc&limit=1")
+	if err != nil || len(rows) == 0 {
 		return ""
 	}
 	return strings.ToLower(strings.TrimSpace(rows[0].Email))
@@ -923,6 +1307,7 @@ func handleLessons(w http.ResponseWriter, r *http.Request) {
 	shell = bytes.Replace(shell, []byte("<!--LESSONS-->"), []byte(lessonList(cfg.PublicDir, "/")), 1)
 	shell = bytes.Replace(shell, []byte("<!--PAID-->"), []byte(lessonList(cfg.ProtectedDir, "/protected/")), 1)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	setPublicCache(w, 300) // public listing; same for everyone, refreshes in 5 min
 	w.Write(shell)
 }
 
@@ -940,6 +1325,22 @@ func lessonList(dir, hrefPrefix string) string {
 		fmt.Fprintf(&list, "<li><a href=\"%s%s\">%s</a></li>\n", hrefPrefix, filepath.Base(f), title)
 	}
 	return list.String()
+}
+
+// firstLesson returns the filename (e.g. "001.html") of the lowest-numbered
+// real lesson in dir — the same set lessonList renders, skipping empty-title
+// placeholders — or "" if there are none. Glob returns sorted paths, so the
+// first match is the lowest number.
+func firstLesson(dir string) string {
+	files, _ := filepath.Glob(filepath.Join(dir, "[0-9][0-9][0-9].html"))
+	for _, f := range files {
+		src, _ := os.ReadFile(f)
+		if between(string(src), "<title>", " — Navy Lily") == "" {
+			continue // placeholder
+		}
+		return filepath.Base(f)
+	}
+	return ""
 }
 
 // between returns the text of s between the first a and the following b,
@@ -978,19 +1379,42 @@ func handleSitemap(w http.ResponseWriter, r *http.Request) {
 	}
 	b.WriteString("</urlset>\n")
 	w.Header().Set("Content-Type", "application/xml; charset=utf-8")
+	setPublicCache(w, 3600) // public, regenerated cheaply; an hour at the edge is plenty
 	w.Write([]byte(b.String()))
 }
 
-func handleLoginPage(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "web/login.html")
+// serveHTMLNoStore serves an HTML page from disk with Cache-Control: no-store.
+// Auth/app pages must never be served stale: a cached reset.html or callback.html
+// keeps running old JS in the browser (and at the Cloudflare edge) even after a
+// deploy, which is exactly how a fixed reset page can keep showing the old error.
+func serveHTMLNoStore(w http.ResponseWriter, r *http.Request, file string) {
+	w.Header().Set("Cache-Control", "no-store")
+	http.ServeFile(w, r, file)
 }
 
-// handleProfilePage serves the account page. The page gates itself client-side
-// off /me (the session cookie never reaches static files), bouncing logged-out
-// visitors to /login?next=/profile — so the "Profile" header link no longer
-// dumps already-signed-in members on the login form.
-func handleProfilePage(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "web/profile.html")
+// setPublicCache marks a response cacheable by browsers and shared CDNs
+// (Cloudflare), so it can be served from an edge PoP instead of traversing the
+// home uplink on every hit. Use ONLY for public, non-personalized responses
+// that never depend on the session cookie and never set one — never for /me,
+// /api/*, the private /avatar/me, or any logged-in page.
+func setPublicCache(w http.ResponseWriter, seconds int) {
+	w.Header().Set("Cache-Control", fmt.Sprintf("public, max-age=%d", seconds))
+}
+
+// page serves one of the auth/app HTML files with no-store (see
+// serveHTMLNoStore). These pages gate themselves client-side off /me where
+// needed (the session cookie never reaches static files).
+func page(file string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) { serveHTMLNoStore(w, r, file) }
+}
+
+// script serves a static JS asset: same bytes for everyone, edge-cacheable.
+func script(file string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		setPublicCache(w, 3600)
+		http.ServeFile(w, r, file)
+	}
 }
 
 // handleStatic serves the free, open lessons from PublicDir. It is the
@@ -1000,10 +1424,18 @@ func handleProfilePage(w http.ResponseWriter, r *http.Request) {
 func handleStatic(w http.ResponseWriter, r *http.Request) {
 	// filepath.Clean on a rooted path collapses any ../ so requests can't
 	// escape PublicDir.
+	// Public vanity profiles live at /@username. Serve the shell here (it reads
+	// the name from the path and fetches /api/u); keep it ahead of the file
+	// lookup so a literal "@..." path never hits the static tree.
+	if strings.HasPrefix(r.URL.Path, "/@") {
+		serveHTMLNoStore(w, r, "web/u.html")
+		return
+	}
 	clean := filepath.Clean("/" + strings.TrimPrefix(r.URL.Path, "/"))
 	if clean == "/" {
-		// No landing page yet — send visitors to the first free lesson.
-		http.Redirect(w, r, "/001.html", http.StatusSeeOther)
+		// Landing page: the headline + lesson menu built by parser.sh.
+		setPublicCache(w, 300)
+		http.ServeFile(w, r, filepath.Join(cfg.PublicDir, "root.html"))
 		return
 	}
 	full := filepath.Join(cfg.PublicDir, clean)
@@ -1011,19 +1443,22 @@ func handleStatic(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	// Lesson pages carry the per-viewer "completar aula" control, rendered into
+	// the <!--COMPLETE--> marker from the session. That makes them personalized,
+	// so they're served uncached (serveLessonHTML sets no-store).
+	if slug := lessonSlug(clean); slug != "" {
+		serveLessonHTML(w, r, full, slug, currentEmail(r))
+		return
+	}
+	// The rest of PublicDir is free, public, non-personalized content (the header
+	// is personalized client-side via header.js + /me, neither of which is
+	// cached). Cache assets aggressively; keep HTML short so edits show up fast.
+	if strings.HasSuffix(clean, ".html") {
+		setPublicCache(w, 300)
+	} else {
+		setPublicCache(w, 86400)
+	}
 	http.ServeFile(w, r, full)
-}
-
-func handleSignupPage(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "web/signup.html")
-}
-
-func handleForgotPage(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "web/forgot.html")
-}
-
-func handleResetPage(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "web/reset.html")
 }
 
 // sanitizeNext keeps only same-origin relative paths as a post-login destination.
@@ -1069,6 +1504,7 @@ func handleSignin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	setSession(w, token)
+	setHint(w, vEmail)
 	dest := next
 	if dest == "" {
 		dest = "/protected/"
@@ -1105,7 +1541,7 @@ func handleSignup(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/signup?erro=falha"+nextQS(next), http.StatusSeeOther)
 		return
 	}
-	http.ServeFile(w, r, "web/check-email.html")
+	serveHTMLNoStore(w, r, "web/check-email.html")
 }
 
 // handleRecover sends a password-reset e-mail. It always reports success (and
@@ -1122,16 +1558,7 @@ func handleRecover(w http.ResponseWriter, r *http.Request) {
 			log.Printf("sendPasswordReset: %v", err)
 		}
 	}
-	http.ServeFile(w, r, "web/check-email.html")
-}
-
-func handleCallback(w http.ResponseWriter, r *http.Request) {
-	// Link-based flows (email confirmation, the anon buyer's one-time login link,
-	// password recovery) land here with a GoTrue token in the URL fragment (#...),
-	// which the browser does NOT send to the server. callback.html reads the
-	// fragment: recovery links are routed to /reset; everything else POSTs the
-	// access_token to /auth/session so we can mint a session.
-	http.ServeFile(w, r, "web/callback.html")
+	serveHTMLNoStore(w, r, "web/check-email.html")
 }
 
 // handleSession bridges a GoTrue access token (from a confirmation / one-time
@@ -1157,6 +1584,7 @@ func handleSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	setSession(w, token)
+	setHint(w, email)
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -1176,12 +1604,12 @@ func handleResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 	userID, email, err := userFromToken(body.AccessToken)
 	if err != nil {
-		http.Error(w, "link inválido ou expirado", http.StatusUnauthorized)
+		http.Error(w, "Link inválido ou expirado.", http.StatusUnauthorized)
 		return
 	}
-	if err := updatePassword(body.AccessToken, body.Password); err != nil {
+	if code, err := updatePassword(body.AccessToken, body.Password); err != nil {
 		log.Printf("updatePassword: %v", err)
-		http.Error(w, "não foi possível alterar a senha", http.StatusBadGateway)
+		http.Error(w, resetErrMsg(code), http.StatusBadRequest)
 		return
 	}
 	token, err := createServerSession(userID, email)
@@ -1191,6 +1619,7 @@ func handleResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	setSession(w, token)
+	setHint(w, email)
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -1199,17 +1628,308 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-// handleMe powers the UI: who am I, am I a paying member?
+// handleMe powers the UI (including the header avatar on every page): who am I,
+// am I a paying member, and what's my username / avatar version (for cache-bust).
 func handleMe(w http.ResponseWriter, r *http.Request) {
 	email := currentEmail(r)
 	out := map[string]any{"logged_in": email != "", "email": email, "member": false}
 	if email != "" {
-		if ok, err := isActiveMember(email); err == nil {
-			out["member"] = ok
+		out["member"] = isMember(email)
+		out["owner"] = isOwner(email)
+		if p, err := getProfile(email); err == nil {
+			out["username"] = p.Username
+			out["has_avatar"] = p.HasAvatar
+			out["avatar_ver"] = avatarVer(p.AvatarUpdatedAt)
+			p.Email = email
+			writeHint(w, p) // keep the optimistic-header hint fresh for the next page
+		}
+	} else {
+		clearHint(w) // session gone: stop the header painting a stale avatar
+	}
+	writeJSON(w, out)
+}
+
+// handleProfileAPI returns the logged-in user's full profile for the account
+// page. 401 when logged out so the page can bounce to /login.
+func handleProfileAPI(w http.ResponseWriter, r *http.Request) {
+	email := currentEmail(r)
+	if email == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	p, err := getProfile(email)
+	if err != nil {
+		log.Printf("getProfile: %v", err)
+		http.Error(w, "erro ao carregar perfil", http.StatusBadGateway)
+		return
+	}
+	out := map[string]any{
+		"email":        email,
+		"username":     p.Username,
+		"username_set": p.Username != "",
+		"edits_left":   maxUsernameChanges - p.UsernameChanges,
+		"bio":          p.Bio,
+		"has_avatar":   p.HasAvatar,
+		"avatar_ver":   avatarVer(p.AvatarUpdatedAt),
+		"member":       isMember(email),
+		"max_chars":    maxBioChars,
+	}
+	// Access expiry, when a member row exists (paid or gift): the page shows
+	// "acesso até <data>" while active and "expirou em <data>" after.
+	if until, found, err := memberUntil(email); err != nil {
+		log.Printf("memberUntil: %v", err) // non-fatal: the page just omits the date
+	} else if found {
+		out["member_until"] = until.UTC().Format(time.RFC3339)
+	}
+	writeJSON(w, out)
+}
+
+// profileErrStatus maps a profile sentinel error to an HTTP status.
+func profileErrStatus(err error) int {
+	switch err {
+	case errUsernameFormat, errBioTooLong:
+		return http.StatusBadRequest
+	case errUsernameTaken:
+		return http.StatusConflict
+	case errUsernameNoEdits:
+		return http.StatusForbidden
+	default:
+		return http.StatusBadGateway
+	}
+}
+
+// handleUsername sets/changes the logged-in user's username (subject to the
+// lifetime edit cap). Errors come back as plain text the form shows inline.
+func handleUsername(w http.ResponseWriter, r *http.Request) {
+	email := currentEmail(r)
+	if email == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	// The form posts a multipart FormData body. Don't call r.ParseForm() here:
+	// it doesn't read a multipart body but does set r.Form non-nil, which makes
+	// the later r.FormValue skip its own multipart parse and return "". Let
+	// FormValue do the parsing instead (it handles both encodings).
+	if err := setUsername(email, r.FormValue("username")); err != nil {
+		if profileErrStatus(err) == http.StatusBadGateway {
+			log.Printf("setUsername: %v", err)
+		}
+		http.Error(w, err.Error(), profileErrStatus(err))
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// handleBio updates the logged-in user's bio (<= maxBioChars characters).
+func handleBio(w http.ResponseWriter, r *http.Request) {
+	email := currentEmail(r)
+	if email == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	// See handleUsername: the bio form posts multipart FormData, so let
+	// r.FormValue parse it. A preceding r.ParseForm() would leave bio empty.
+	if err := setBio(email, r.FormValue("bio")); err != nil {
+		if profileErrStatus(err) == http.StatusBadGateway {
+			log.Printf("setBio: %v", err)
+		}
+		http.Error(w, err.Error(), profileErrStatus(err))
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// handleAvatarUpload accepts a multipart image, downsizes it to a small square
+// JPEG and stores it on disk, then flags has_avatar on the profile. Any common
+// raster format (PNG/JPEG/GIF) is accepted; the output is always a tiny JPEG.
+func handleAvatarUpload(w http.ResponseWriter, r *http.Request) {
+	email := currentEmail(r)
+	if email == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	// Cap the upload so a huge file can't exhaust memory while decoding.
+	r.Body = http.MaxBytesReader(w, r.Body, 8<<20)
+	file, _, err := r.FormFile("avatar")
+	if err != nil {
+		http.Error(w, "envie uma imagem", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+	src, _, err := image.Decode(file)
+	if err != nil {
+		http.Error(w, "imagem inválida (use PNG, JPEG ou GIF)", http.StatusBadRequest)
+		return
+	}
+	var buf bytes.Buffer
+	if err := jpeg.Encode(&buf, squareThumb(src, avatarSize), &jpeg.Options{Quality: 80}); err != nil {
+		log.Printf("avatar encode: %v", err)
+		http.Error(w, "não foi possível processar a imagem", http.StatusInternalServerError)
+		return
+	}
+	if err := os.WriteFile(avatarPath(email), buf.Bytes(), 0o644); err != nil {
+		log.Printf("avatar write: %v", err)
+		http.Error(w, "não foi possível salvar a imagem", http.StatusInternalServerError)
+		return
+	}
+	if err := upsertProfile(map[string]any{
+		"email":             strings.ToLower(email),
+		"has_avatar":        true,
+		"avatar_updated_at": time.Now().UTC().Format(time.RFC3339),
+		"updated_at":        time.Now().UTC().Format(time.RFC3339),
+	}); err != nil {
+		log.Printf("avatar flag: %v", err)
+		http.Error(w, "não foi possível salvar a imagem", http.StatusBadGateway)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// handleAvatarMe serves the logged-in user's avatar JPEG. 404 when none exists
+// so the header script falls back to an initial-letter placeholder.
+func handleAvatarMe(w http.ResponseWriter, r *http.Request) {
+	email := currentEmail(r)
+	if email == "" {
+		http.NotFound(w, r)
+		return
+	}
+	p := avatarPath(email)
+	if _, err := os.Stat(p); err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	// Private + revalidate: callers cache-bust with ?v=<avatar_ver>, so a stale
+	// picture is never shown, but a shared proxy must not cache one user's avatar.
+	w.Header().Set("Cache-Control", "private, max-age=300")
+	w.Header().Set("Content-Type", "image/jpeg")
+	http.ServeFile(w, r, p)
+}
+
+// handlePublicProfileAPI powers the public /@username page. It returns ONLY the
+// public fields — username, bio, avatar version, membership — and NEVER the
+// e-mail. 404 when no such username exists so the page can show "not found".
+func handlePublicProfileAPI(w http.ResponseWriter, r *http.Request) {
+	p, err := getProfileByUsername(r.URL.Query().Get("name"))
+	if err != nil {
+		log.Printf("getProfileByUsername: %v", err)
+		http.Error(w, "erro ao carregar perfil", http.StatusBadGateway)
+		return
+	}
+	if p.Username == "" {
+		http.Error(w, "usuário não encontrado", http.StatusNotFound)
+		return
+	}
+	writeJSON(w, map[string]any{
+		"username":   p.Username,
+		"bio":        p.Bio,
+		"has_avatar": p.HasAvatar,
+		"avatar_ver": avatarVer(p.AvatarUpdatedAt),
+		"member":     isMember(p.Email),
+	})
+}
+
+// handleHeatmapAPI powers the public profile heatmap. Given ?name=<username> it
+// returns that account's completion calendar — day counts and a total, NOTHING
+// that identifies the person (no e-mail, no lesson slugs). 404 for unknown users
+// so the profile page can skip the section. The page lazy-loads this only once
+// the heatmap scrolls into view.
+func handleHeatmapAPI(w http.ResponseWriter, r *http.Request) {
+	p, err := getProfileByUsername(r.URL.Query().Get("name"))
+	if err != nil {
+		log.Printf("getProfileByUsername (heatmap): %v", err)
+		http.Error(w, "erro ao carregar", http.StatusBadGateway)
+		return
+	}
+	if p.Username == "" {
+		http.Error(w, "usuário não encontrado", http.StatusNotFound)
+		return
+	}
+	days, total, err := getHeatmap(p.Email)
+	if err != nil {
+		log.Printf("getHeatmap: %v", err)
+		http.Error(w, "erro ao carregar", http.StatusBadGateway)
+		return
+	}
+	writeJSON(w, map[string]any{"total": total, "days": days})
+}
+
+// handleCompleteLesson backs the lesson page's "completar aula" form, submitted
+// by the logged-in account. It's a plain POST (no JavaScript): "undo" present
+// removes the completion, otherwise it records one, then redirects back to the
+// lesson (Post/Redirect/Get) so a refresh doesn't re-submit. Both writes are
+// idempotent, so a double submit is harmless. It's the only writer of
+// lesson_completions.
+func handleCompleteLesson(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	email := currentEmail(r)
+	if email == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	slug := strings.TrimSpace(r.FormValue("lesson"))
+	// Keep the slug to a small, safe shape (lesson ids like "001" or
+	// "protected/004"); reject anything else so the column stays clean.
+	if slug == "" || len(slug) > 64 || !validSlug(slug) {
+		http.Error(w, "lição inválida", http.StatusBadRequest)
+		return
+	}
+	undo := r.FormValue("undo") != ""
+	var err error
+	if undo {
+		err = removeCompletion(email, slug)
+	} else {
+		err = recordCompletion(email, slug)
+	}
+	if err != nil {
+		log.Printf("completeLesson (undo=%v): %v", undo, err)
+		http.Error(w, "não foi possível salvar", http.StatusBadGateway)
+		return
+	}
+	// The toggle button calls this with fetch and re-renders from the JSON reply
+	// (no reload). A plain form POST (no JS) still works: redirect back to the
+	// lesson — /001.html or /protected/004.html — so a refresh doesn't re-submit.
+	if r.Header.Get("X-Requested-With") == "fetch" {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"done":%t}`, !undo)
+		return
+	}
+	http.Redirect(w, r, "/"+slug+".html", http.StatusSeeOther)
+}
+
+// validSlug allows lesson identifiers: lowercase letters, digits, '/', '-', '_'.
+// Hand-rolled to keep the zero-dependency rule (no regexp), like validUsername.
+func validSlug(s string) bool {
+	for _, c := range s {
+		if !(c >= 'a' && c <= 'z' || c >= '0' && c <= '9' ||
+			c == '/' || c == '-' || c == '_') {
+			return false
 		}
 	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(out)
+	return true
+}
+
+// handlePublicAvatar serves a user's avatar by username for the public profile
+// page (/avatar/u/<username>). 404 (so the page falls back to an initial) when
+// the user or picture doesn't exist.
+func handlePublicAvatar(w http.ResponseWriter, r *http.Request) {
+	name := strings.TrimPrefix(r.URL.Path, "/avatar/u/")
+	p, err := getProfileByUsername(name)
+	if err != nil || p.Email == "" || !p.HasAvatar {
+		http.NotFound(w, r)
+		return
+	}
+	path := avatarPath(p.Email)
+	if _, err := os.Stat(path); err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	// Public picture: cacheable by shared proxies (callers cache-bust with ?v=).
+	w.Header().Set("Cache-Control", "public, max-age=300")
+	w.Header().Set("Content-Type", "image/jpeg")
+	http.ServeFile(w, r, path)
 }
 
 // handleProtected gates the paid lessons.
@@ -1234,30 +1954,42 @@ func handleProtected(w http.ResponseWriter, r *http.Request) {
 	// Serve the requested file from the protected dir, safely.
 	rel := strings.TrimPrefix(r.URL.Path, "/protected/")
 	if rel == "" {
-		rel = "index.html"
+		// There's no index.html in the paid dir, so land the user on the first
+		// lesson — callback.html and the post-login/reset redirects all treat
+		// /protected/ as "the first paid lesson". The redirect re-enters this
+		// handler, so access stays gated.
+		first := firstLesson(cfg.ProtectedDir)
+		if first == "" {
+			http.NotFound(w, r)
+			return
+		}
+		http.Redirect(w, r, "/protected/"+first, http.StatusSeeOther)
+		return
 	}
 	clean := filepath.Clean("/" + rel) // prevents ../ traversal
 	full := filepath.Join(cfg.ProtectedDir, clean)
+	// Paid lesson pages carry the same per-viewer "completar aula" control as the
+	// free ones; the slug is namespaced ("protected/NNN") so it never collides
+	// with a free lesson. (Paid content is already served uncached below.)
+	if slug := lessonSlug(r.URL.Path); slug != "" {
+		serveLessonHTML(w, r, full, slug, email)
+		return
+	}
+	// Paid content is per-member and gated: never let a browser or shared proxy
+	// (Cloudflare) cache it where the gate no longer applies.
+	w.Header().Set("Cache-Control", "private, no-store")
 	http.ServeFile(w, r, full)
 }
 
 // handleBuy serves the PIX checkout page. Buying requires being logged in
 // (access is granted by email), so anonymous visitors go to /login first and
 // come back here. The page itself fetches /pix/new and polls /pix/status.
-// handleJoinJS serves the inline Join/checkout widget injected at the end of
-// every free lesson. It's a single static script; an explicit route keeps it
-// out of the PublicDir static tree.
-func handleJoinJS(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
-	http.ServeFile(w, r, "web/join.js")
-}
-
 func handleBuy(w http.ResponseWriter, r *http.Request) {
 	if currentEmail(r) == "" {
 		http.Redirect(w, r, "/login?next=/comprar", http.StatusSeeOther)
 		return
 	}
-	http.ServeFile(w, r, "web/comprar.html")
+	serveHTMLNoStore(w, r, "web/comprar.html")
 }
 
 // handlePixNew opens a fresh PIX charge for the logged-in buyer and returns the
@@ -1276,8 +2008,7 @@ func handlePixNew(w http.ResponseWriter, r *http.Request) {
 	}
 	bindChargeEmail(charge.ID, email)
 	persistChargeEmail(charge.ID, email) // durable: PIX webhook carries no email
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{
+	writeJSON(w, map[string]any{
 		"id":           charge.ID,
 		"brCode":       charge.BRCode,
 		"brCodeBase64": charge.BRCodeBase64,
@@ -1291,9 +2022,7 @@ func handlePixNew(w http.ResponseWriter, r *http.Request) {
 // handleCouponCheck validates a coupon code for the checkout page (fast
 // feedback before the buyer commits). Returns {"valid": bool}.
 func handleCouponCheck(w http.ResponseWriter, r *http.Request) {
-	valid := couponValid(r.URL.Query().Get("code"))
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{"valid": valid})
+	writeJSON(w, map[string]any{"valid": couponValid(r.URL.Query().Get("code"))})
 }
 
 // handleCheckoutNew opens a hosted checkout (PIX + card) for a coupon order and
@@ -1354,11 +2083,15 @@ func handlePixStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	// Logged-in buyer: trust the session. Anonymous buyer (Join widget): trust
 	// the e-mail we bound to this charge when it was created — never one supplied
-	// by the poller — so nobody can claim someone else's paid charge.
+	// by the poller — so nobody can claim someone else's paid charge. The durable
+	// payment_events binding covers a server restart between create and poll.
 	loggedIn := currentEmail(r)
 	email := loggedIn
 	if email == "" {
 		email = lookupChargeEmail(id)
+	}
+	if email == "" {
+		email = lookupChargeEmailDB(id)
 	}
 	status, err := checkPixStatus(id)
 	if err != nil {
@@ -1387,8 +2120,7 @@ func handlePixStatus(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{
+	writeJSON(w, map[string]any{
 		"status":    status,
 		"logged_in": loggedIn != "",
 		"mailed":    mailed,
@@ -1608,29 +2340,895 @@ func handleAbacateWebhook(w http.ResponseWriter, r *http.Request) {
 }
 
 // ---------------------------------------------------------------------------
+// Community forum: short text+image posts with one level of comments. Reads are
+// public; posting, commenting and deleting require an active member (or the
+// owner). Like the rest of the server the browser never touches Supabase — these
+// JSON endpoints (called by web/community.html) talk to PostgREST with the
+// service-role key, and post images are stored on disk (cfg.PostImageDir) the way
+// avatars are. The read views join the author's PUBLIC profile and omit the
+// e-mail, so an address is never exposed; the delete handlers read author_email
+// from the base tables to authorize.
+// ---------------------------------------------------------------------------
+
+const (
+	maxPostChars    = 2000 // post body length cap, in characters (markdown source)
+	maxCommentChars = 1000 // comment length cap, in characters
+	postImageMax    = 1280 // longest side, in px, of a stored post image
+	feedPageSize    = 30   // posts per feed request ("load more" pages backward)
+)
+
+// Sentinel errors from canPost, mapped to user-facing messages by writeCanPostErr.
+var (
+	errNotMember  = fmt.Errorf("assine a Navy para participar da comunidade")
+	errNoUsername = fmt.Errorf("escolha um nome de usuário no seu perfil antes de postar")
+)
+
+// forumPost is a row of the public forum_feed view: the author's handle + avatar
+// info and a comment count, never the author's e-mail.
+type forumPost struct {
+	ID           int64      `json:"id"`
+	Board        string     `json:"board"`
+	Body         string     `json:"body"`
+	HasImage     bool       `json:"has_image"`
+	CreatedAt    time.Time  `json:"created_at"`
+	AuthorUser   string     `json:"author_username"`
+	AuthorAvatar bool       `json:"author_has_avatar"`
+	AuthorAvAt   *time.Time `json:"author_avatar_updated_at"`
+	CommentCount int        `json:"comment_count"`
+}
+
+// forumComment is a row of the public forum_comments_view.
+type forumComment struct {
+	ID           int64      `json:"id"`
+	PostID       int64      `json:"post_id"`
+	Body         string     `json:"body"`
+	CreatedAt    time.Time  `json:"created_at"`
+	AuthorUser   string     `json:"author_username"`
+	AuthorAvatar bool       `json:"author_has_avatar"`
+	AuthorAvAt   *time.Time `json:"author_avatar_updated_at"`
+}
+
+// isOwner reports whether email is the configured forum owner (OWNER_EMAIL), who
+// may delete any post or comment. An empty OWNER_EMAIL disables owner powers.
+func isOwner(email string) bool {
+	return cfg.OwnerEmail != "" && strings.EqualFold(strings.TrimSpace(email), cfg.OwnerEmail)
+}
+
+// postImagePath is the on-disk path for a post's image JPEG. Post ids aren't
+// sensitive (unlike e-mails), so the id is the filename directly.
+func postImagePath(id int64) string {
+	return filepath.Join(cfg.PostImageDir, strconv.FormatInt(id, 10)+".jpg")
+}
+
+// fitWithin downsizes src to fit inside a max×max box, preserving aspect ratio,
+// and never upscales. Like squareThumb it's a plain nearest-neighbour sampler —
+// good enough for forum images and keeps the zero-dependency rule.
+func fitWithin(src image.Image, max int) image.Image {
+	b := src.Bounds()
+	w, h := b.Dx(), b.Dy()
+	if w <= 0 || h <= 0 || (w <= max && h <= max) {
+		return src // already small enough (or degenerate): re-encode as-is
+	}
+	dw, dh := w, h
+	if w >= h {
+		dw, dh = max, h*max/w
+	} else {
+		dw, dh = w*max/h, max
+	}
+	if dw < 1 {
+		dw = 1
+	}
+	if dh < 1 {
+		dh = 1
+	}
+	dst := image.NewRGBA(image.Rect(0, 0, dw, dh))
+	for y := 0; y < dh; y++ {
+		sy := b.Min.Y + y*h/dh
+		for x := 0; x < dw; x++ {
+			dst.Set(x, y, src.At(b.Min.X+x*w/dw, sy))
+		}
+	}
+	return dst
+}
+
+// canPost reports whether email may create posts/comments and returns the
+// account's profile (for the author handle). Posting needs an active membership
+// (or being the owner) AND a chosen username — every post carries a handle, like
+// Twitter. Returns errNotMember / errNoUsername so the UI can explain why.
+func canPost(email string) (profile, error) {
+	p, err := getProfile(email)
+	if err != nil {
+		return profile{}, err
+	}
+	member := isOwner(email)
+	if !member {
+		ok, err := isActiveMember(email)
+		if err != nil {
+			return profile{}, err
+		}
+		member = ok
+	}
+	if !member {
+		return p, errNotMember
+	}
+	if p.Username == "" {
+		return p, errNoUsername
+	}
+	return p, nil
+}
+
+// writeCanPostErr maps a canPost sentinel to an HTTP status + message.
+func writeCanPostErr(w http.ResponseWriter, err error) {
+	switch err {
+	case errNotMember, errNoUsername:
+		http.Error(w, err.Error(), http.StatusForbidden)
+	default:
+		log.Printf("canPost: %v", err)
+		http.Error(w, "erro ao verificar acesso", http.StatusBadGateway)
+	}
+}
+
+// avatarVer is the cache-busting value the frontend appends to avatar URLs.
+func avatarVer(t *time.Time) int64 {
+	if t == nil {
+		return 0
+	}
+	return t.Unix()
+}
+
+// postJSON shapes a feed row for the browser: the author as a small
+// {username, has_avatar, avatar_ver} object (matching header.js), the timestamp
+// as RFC3339, and — like every public response — no e-mail.
+func postJSON(p forumPost) map[string]any {
+	return map[string]any{
+		"id":            p.ID,
+		"board":         p.Board,
+		"body":          p.Body,
+		"has_image":     p.HasImage,
+		"created_at":    p.CreatedAt.UTC().Format(time.RFC3339),
+		"comment_count": p.CommentCount,
+		"author": map[string]any{
+			"username":   p.AuthorUser,
+			"has_avatar": p.AuthorAvatar,
+			"avatar_ver": avatarVer(p.AuthorAvAt),
+		},
+	}
+}
+
+// commentJSON shapes a comment row like postJSON.
+func commentJSON(c forumComment) map[string]any {
+	return map[string]any{
+		"id":         c.ID,
+		"post_id":    c.PostID,
+		"body":       c.Body,
+		"created_at": c.CreatedAt.UTC().Format(time.RFC3339),
+		"author": map[string]any{
+			"username":   c.AuthorUser,
+			"has_avatar": c.AuthorAvatar,
+			"avatar_ver": avatarVer(c.AuthorAvAt),
+		},
+	}
+}
+
+// forumBoards is the set of boards posts may live in — one for now, with the
+// data model already carrying the board so more can open later. validBoard keeps
+// a posted value inside the set, defaulting to "feedback".
+var forumBoards = map[string]bool{"feedback": true}
+
+func validBoard(b string) string {
+	b = strings.ToLower(strings.TrimSpace(b))
+	if forumBoards[b] {
+		return b
+	}
+	return "feedback"
+}
+
+// splitFirstLine peels the post's first non-blank line off as its title (the UI
+// shows it slightly larger), stripping a leading markdown "#". The remainder is
+// the body. Mirrors the split the community page does client-side.
+func splitFirstLine(body string) (title, rest string) {
+	lines := strings.Split(body, "\n")
+	i := 0
+	for i < len(lines) && strings.TrimSpace(lines[i]) == "" {
+		i++
+	}
+	if i >= len(lines) {
+		return "", ""
+	}
+	title = strings.TrimSpace(strings.TrimLeft(lines[i], "# "))
+	rest = strings.TrimSpace(strings.Join(lines[i+1:], "\n"))
+	return title, rest
+}
+
+// searchPosts returns posts whose body matches q (case-insensitive, anywhere),
+// newest first. The query's PostgREST filter metacharacters are neutralised first.
+func searchPosts(q string, limit int) ([]forumPost, error) {
+	cleaned := strings.TrimSpace(strings.Map(func(r rune) rune {
+		switch r {
+		case '*', '%', ',', '(', ')':
+			return ' '
+		}
+		return r
+	}, q))
+	if cleaned == "" {
+		return nil, nil
+	}
+	return restSelect[forumPost]("search posts",
+		"/rest/v1/forum_feed?select=*&body=ilike."+url.QueryEscape("*"+cleaned+"*")+
+			"&order=id.desc&limit="+strconv.Itoa(limit))
+}
+
+// searchResultJSON shapes a post for the unified search list: a title, a short
+// plain-text snippet, and just enough to link to it. No e-mail (the view omits it).
+func searchResultJSON(p forumPost) map[string]any {
+	title, rest := splitFirstLine(p.Body)
+	snippet := rest
+	if r := []rune(snippet); len(r) > 140 {
+		snippet = strings.TrimSpace(string(r[:140])) + "…"
+	}
+	return map[string]any{
+		"id":         p.ID,
+		"board":      p.Board,
+		"title":      title,
+		"snippet":    snippet,
+		"created_at": p.CreatedAt.UTC().Format(time.RFC3339),
+		"author":     map[string]any{"username": p.AuthorUser},
+	}
+}
+
+// handleSearchAPI powers the forum half of the unified search on the lessons page
+// (lessons first, then these posts). Public; needs at least 2 characters.
+func handleSearchAPI(w http.ResponseWriter, r *http.Request) {
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	out := make([]map[string]any, 0)
+	if utf8.RuneCountInString(q) >= 2 {
+		posts, err := searchPosts(q, 10)
+		if err != nil {
+			log.Printf("searchPosts: %v", err)
+			http.Error(w, "erro na busca", http.StatusBadGateway)
+			return
+		}
+		for _, p := range posts {
+			out = append(out, searchResultJSON(p))
+		}
+	}
+	writeJSON(w, map[string]any{"posts": out})
+}
+
+// getFeed returns up to limit posts newest-first from the public forum_feed view.
+// When before > 0 only posts older than that id are returned (keyset paging).
+func getFeed(board string, before int64, limit int) ([]forumPost, error) {
+	q := "/rest/v1/forum_feed?select=*&order=id.desc&limit=" + strconv.Itoa(limit)
+	if board != "" {
+		q += "&board=eq." + url.QueryEscape(board)
+	}
+	if before > 0 {
+		q += "&id=lt." + strconv.FormatInt(before, 10)
+	}
+	return restSelect[forumPost]("get feed", q)
+}
+
+// getPost returns a single post from the view, or a zero post (ID == 0) if none.
+func getPost(id int64) (forumPost, error) {
+	rows, err := restSelect[forumPost]("get post",
+		"/rest/v1/forum_feed?select=*&id=eq."+strconv.FormatInt(id, 10)+"&limit=1")
+	if err != nil || len(rows) == 0 {
+		return forumPost{}, err
+	}
+	return rows[0], nil
+}
+
+// getComments returns a post's comments oldest-first from the public view.
+func getComments(postID int64) ([]forumComment, error) {
+	return restSelect[forumComment]("get comments",
+		"/rest/v1/forum_comments_view?select=*&post_id=eq."+
+			strconv.FormatInt(postID, 10)+"&order=id.asc")
+}
+
+// errPostedToday signals that the member already has a post today. It's returned
+// by insertPost when the one-post-per-day unique index (uq_forum_posts_author_day)
+// rejects the insert; deleting the day's post frees the slot so they can post again.
+var errPostedToday = fmt.Errorf("você já publicou hoje; apague sua publicação ou volte amanhã para postar outra")
+
+// brazilZone is the calendar the one-post-per-day limit lives in. Brazil dropped
+// daylight saving in 2019, so a fixed -03:00 is exact — and it matches the
+// uq_forum_posts_author_day index expression, which uses the same offset.
+var brazilZone = time.FixedZone("BRT", -3*60*60)
+
+// postedToday reports whether email already has a live post today (Brazil time).
+// It mirrors the unique index that enforces the limit, so the community page can
+// say so before the member types a post instead of after they submit it.
+func postedToday(email string) (bool, error) {
+	now := time.Now().In(brazilZone)
+	start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, brazilZone)
+	rows, err := restSelect[struct {
+		ID int64 `json:"id"`
+	}]("posted today", "/rest/v1/forum_posts?select=id&author_email=eq."+
+		url.QueryEscape(strings.ToLower(email))+"&created_at=gte."+
+		url.QueryEscape(start.UTC().Format(time.RFC3339))+"&limit=1")
+	return len(rows) > 0, err
+}
+
+// handlePostedToday answers {"posted_today": bool} for the logged-in account, so
+// the compose box can swap itself for an explanation up front.
+func handlePostedToday(w http.ResponseWriter, r *http.Request) {
+	email := currentEmail(r)
+	if email == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	posted, err := postedToday(email)
+	if err != nil {
+		log.Printf("postedToday: %v", err)
+		http.Error(w, "erro ao verificar", http.StatusBadGateway)
+		return
+	}
+	writeJSON(w, map[string]any{"posted_today": posted})
+}
+
+// insertPost creates a post and returns its new id. has_image starts false; the
+// caller flips it once the image file is written (so the filename can use the id).
+// A unique-index violation on the author's day means they already posted today,
+// surfaced as errPostedToday.
+func insertPost(authorEmail, board, body string) (int64, error) {
+	b, err := restWrite("insert post", "POST", "/rest/v1/forum_posts",
+		map[string]any{"author_email": strings.ToLower(authorEmail), "board": board, "body": body},
+		"return=representation")
+	if err != nil {
+		if strings.Contains(err.Error(), "uq_forum_posts_author_day") {
+			return 0, errPostedToday
+		}
+		return 0, err
+	}
+	var rows []struct {
+		ID int64 `json:"id"`
+	}
+	if err := json.Unmarshal(b, &rows); err != nil {
+		return 0, err
+	}
+	if len(rows) == 0 {
+		return 0, fmt.Errorf("insert post: no row returned")
+	}
+	return rows[0].ID, nil
+}
+
+// setPostHasImage flags that a post's image file is now on disk.
+func setPostHasImage(id int64) error {
+	_, err := restWrite("flag post image", "PATCH",
+		"/rest/v1/forum_posts?id=eq."+strconv.FormatInt(id, 10),
+		map[string]any{"has_image": true}, "")
+	return err
+}
+
+// insertComment adds a comment to a post. A foreign-key violation (the post was
+// deleted) surfaces as a normal error the handler reports.
+func insertComment(postID int64, authorEmail, body string) error {
+	_, err := restWrite("insert comment", "POST", "/rest/v1/forum_comments",
+		map[string]any{"post_id": postID, "author_email": strings.ToLower(authorEmail), "body": body}, "")
+	return err
+}
+
+// getPostOwner returns a post's author e-mail + has_image flag, read from the base
+// table (the feed view hides the e-mail). found is false when no such post exists.
+func getPostOwner(id int64) (email string, hasImage, found bool, err error) {
+	rows, err := restSelect[struct {
+		Email    string `json:"author_email"`
+		HasImage bool   `json:"has_image"`
+	}]("get post owner", "/rest/v1/forum_posts?select=author_email,has_image&id=eq."+
+		strconv.FormatInt(id, 10)+"&limit=1")
+	if err != nil || len(rows) == 0 {
+		return "", false, false, err
+	}
+	return rows[0].Email, rows[0].HasImage, true, nil
+}
+
+// getCommentOwner returns a comment's author e-mail from the base table. found is
+// false when no such comment exists.
+func getCommentOwner(id int64) (email string, found bool, err error) {
+	rows, err := restSelect[struct {
+		Email string `json:"author_email"`
+	}]("get comment owner", "/rest/v1/forum_comments?select=author_email&id=eq."+
+		strconv.FormatInt(id, 10)+"&limit=1")
+	if err != nil || len(rows) == 0 {
+		return "", false, err
+	}
+	return rows[0].Email, true, nil
+}
+
+// updatePostBody replaces a post's text. created_at is untouched, so the
+// one-post-per-day unique index never re-fires on an edit.
+func updatePostBody(id int64, body string) error {
+	_, err := restWrite("update post", "PATCH",
+		"/rest/v1/forum_posts?id=eq."+strconv.FormatInt(id, 10),
+		map[string]any{"body": body}, "")
+	return err
+}
+
+// updateCommentBody replaces a comment's text.
+func updateCommentBody(id int64, body string) error {
+	_, err := restWrite("update comment", "PATCH",
+		"/rest/v1/forum_comments?id=eq."+strconv.FormatInt(id, 10),
+		map[string]any{"body": body}, "")
+	return err
+}
+
+// deletePost removes a post; its comments go with it via ON DELETE CASCADE.
+func deletePost(id int64) error {
+	_, err := restWrite("delete post", "DELETE",
+		"/rest/v1/forum_posts?id=eq."+strconv.FormatInt(id, 10), nil, "")
+	return err
+}
+
+// deleteComment removes a single comment.
+func deleteComment(id int64) error {
+	_, err := restWrite("delete comment", "DELETE",
+		"/rest/v1/forum_comments?id=eq."+strconv.FormatInt(id, 10), nil, "")
+	return err
+}
+
+// handlePostsAPI lists the feed (GET, public) or creates a post (POST, members).
+func handlePostsAPI(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		handleFeedList(w, r)
+	case http.MethodPost:
+		handlePostCreate(w, r)
+	default:
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+// handleFeedList returns a page of the newest posts as JSON. ?before=<id> pages
+// back through older posts for "load more". It asks the view for one row beyond
+// the page so has_more is exact — the UI only offers "load more" when a click
+// will actually land posts (a count that's a multiple of the page size used to
+// produce one final empty click).
+func handleFeedList(w http.ResponseWriter, r *http.Request) {
+	var before int64
+	if v := r.URL.Query().Get("before"); v != "" {
+		before, _ = strconv.ParseInt(v, 10, 64)
+	}
+	board := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("board")))
+	posts, err := getFeed(board, before, feedPageSize+1)
+	if err != nil {
+		log.Printf("getFeed: %v", err)
+		http.Error(w, "erro ao carregar", http.StatusBadGateway)
+		return
+	}
+	hasMore := len(posts) > feedPageSize
+	if hasMore {
+		posts = posts[:feedPageSize]
+	}
+	out := make([]map[string]any, 0, len(posts))
+	for _, p := range posts {
+		out = append(out, postJSON(p))
+	}
+	writeJSON(w, map[string]any{"posts": out, "has_more": hasMore})
+}
+
+// handlePostCreate creates a post for the logged-in member. Multipart fields:
+//
+//	body  - text (required unless an image is attached; capped at maxPostChars)
+//	image - optional picture (PNG/JPEG/GIF), downsized to a small JPEG on disk
+func handlePostCreate(w http.ResponseWriter, r *http.Request) {
+	email := currentEmail(r)
+	if email == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	if _, err := canPost(email); err != nil {
+		writeCanPostErr(w, err)
+		return
+	}
+	// Cap the upload so a huge file can't exhaust memory while decoding.
+	r.Body = http.MaxBytesReader(w, r.Body, 8<<20)
+	body := strings.TrimSpace(r.FormValue("body"))
+	if utf8.RuneCountInString(body) > maxPostChars {
+		http.Error(w, "mensagem muito longa", http.StatusBadRequest)
+		return
+	}
+	// Decode + downsize the image (if any) BEFORE inserting, so a bad image is
+	// rejected without leaving a text row behind.
+	var imgBuf *bytes.Buffer
+	if file, _, err := r.FormFile("image"); err == nil {
+		defer file.Close()
+		src, _, err := image.Decode(file)
+		if err != nil {
+			http.Error(w, "imagem inválida (use PNG, JPEG ou GIF)", http.StatusBadRequest)
+			return
+		}
+		imgBuf = &bytes.Buffer{}
+		if err := jpeg.Encode(imgBuf, fitWithin(src, postImageMax), &jpeg.Options{Quality: 80}); err != nil {
+			log.Printf("post image encode: %v", err)
+			http.Error(w, "não foi possível processar a imagem", http.StatusInternalServerError)
+			return
+		}
+	}
+	if body == "" && imgBuf == nil {
+		http.Error(w, "escreva algo ou anexe uma imagem", http.StatusBadRequest)
+		return
+	}
+	id, err := insertPost(email, validBoard(r.FormValue("board")), body)
+	if err == errPostedToday {
+		http.Error(w, err.Error(), http.StatusTooManyRequests)
+		return
+	}
+	if err != nil {
+		log.Printf("insertPost: %v", err)
+		http.Error(w, "não foi possível publicar", http.StatusBadGateway)
+		return
+	}
+	if imgBuf != nil {
+		if err := os.WriteFile(postImagePath(id), imgBuf.Bytes(), 0o644); err != nil {
+			log.Printf("post image write: %v", err)
+			_ = deletePost(id) // roll back so the feed doesn't show a broken image
+			http.Error(w, "não foi possível salvar a imagem", http.StatusInternalServerError)
+			return
+		}
+		if err := setPostHasImage(id); err != nil {
+			log.Printf("post image flag: %v", err)
+			_ = os.Remove(postImagePath(id))
+			_ = deletePost(id)
+			http.Error(w, "não foi possível publicar", http.StatusBadGateway)
+			return
+		}
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// handlePostAPI returns one post plus its comments (GET, public).
+func handlePostAPI(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+	if id <= 0 {
+		http.Error(w, "id inválido", http.StatusBadRequest)
+		return
+	}
+	post, err := getPost(id)
+	if err != nil {
+		log.Printf("getPost: %v", err)
+		http.Error(w, "erro ao carregar", http.StatusBadGateway)
+		return
+	}
+	if post.ID == 0 {
+		http.Error(w, "publicação não encontrada", http.StatusNotFound)
+		return
+	}
+	comments, err := getComments(id)
+	if err != nil {
+		log.Printf("getComments: %v", err)
+		http.Error(w, "erro ao carregar", http.StatusBadGateway)
+		return
+	}
+	cs := make([]map[string]any, 0, len(comments))
+	for _, c := range comments {
+		cs = append(cs, commentJSON(c))
+	}
+	writeJSON(w, map[string]any{"post": postJSON(post), "comments": cs})
+}
+
+// handleCommentsAPI lists a post's comments (GET, public) or adds one (POST,
+// members). Splitting reads out of /api/post lets the feed expand a thread
+// without also refetching the post and its comment-count subquery.
+func handleCommentsAPI(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		handleCommentsList(w, r)
+	case http.MethodPost:
+		handleCommentCreate(w, r)
+	default:
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+// handleCommentsList returns a post's comments as JSON (public).
+func handleCommentsList(w http.ResponseWriter, r *http.Request) {
+	postID, _ := strconv.ParseInt(r.URL.Query().Get("post_id"), 10, 64)
+	if postID <= 0 {
+		http.Error(w, "publicação inválida", http.StatusBadRequest)
+		return
+	}
+	comments, err := getComments(postID)
+	if err != nil {
+		log.Printf("getComments: %v", err)
+		http.Error(w, "erro ao carregar", http.StatusBadGateway)
+		return
+	}
+	cs := make([]map[string]any, 0, len(comments))
+	for _, c := range comments {
+		cs = append(cs, commentJSON(c))
+	}
+	writeJSON(w, map[string]any{"comments": cs})
+}
+
+// handleCommentCreate adds a comment to a post (members only; reached via
+// handleCommentsAPI on POST).
+func handleCommentCreate(w http.ResponseWriter, r *http.Request) {
+	email := currentEmail(r)
+	if email == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	if _, err := canPost(email); err != nil {
+		writeCanPostErr(w, err)
+		return
+	}
+	postID, _ := strconv.ParseInt(r.FormValue("post_id"), 10, 64)
+	if postID <= 0 {
+		http.Error(w, "publicação inválida", http.StatusBadRequest)
+		return
+	}
+	body := strings.TrimSpace(r.FormValue("body"))
+	if body == "" {
+		http.Error(w, "escreva um comentário", http.StatusBadRequest)
+		return
+	}
+	if utf8.RuneCountInString(body) > maxCommentChars {
+		http.Error(w, "comentário muito longo", http.StatusBadRequest)
+		return
+	}
+	if err := insertComment(postID, email, body); err != nil {
+		log.Printf("insertComment: %v", err)
+		http.Error(w, "não foi possível comentar", http.StatusBadGateway)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// handlePostDelete removes a post (cascading its comments) when the caller is the
+// author or the forum owner; best-effort removes its on-disk image too.
+func handlePostDelete(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	email := currentEmail(r)
+	if email == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	id, _ := strconv.ParseInt(r.FormValue("id"), 10, 64)
+	if id <= 0 {
+		http.Error(w, "id inválido", http.StatusBadRequest)
+		return
+	}
+	owner, hasImage, found, err := getPostOwner(id)
+	if err != nil {
+		log.Printf("getPostOwner: %v", err)
+		http.Error(w, "erro ao carregar", http.StatusBadGateway)
+		return
+	}
+	if !found {
+		w.WriteHeader(http.StatusNoContent) // already gone — treat as success
+		return
+	}
+	if !strings.EqualFold(owner, email) && !isOwner(email) {
+		http.Error(w, "sem permissão", http.StatusForbidden)
+		return
+	}
+	if err := deletePost(id); err != nil {
+		log.Printf("deletePost: %v", err)
+		http.Error(w, "não foi possível apagar", http.StatusBadGateway)
+		return
+	}
+	if hasImage {
+		_ = os.Remove(postImagePath(id))
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// handlePostEdit lets a post's AUTHOR fix its text (form fields: id, body).
+// Author-only — the owner moderates by deleting, never by rewriting someone
+// else's words. The image, if any, stays as it is.
+func handlePostEdit(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	email := currentEmail(r)
+	if email == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	id, _ := strconv.ParseInt(r.FormValue("id"), 10, 64)
+	if id <= 0 {
+		http.Error(w, "id inválido", http.StatusBadRequest)
+		return
+	}
+	body := strings.TrimSpace(r.FormValue("body"))
+	if utf8.RuneCountInString(body) > maxPostChars {
+		http.Error(w, "mensagem muito longa", http.StatusBadRequest)
+		return
+	}
+	owner, hasImage, found, err := getPostOwner(id)
+	if err != nil {
+		log.Printf("getPostOwner: %v", err)
+		http.Error(w, "erro ao carregar", http.StatusBadGateway)
+		return
+	}
+	if !found {
+		http.Error(w, "publicação não encontrada", http.StatusNotFound)
+		return
+	}
+	if !strings.EqualFold(owner, email) {
+		http.Error(w, "sem permissão", http.StatusForbidden)
+		return
+	}
+	if body == "" && !hasImage {
+		http.Error(w, "escreva algo — esta publicação não tem imagem", http.StatusBadRequest)
+		return
+	}
+	if err := updatePostBody(id, body); err != nil {
+		log.Printf("updatePostBody: %v", err)
+		http.Error(w, "não foi possível salvar", http.StatusBadGateway)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// handleCommentEdit lets a comment's author fix its text (form fields: id, body).
+func handleCommentEdit(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	email := currentEmail(r)
+	if email == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	id, _ := strconv.ParseInt(r.FormValue("id"), 10, 64)
+	if id <= 0 {
+		http.Error(w, "id inválido", http.StatusBadRequest)
+		return
+	}
+	body := strings.TrimSpace(r.FormValue("body"))
+	if body == "" {
+		http.Error(w, "escreva um comentário", http.StatusBadRequest)
+		return
+	}
+	if utf8.RuneCountInString(body) > maxCommentChars {
+		http.Error(w, "comentário muito longo", http.StatusBadRequest)
+		return
+	}
+	owner, found, err := getCommentOwner(id)
+	if err != nil {
+		log.Printf("getCommentOwner: %v", err)
+		http.Error(w, "erro ao carregar", http.StatusBadGateway)
+		return
+	}
+	if !found {
+		http.Error(w, "comentário não encontrado", http.StatusNotFound)
+		return
+	}
+	if !strings.EqualFold(owner, email) {
+		http.Error(w, "sem permissão", http.StatusForbidden)
+		return
+	}
+	if err := updateCommentBody(id, body); err != nil {
+		log.Printf("updateCommentBody: %v", err)
+		http.Error(w, "não foi possível salvar", http.StatusBadGateway)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// handleCommentDelete removes a comment when the caller is its author or the owner.
+func handleCommentDelete(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	email := currentEmail(r)
+	if email == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	id, _ := strconv.ParseInt(r.FormValue("id"), 10, 64)
+	if id <= 0 {
+		http.Error(w, "id inválido", http.StatusBadRequest)
+		return
+	}
+	owner, found, err := getCommentOwner(id)
+	if err != nil {
+		log.Printf("getCommentOwner: %v", err)
+		http.Error(w, "erro ao carregar", http.StatusBadGateway)
+		return
+	}
+	if !found {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	if !strings.EqualFold(owner, email) && !isOwner(email) {
+		http.Error(w, "sem permissão", http.StatusForbidden)
+		return
+	}
+	if err := deleteComment(id); err != nil {
+		log.Printf("deleteComment: %v", err)
+		http.Error(w, "não foi possível apagar", http.StatusBadGateway)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// handlePostImage serves a post's image JPEG (/post-img/<id>). Public + cacheable;
+// a post's image never changes, so no cache-busting is needed. 404 when none.
+func handlePostImage(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(strings.TrimPrefix(r.URL.Path, "/post-img/"), 10, 64)
+	if err != nil || id <= 0 {
+		http.NotFound(w, r)
+		return
+	}
+	path := postImagePath(id)
+	if _, err := os.Stat(path); err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	w.Header().Set("Cache-Control", "public, max-age=300")
+	w.Header().Set("Content-Type", "image/jpeg")
+	http.ServeFile(w, r, path)
+}
+
+// ---------------------------------------------------------------------------
 
 func main() {
 	cfg = loadConfig()
+
+	if err := os.MkdirAll(cfg.AvatarDir, 0o755); err != nil {
+		log.Fatalf("could not create avatar dir %q: %v", cfg.AvatarDir, err)
+	}
+	if err := os.MkdirAll(cfg.PostImageDir, 0o755); err != nil {
+		log.Fatalf("could not create post image dir %q: %v", cfg.PostImageDir, err)
+	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleStatic)
 	mux.HandleFunc("/lessons.html", handleLessons)
 	mux.HandleFunc("/sitemap.xml", handleSitemap)
-	mux.HandleFunc("/login", handleLoginPage)
-	mux.HandleFunc("/profile", handleProfilePage)
-	mux.HandleFunc("/signup", handleSignupPage)
-	mux.HandleFunc("/forgot", handleForgotPage)
-	mux.HandleFunc("/reset", handleResetPage)
+	mux.HandleFunc("/login", page("web/login.html"))
+	mux.HandleFunc("/profile", page("web/profile.html"))
+	mux.HandleFunc("/signup", page("web/signup.html"))
+	mux.HandleFunc("/forgot", page("web/forgot.html"))
+	mux.HandleFunc("/reset", page("web/reset.html"))
 	mux.HandleFunc("/auth/login", handleSignin)
 	mux.HandleFunc("/auth/signup", handleSignup)
 	mux.HandleFunc("/auth/recover", handleRecover)
 	mux.HandleFunc("/auth/reset", handleResetPassword)
-	mux.HandleFunc("/auth/callback", handleCallback)
+	// Link-based flows (email confirmation, the anon buyer's one-time login
+	// link, password recovery) land on /auth/callback with a GoTrue token in
+	// the URL fragment (#...), which the browser does NOT send to the server.
+	// callback.html reads the fragment: recovery links are routed to /reset;
+	// everything else POSTs the access_token to /auth/session.
+	mux.HandleFunc("/auth/callback", page("web/callback.html"))
 	mux.HandleFunc("/auth/session", handleSession)
 	mux.HandleFunc("/auth/logout", handleLogout)
 	mux.HandleFunc("/me", handleMe)
-	mux.HandleFunc("/join.js", handleJoinJS)
+	mux.HandleFunc("/api/profile", handleProfileAPI)
+	mux.HandleFunc("/api/profile/username", handleUsername)
+	mux.HandleFunc("/api/profile/bio", handleBio)
+	mux.HandleFunc("/api/avatar", handleAvatarUpload)
+	mux.HandleFunc("/avatar/me", handleAvatarMe)
+	mux.HandleFunc("/avatar/u/", handlePublicAvatar)
+	mux.HandleFunc("/api/u", handlePublicProfileAPI)
+	mux.HandleFunc("/api/heatmap", handleHeatmapAPI)
+	mux.HandleFunc("/api/complete", handleCompleteLesson)
+	mux.HandleFunc("/api/completed", handleCompletedAPI)
+	// The community feed shell is public; its compose/reply/delete controls
+	// gate themselves off /me and the write endpoints re-check membership.
+	mux.HandleFunc("/community", page("web/community.html"))
+	mux.HandleFunc("/api/posts", handlePostsAPI)
+	mux.HandleFunc("/api/posts/delete", handlePostDelete)
+	mux.HandleFunc("/api/posts/edit", handlePostEdit)
+	mux.HandleFunc("/api/posts/today", handlePostedToday)
+	mux.HandleFunc("/api/post", handlePostAPI)
+	mux.HandleFunc("/api/comments", handleCommentsAPI)
+	mux.HandleFunc("/api/comments/delete", handleCommentDelete)
+	mux.HandleFunc("/api/comments/edit", handleCommentEdit)
+	mux.HandleFunc("/post-img/", handlePostImage)
+	mux.HandleFunc("/api/search", handleSearchAPI)
+	mux.HandleFunc("/header.js", script("web/header.js"))
+	mux.HandleFunc("/join.js", script("web/join.js"))
 	mux.HandleFunc("/comprar", handleBuy)
+	mux.HandleFunc("/navy", handleBuy) // friendlier alias for the checkout page
 	mux.HandleFunc("/pix/new", handlePixNew)
 	mux.HandleFunc("/pix/status", handlePixStatus)
 	mux.HandleFunc("/card/new", handleCardNew)

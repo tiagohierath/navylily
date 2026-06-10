@@ -3,12 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>$title$ — Navy Lily</title>
-$if(description)$
-  <meta name="description" content="$description$">
-$else$
+  <title>Aprenda a desenhar de imaginação — Navy Lily</title>
   <meta name="description" content="Aulas da Navy Lily.">
-$endif$
   <meta name="robots" content="index, follow">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <style>
@@ -32,7 +28,6 @@ $endif$
       display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
       border-radius: 8px; margin: 1rem 0 1.5rem;
     }
-$if(articles)$
     /* Landing page + lessons index: each lesson is an article row — square
        thumbnail on the left (gray placeholder until the lesson gets an image),
        title and a 3-line preview on the right. */
@@ -57,7 +52,6 @@ $if(articles)$
       display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
       overflow: hidden;
     }
-$endif$
     nav.lesson-nav {
       display: flex; justify-content: space-between; gap: 1rem; margin: 2.5rem 0 1.5rem;
     }
@@ -95,31 +89,28 @@ $endif$
     <a class="btn" href="/login">Perfil</a>
   </header>
   <main>
-    $body$
-$if(search)$
-    <section id="forum-results" hidden>
-      <h2>Fórum</h2>
-      <ul id="forum-list"></ul>
-    </section>
-$endif$
-$if(order)$
-    <!--COMPLETE-->
-$endif$
-$if(lessonnav)$
-    <nav class="lesson-nav">
-$if(prevhref)$      <a class="nav-prev" href="$prevhref$">← aula anterior</a>
-$endif$
-$if(nexthref)$      <a class="nav-next" href="$nexthref$">próxima aula →</a>
-$endif$
-    </nav>
-$endif$
-$if(banner)$
-    <div id="navy-join"></div>
-    <script src="/join.js"></script>
-$endif$
+    <h1 id="aprenda-a-desenhar-de-imaginação">Aprenda a desenhar de
+    imaginação</h1>
+    <p>Curso gratuito, completo.</p>
+    <p><a href="#aulas-gratuitas" class="btn">Ver aulas</a></p>
+    <h2 id="aulas-gratuitas">Aulas gratuitas</h2>
+    <ul class="articles">
+    <li class="article"><a href="/001.html"><span class="thumb"></span><div class="text"><p class="title">1. Bem vindo!</p><p class="preview">Essa é uma plataforma nova, tenham paciência com bugs/erros.  Enviem qualquer problema para tiago@hierath.com.br</p></div></a></li>
+    <li class="article"><a href="/002.html"><span class="thumb"></span><div class="text"><p class="title">2. Bem vindo ao curso de desenho de imaginação.</p><p class="preview">Esse curso está sendo montado justamente para que você consiga explorar da sua forma única. Por exemplo, se você já está em um nível satisfatório de anatomia, você pode ignorar todas as aulas de anatomia, e ir direto pra perspectiva ou outro fundamento.</p></div></a></li>
+    <li class="article"><a href="/003.html"><span class="thumb"></span><div class="text"><p class="title">3. Idiomas</p><p class="preview">Eu to quase no ponto de recomendar aprender idiomas pra todo mundo que quer aprender a desenhar por que tem muitos paralelos.</p></div></a></li>
+    <li class="article"><a href="/004.html"><span class="thumb"></span><div class="text"><p class="title">4. Desenho é não-linear</p><p class="preview">Por que não existe uma ordem única para aprender a desenhar?</p></div></a></li>
+    <li class="article"><a href="/005.html"><span class="thumb"></span><div class="text"><p class="title">5. teste.</p><p class="preview">006</p></div></a></li>
+    <li class="article"><a href="/006.html"><span class="thumb"></span><div class="text"><p class="title">6. Como fazer perguntas</p><p class="preview">Não deixe isso te impedir de pedir conselhos ou fazer perguntas, por favor faça perguntas. Mas aqui vai algumas dicas de como melhorar suas perguntas.</p></div></a></li>
+    <li class="article"><a href="/007.html"><span class="thumb"></span><div class="text"><p class="title">7. Começar do zero &gt; consertar</p><p class="preview">Então lhes contou esta parábola: &quot;Ninguém tira um remendo de roupa nova e o costura em roupa velha; se o fizer, estragará a roupa nova, além do que o remendo da nova não se ajustará à velha. -Lucas 5:36</p></div></a></li>
+    <li class="article"><a href="/008.html"><span class="thumb"></span><div class="text"><p class="title">8. Não existem soluções, apenas trocas</p><p class="preview">Um amigo me mostrou um video sobre outro youtuber de desenho, com um estilo bem diferente do meu, esse youtuber estava dizendo que é ruim finalizar desenhos no começo (que eu discordo, mas tudo bem). Mas eu só pude pensar que, verdadeiramente existem estilos diferentes de desenho e treino, e artistas tem tolerâncias bem baixas.</p></div></a></li>
+    <li class="article"><a href="/009.html"><span class="thumb"></span><div class="text"><p class="title">9. teste</p><p class="preview">teste</p></div></a></li>
+    </ul>
+    <h2 id="aulas-pagas">Aulas pagas</h2>
+    <ul class="articles">
+    <li class="article"><a href="/protected/SAMPLE.html"><span class="thumb"></span><div class="text"><p class="title">1. Sample paid lesson 🔒</p><p class="preview">exemplo placeholder</p></div></a></li>
+    </ul>
   </main>
   <script src="/header.js" defer></script>
-$if(articles)$
   <script>
     // Logged-in students: tick the lessons already completed and offer a link to
     // continue from the first one still open. Logged-out visitors keep the plain
@@ -175,99 +166,5 @@ $if(articles)$
         .catch(function () {});
     })();
   </script>
-$endif$
-$if(search)$
-  <script>
-    // Lessons index: prefill the header search box from ?q=, filter the lesson
-    // list live, and search forum posts too — results below, lessons first.
-    (function () {
-      var box = document.querySelector('header.site input[name=q]');
-      var items = [].slice.call(document.querySelectorAll('main li')).filter(function (li) {
-        return !li.closest('#forum-results'); // don't hide forum results with the lesson filter
-      });
-      var wrap = document.getElementById('forum-results');
-      var list = document.getElementById('forum-list');
-
-      var noneMsg = null; // "Nenhuma aula encontrada." line, created on first use
-      function applyLessons(q) {
-        q = q.trim().toLowerCase();
-        var any = false;
-        items.forEach(function (li) {
-          var show = !q || li.textContent.toLowerCase().indexOf(q) >= 0;
-          li.style.display = show ? '' : 'none';
-          if (show) any = true;
-        });
-        // Don't leave "Aulas gratuitas/pagas" headings floating over emptied
-        // lists; when nothing matches at all, say so plainly instead.
-        [].slice.call(document.querySelectorAll('main ul.articles')).forEach(function (ul) {
-          var has = [].slice.call(ul.children).some(function (li) { return li.style.display !== 'none'; });
-          ul.style.display = has ? '' : 'none';
-          var h = ul.previousElementSibling;
-          while (h && h.tagName !== 'H2') h = h.previousElementSibling;
-          if (h) h.style.display = has ? '' : 'none';
-        });
-        if (!noneMsg) {
-          var firstUl = document.querySelector('main ul.articles');
-          if (!firstUl) return;
-          noneMsg = document.createElement('p');
-          noneMsg.textContent = 'Nenhuma aula encontrada.';
-          noneMsg.hidden = true;
-          firstUl.parentNode.insertBefore(noneMsg, firstUl);
-        }
-        noneMsg.hidden = any;
-      }
-
-      var timer, lastQ = '';
-      function applyForum(q) {
-        q = q.trim();
-        if (!wrap) return;
-        if (q.length < 2) { wrap.hidden = true; list.textContent = ''; lastQ = ''; return; }
-        if (q === lastQ) return;
-        lastQ = q;
-        clearTimeout(timer);
-        timer = setTimeout(function () {
-          fetch('/api/search?q=' + encodeURIComponent(q), { headers: { Accept: 'application/json' } })
-            .then(function (r) { return r.ok ? r.json() : { posts: [] }; })
-            .then(function (d) { renderForum(d.posts || []); })
-            .catch(function () {});
-        }, 250);
-      }
-
-      function renderForum(posts) {
-        list.textContent = '';
-        if (!posts.length) { wrap.hidden = true; return; }
-        posts.forEach(function (p) {
-          var li = document.createElement('li');
-          var a = document.createElement('a');
-          a.href = '/community?post=' + p.id;
-          a.textContent = p.title || '(sem título)';
-          li.appendChild(a);
-          if (p.author && p.author.username) {
-            var by = document.createElement('span');
-            by.style.color = '#888'; by.textContent = ' · @' + p.author.username;
-            li.appendChild(by);
-          }
-          if (p.snippet) {
-            var s = document.createElement('div');
-            s.style.color = '#555'; s.style.fontSize = '.9rem'; s.textContent = p.snippet;
-            li.appendChild(s);
-          }
-          list.appendChild(li);
-        });
-        wrap.hidden = false;
-      }
-
-      function apply(q) { applyLessons(q); applyForum(q); }
-
-      var q0 = new URLSearchParams(location.search).get('q') || '';
-      if (box) box.value = q0;
-      apply(q0);
-      if (box) {
-        box.addEventListener('input', function () { apply(box.value); });
-        if (box.form) box.form.addEventListener('submit', function (e) { e.preventDefault(); apply(box.value); });
-      }
-    })();
-  </script>
-$endif$
 </body>
 </html>

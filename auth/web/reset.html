@@ -56,10 +56,19 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ access_token: token, password: password })
           });
-          if (!res.ok) throw new Error('reset');
-          location.replace('/protected/');
+          if (res.ok) { location.replace('/protected/'); return; }
+          // Show the server's actual reason. A 401 means the link itself is
+          // bad/expired (offer a fresh one); other errors — e.g. same/weak
+          // password — are fixable right here, so keep the form up to retry.
+          const reason = (await res.text()).trim() || 'Não foi possível alterar a senha.';
+          if (res.status === 401) {
+            fail(reason);
+          } else {
+            msg.textContent = reason;
+            msg.hidden = false;
+          }
         } catch (e) {
-          msg.textContent = 'Não foi possível alterar a senha. Tente um novo link.';
+          msg.textContent = 'Não foi possível alterar a senha. Tente novamente.';
           msg.hidden = false;
         }
       });

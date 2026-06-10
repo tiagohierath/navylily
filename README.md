@@ -20,9 +20,12 @@ content/paid/NNN.md ─┘  (private)            └─► protected/NNN.html  �
 
 - **`auth/`** — the Go server: email + password auth (Supabase / GoTrue), server-side
   sessions, PIX + hosted-card checkout (AbacatePay), the webhook that grants/revokes
-  membership, and the gate that protects paid lessons.
+  membership, the gate that protects paid lessons, member profiles (username, bio,
+  avatar), lesson-completion tracking with a heatmap, and a community forum
+  (public reading, member posting, one post per member per day).
 - **`supabase/migrations/`** — the Postgres schema: members, payment events, sessions,
-  row-level security, and the funnel-stats RPC.
+  profiles, lesson completions, the forum tables, row-level security, and the
+  funnel-stats RPC.
 - **`parser.sh` + `template.html`** — turn lesson Markdown into static HTML.
 - **`public/`** — free lessons, served openly. **`protected/`** — paid lessons, gated.
   Real paid `.md`/HTML are git-ignored here; `SAMPLE` placeholders are included so the

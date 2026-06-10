@@ -22,22 +22,22 @@ so there are **no Go dependencies** and nothing extra to install.
 ```
 auth/
 ├── main.go                 the whole server (stdlib only)
-├── migrations/001_init.sql  run once in Supabase Studio
 ├── web/                    login / callback / PIX checkout pages
 ├── .env.example            copy to .env and fill in
 └── start.sh                build + run
 ```
 
+The database schema lives in `../supabase/migrations/`.
+
 ## Setup (one time)
 
 ### 1. Create the tables
-Open **Supabase Studio → SQL Editor**, paste `migrations/001_init.sql`, run it,
-then run `migrations/002_event_idempotency.sql` and
-`migrations/005_auth_sessions.sql`. This creates `members`, `payment_events`,
-the `active_members` view, and `auth_sessions` (our login sessions). Auth users
-themselves are managed by Supabase Auth (`auth.users`) — you don't create those.
-(Migrated from the old Kiwify schema? Run `migrations/003_migrate_from_kiwify.sql`
-instead — it renames the existing tables/columns in place.)
+Apply the SQL files in `../supabase/migrations/` (in filename order) with
+`supabase db push`, or paste them into **Supabase Studio → SQL Editor**. This
+creates `members`, `payment_events`, the `active_members` view, `auth_sessions`
+(our login sessions), `profiles`, `lesson_completions` and the forum tables.
+Auth users themselves are managed by Supabase Auth (`auth.users`) — you don't
+create those.
 
 ### 2. Configure Supabase Auth (so login emails work)
 In your self-hosted Supabase `.env`:

@@ -4,31 +4,39 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Navy Assinatura — Navy Lily</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <style>
-    :root { --ink:#1a1a1a; --muted:#666; --line:#ddd; --accent:#1f6feb; }
+    :root { --ink:#1a1a1a; --muted:#666; --line:#ddd; }
     * { box-sizing: border-box; }
-    body {
-      font-family: serif; color: var(--ink); line-height: 1.5;
-      margin: 0; min-height: 100vh; display: flex;
+    body { font-family: serif; color: var(--ink); line-height: 1.5; margin: 0; }
+    /* Same site header as every other page. */
+    header.site {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      padding: .75rem 1rem; border-bottom: 1px solid #ddd;
     }
-    /* On its own page the checkout sits in the middle of the screen. margin:auto
-       inside a flex body centers both axes, and still lets the taller PIX state
-       (QR + copy-paste code) scroll instead of getting clipped at the top. */
-    main { margin: auto; width: 100%; max-width: 540px; padding: 2rem 1.25rem; }
+    header.site .brand {
+      font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
+    }
+    header.site .btn {
+      font: inherit; text-decoration: none; color: inherit;
+      border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
+    }
+    @media (max-width: 480px) { header.site { gap: .5rem; } }
+    main { max-width: 40rem; margin: 0 auto; padding: 1rem 1.25rem 2.5rem; }
     h1 { font-size: 1.6rem; margin: 0 0 .25rem; }
     .price { font-size: 2rem; font-weight: 700; margin: .5rem 0; }
     .price small { font-size: 1rem; font-weight: 400; color: var(--muted); }
     .lead { color: var(--muted); margin: 0 0 1.5rem; }
     .methods { display: grid; gap: .75rem; margin: 1.5rem 0; }
     button, a[role=button] {
-      display: block; font: inherit; padding: .85rem 1rem; border: 1px solid var(--line);
-      border-radius: 8px; background: #fff; cursor: pointer; text-align: left;
+      display: block; font: inherit; padding: .85rem 1rem; border: 1px solid #ccc;
+      border-radius: 6px; background: #fff; cursor: pointer; text-align: left;
       color: inherit; text-decoration: none;
     }
-    button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    button.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
     button[disabled] { color: var(--muted); cursor: not-allowed; }
     .tag { float: right; font-size: .75rem; color: var(--muted); }
-    .card { border: 1px solid var(--line); border-radius: 8px; padding: 1.25rem; }
+    .card { border: 1px solid var(--line); border-radius: 6px; padding: 1.25rem; }
     .qr { display: block; margin: 1rem auto; }
     textarea { width: 100%; font-family: monospace; }
     .muted { color: var(--muted); font-size: .9rem; }
@@ -36,30 +44,37 @@
   </style>
 </head>
 <body>
+  <header class="site">
+    <a class="brand" href="/"><img src="/logo.png?v=2" alt="Navy Lily Works" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community">Comunidade</a>
+    <a class="btn" href="/comprar">Navy</a>
+    <a class="btn" href="/login">Perfil</a>
+  </header>
   <main>
   <h1>Navy Assinatura</h1>
-  <p class="price">R$ 197 <small>/ ano</small></p>
-  <p class="lead">Acesso a todas as aulas pagas por 12 meses. Liberação automática assim que o pagamento for confirmado.</p>
 
-  <!-- Optional coupon -->
-  <div id="couponBox" class="card" style="margin-bottom:1.5rem;">
-    <label for="coupon" class="muted">Tem um cupom de desconto?</label>
-    <div style="display:flex; gap:.5rem; margin-top:.4rem;">
-      <input id="coupon" type="text" autocapitalize="characters" autocomplete="off"
-             placeholder="CUPOM" style="flex:1; padding:.6rem; border:1px solid var(--line); border-radius:8px; font:inherit; text-transform:uppercase;">
-      <button id="applyCoupon" type="button" style="width:auto;">Aplicar</button>
-    </div>
-    <p id="couponMsg" class="muted" style="margin:.5rem 0 0;" hidden></p>
+  <!-- Shown to already-active members instead of the buy options (toggled by /me) -->
+  <div id="memberBox" class="card" hidden>
+    <p>Você já é um membro Navy e tem acesso a aulas exclusivas e feedback na comunidade.</p>
+    <p><a href="/protected/">Ir para as aulas</a></p>
   </div>
 
-  <!-- Step 1: choose a payment method -->
-  <div id="choose" class="methods">
-    <button id="pickPix" class="primary" type="button">
-      Pagar com PIX <span class="tag">liberação imediata</span>
-    </button>
-    <a id="pickCard" href="/card/new" role="button">
-      Cartão de crédito <span class="tag">até 12x</span>
-    </a>
+  <!-- Buy pitch + payment options. Starts hidden and is revealed only after /me
+       says the visitor is NOT a member, so paying members never see a "pay" flash. -->
+  <div id="buyView" hidden>
+    <p class="price">R$ 197 <small>/ ano</small></p>
+    <p class="lead">Ao se inscrever, você tem acesso a todas as aulas exclusivas, materiais e guias de apoio. E ainda pode pedir feedback ou conselhos na aba de <a href="/community">Comunidade</a>.</p>
+    <p>O Tiago vai responder suas dúvidas ou te dizer como melhorar, ou superar alguma dificuldade nos estudos de desenho.</p>
+
+    <!-- Step 1: choose a payment method -->
+    <div id="choose" class="methods">
+      <button id="pickPix" class="primary" type="button">
+        Pagar com PIX <span class="tag">liberação imediata</span>
+      </button>
+      <a id="pickCard" href="/card/new" role="button">
+        Cartão de crédito <span class="tag">até 12x</span>
+      </a>
+    </div>
   </div>
 
   <!-- Step 2: PIX -->
@@ -90,50 +105,16 @@
     const show = (id) => document.getElementById(id).hidden = false;
     const hide = (id) => document.getElementById(id).hidden = true;
 
-    let appliedCoupon = '';
+    // Show exactly one of memberBox / buyView once we know who's looking, so a
+    // paying member never sees the "pay R$197" UI flash. If /me fails, fall back
+    // to the buy view so a non-member can still purchase.
+    fetch('/me', { headers: { Accept: 'application/json' } })
+      .then((r) => r.json())
+      .then((d) => { if (d && d.member) { show('memberBox'); } else { show('buyView'); } })
+      .catch(() => { show('buyView'); });
 
-    const couponInput = document.getElementById('coupon');
-    const couponMsg = document.getElementById('couponMsg');
-
-    function setCouponMsg(text, okState) {
-      couponMsg.textContent = text;
-      couponMsg.hidden = !text;
-      couponMsg.style.color = okState ? '#1a7f37' : (okState === false ? '#cf222e' : '');
-    }
-
-    // If the server bounced an invalid coupon back here, tell the buyer.
-    if (new URLSearchParams(location.search).get('cupom') === 'invalido') {
-      setCouponMsg('Cupom inválido ou esgotado.', false);
-    }
-
-    document.getElementById('applyCoupon').addEventListener('click', async function () {
-      const code = couponInput.value.trim().toUpperCase();
-      if (!code) { appliedCoupon = ''; setCouponMsg('', null); return; }
-      setCouponMsg('Verificando…', null);
-      try {
-        const r = await fetch('/coupon/check?code=' + encodeURIComponent(code));
-        const d = await r.json();
-        if (d.valid) {
-          appliedCoupon = code;
-          setCouponMsg('Cupom aplicado ✓ — o desconto aparece no checkout.', true);
-        } else {
-          appliedCoupon = '';
-          setCouponMsg('Cupom inválido ou esgotado.', false);
-        }
-      } catch (e) {
-        appliedCoupon = '';
-        setCouponMsg('Não foi possível verificar o cupom agora.', false);
-      }
-    });
-
-    // With a coupon, both methods go through the hosted checkout (AbacatePay
-    // applies the discount there). Without one, keep the inline PIX / card flow.
     document.getElementById('pickPix').addEventListener('click', function () {
-      if (appliedCoupon) { location.href = '/checkout/new?coupon=' + encodeURIComponent(appliedCoupon); return; }
       startPix();
-    });
-    document.getElementById('pickCard').addEventListener('click', function (e) {
-      if (appliedCoupon) { e.preventDefault(); location.href = '/checkout/new?coupon=' + encodeURIComponent(appliedCoupon); }
     });
 
     async function startPix() {
@@ -157,8 +138,19 @@
 
     document.getElementById('copy').addEventListener('click', function () {
       const t = document.getElementById('brcode');
+      const btn = document.getElementById('copy');
       t.select();
-      navigator.clipboard && navigator.clipboard.writeText(t.value);
+      // Confirm on the button itself, then put the label back.
+      const done = function () {
+        btn.textContent = 'Copiado ✓';
+        setTimeout(function () { btn.textContent = 'Copiar código'; }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(t.value).then(done, function () { document.execCommand('copy'); done(); });
+      } else {
+        document.execCommand('copy');
+        done();
+      }
     });
 
     async function poll() {
@@ -180,5 +172,6 @@
       setTimeout(poll, 4000);
     }
   </script>
+  <script src="/header.js" defer></script>
 </body>
 </html>

@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Não existem soluções, apenas trocas — Navy Lily</title>
   <meta name="description" content="Aulas da Navy Lily.">
-  <meta name="keywords" content="desenho">
   <meta name="robots" content="index, follow">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <style>
@@ -24,17 +23,46 @@
       border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
     }
     main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
+    /* Optional lesson thumbnail, shown under the heading; always 16:9. */
+    img.lesson-image {
+      display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
+      border-radius: 8px; margin: 1rem 0 1.5rem;
+    }
+    nav.lesson-nav {
+      display: flex; justify-content: space-between; gap: 1rem; margin: 2.5rem 0 1.5rem;
+    }
+    nav.lesson-nav a {
+      font: inherit; text-decoration: none; color: inherit;
+      border: 1px solid #ccc; border-radius: 6px; padding: .4rem .8rem;
+    }
+    nav.lesson-nav .nav-next { margin-left: auto; }
+    .lesson-complete { margin: 2rem 0 0; }
+    .lesson-complete-btn {
+      font: inherit; cursor: pointer; color: #fff;
+      border: 1px solid; border-radius: 6px; padding: .4rem .9rem;
+    }
+    .lesson-complete-btn.is-todo { background: #1A3F7A; border-color: #1A3F7A; }
+    .lesson-complete-btn.is-done { background: #2E7D32; border-color: #2E7D32; }
+    .lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+    /* Phone: keep the two header actions side by side instead of each wrapping
+       to its own line — the search box drops to a full-width row of its own. */
+    @media (max-width: 480px) {
+      header.site { gap: .5rem; }
+      header.site form { order: 3; flex-basis: 100%; }
+      header.site input[name=q] { flex: 1; min-width: 0; }
+    }
   </style>
 </head>
 <body>
   <header class="site">
-    <a class="brand" href="/lessons.html">Navy Lily Works</a>
+    <a class="brand" href="/"><img src="/logo.png?v=2" alt="Navy Lily Works" style="height:28px;width:auto;display:block"></a>
     <form action="/lessons.html" method="get" role="search">
       <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
       <button class="btn" type="submit">Buscar</button>
     </form>
+    <a class="btn" href="/community">Comunidade</a>
     <a class="btn" href="/comprar">Navy</a>
-    <a class="btn" href="/login">Profile</a>
+    <a class="btn" href="/login">Perfil</a>
   </header>
   <main>
     <h1 id="não-existem-soluções-apenas-trocas">Não existem soluções,
@@ -91,9 +119,16 @@
     imaginação.</a></li>
     <li><a href="/007.html">Começar do zero &gt; consertar</a></li>
     </ul>
-    <p>Tags: desenho</p>
+    <!--COMPLETE-->
+    <nav class="lesson-nav">
+      <a class="nav-prev" href="/007.html">← aula anterior</a>
+
+      <a class="nav-next" href="/009.html">próxima aula →</a>
+
+    </nav>
     <div id="navy-join"></div>
     <script src="/join.js"></script>
   </main>
+  <script src="/header.js" defer></script>
 </body>
 </html>
