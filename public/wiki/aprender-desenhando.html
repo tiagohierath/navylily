@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aprender Desenhando — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/aprender-desenhando.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="aprender-desenhando">Aprender Desenhando</h1>
+    <h3 id="definição">Definição</h3>
+    <p>A ideia de que existem <strong>duas formas de aprender
+    desenho</strong> — estudar e desenhar — e que a segunda é
+    insubstituível. Quem só estuda nem chegou a começar.</p>
+    <blockquote>
+    <p>“Ou você aprende estudando com um livro/vídeo, ou você aprende
+    desenhando, na prática. Você não pode só estudar, você precisa
+    desenhar.”</p>
+    </blockquote>
+    <h3 id="a-analogia-do-xadrez">A analogia do xadrez</h3>
+    <p>Ler sobre xadrez e assistir aulas não é jogar xadrez. Só jogando
+    você aprende as coisas que importam. Eu quase parei de estudar
+    quando percebi que aprendia muito mais <strong>desenhando de
+    imaginação</strong>.</p>
+    <blockquote>
+    <p>“A pessoa que estuda sobre desenho e não desenha muito nem sequer
+    começou a aprender as coisas mais importantes.”</p>
+    </blockquote>
+    <h3 id="dois-tipos-de-conhecimento">Dois tipos de conhecimento</h3>
+    <p>Há o conhecimento dos livros e há <strong>uma categoria nova que
+    você só ganha desenhando</strong> — não se aprende com texto. (Ver,
+    na wiki existente, <a href="/wiki/tipos-de-conhecimento.html">Tipos
+    de conhecimento</a>: o conhecimento informal/heurístico.)</p>
+    <p>Exemplo: o método de traço C/S/I é útil, mas às vezes uma linha
+    complexa única, “tecnicamente errada” pelos livros, fica ótima.
+    <em>Quem liga.</em> A prática ensina quando quebrar a regra.</p>
+    <h3 id="conhecimento-específico-naval-ravikant">Conhecimento
+    específico (Naval Ravikant)</h3>
+    <p>Esse “conhecimento que só se ganha desenhando” é o que Naval
+    Ravikant chama de <strong>conhecimento específico</strong>:</p>
+    <blockquote>
+    <p>“Existem coisas que eu sei sobre desenho que eu não posso te
+    contar — não é falta de permissão, eu simplesmente não consigo pôr
+    em palavras. Se eu pusesse, estaria diminuindo, corroendo o
+    significado delas.”</p>
+    </blockquote>
+    <p>Por isso você precisa <strong>estudar</strong> o que é ensinável
+    e <strong>praticar</strong> o que não é. Ver <a
+    href="/wiki/rotina-de-estudo.html">Rotina de Estudo</a>.</p>
+    <h3 id="múltiplas-soluções">Múltiplas soluções</h3>
+    <p>Desenhar é uma tarefa cheia de problemas, e <strong>cada um tem
+    várias soluções</strong>. Anatomia se aprende com livros, fotos,
+    modelo vivo ou estudando outros artistas. Michelangelo aprendeu com
+    modelo vivo (mal havia livros de anatomia na época). Não existe um
+    único método correto — existe o que funciona para você.</p>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>Estude o suficiente para começar, depois desenhe muito. O
+    conhecimento mais importante só se ganha com a mão na massa.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Para cada hora de teoria, gaste pelo menos três desenhando de
+    verdade.</li>
+    <li>Desenhe de imaginação hoje, sem esperar “saber o
+    suficiente”.</li>
+    <li>Quando aprender uma técnica nova (ex.: traço C/S/I), aplique-a
+    num desenho real na mesma sessão.</li>
+    <li>Permita-se quebrar a regra dos livros quando uma linha “errada”
+    ficar melhor.</li>
+    <li>Trate cada problema de desenho como tendo várias soluções; teste
+    mais de uma.</li>
+    <li>Aprenda anatomia por mais de uma via: livro, foto, modelo vivo,
+    arte de outros.</li>
+    <li>Pare de acumular tutoriais; abra o caderno e ponha a mão na
+    massa.</li>
+    <li>Anote as coisas que você “sabe mas não consegue explicar” — é o
+    conhecimento específico aparecendo.</li>
+    <li>Faça sessões inteiras só de imaginação, sem referência
+    aberta.</li>
+    <li>Depois de estudar um conceito, refaça-o de memória para
+    fixar.</li>
+    <li>Não se compare a um único método; descubra o que funciona para
+    você.</li>
+    <li>Reduza o tempo de estudo passivo (vídeos) e aumente o de prática
+    ativa.</li>
+    </ul>
+    <!-- tags: aprender desenhando, prática vs teoria, desenho de imaginação, conhecimento específico, Naval Ravikant, conhecimento tácito, conhecimento heurístico, jogar xadrez, aprender na prática, mão na massa, traço CSI, quebrar regras, múltiplas soluções, anatomia, modelo vivo, Michelangelo, estudar desenho, autodidata, rotina de estudo, tipos de conhecimento, drawing practice, learning by doing, specific knowledge, tacit knowledge, deliberate practice, desenhar muito, repetição, fixar conhecimento, intuição, técnica, fundamentos, prática deliberada, copiar referência, refazer de memória, active recall, estudo ativo, estudo passivo, tutorial, livros de desenho, vídeos de desenho, começar a desenhar, evoluir no desenho, hábito de desenho, criatividade, soluções de desenho, observação, imaginação -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

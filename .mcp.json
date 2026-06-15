@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "abacate-pay": {
+      "command": "/home/tiago/.bun/bin/bun",
+      "args": [
+        "/home/tiago/.claude/mcp-servers/abacatepay-mcp/src/index.ts"
+      ],
+      "env": {
+        "ABACATE_PAY_API_KEY": "${ABACATE_PAY_API_KEY}"
+      }
+    }
+  }
+}

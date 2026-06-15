@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Como Desenhar Poses — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/como-desenhar-poses.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="como-desenhar-poses">Como Desenhar Poses</h1>
+    <h3 id="definição">Definição</h3>
+    <p>Processo passo a passo para construir uma pose do zero, do gesto
+    até o desenho finalizado. Depende de <a
+    href="/wiki/anatomia.html">Anatomia</a> e de perspectiva.</p>
+    <h3 id="passo-a-passo">Passo a passo</h3>
+    <ol type="1">
+    <li><strong>Gesto</strong> — capture a forma da pose
+    simplificadamente. O essencial aqui é acertar o ângulo da
+    <strong>caixa torácica</strong> e o ângulo da
+    <strong>pélvis</strong>.</li>
+    <li><strong>Caixas</strong> — coloque o corpo dentro de caixas. O
+    mais importante é acertar a <strong>rotação</strong> de cada caixa:
+    ela está acima ou abaixo da linha do horizonte? Para que eixo está
+    virada?</li>
+    <li><strong>Vários ângulos</strong> — desenhe a mesma pose de
+    ângulos diferentes. &gt; “Se você só consegue desenhar do ângulo que
+    você copiou, é porque você não sabe perspectiva.”</li>
+    <li><strong>Ossos</strong> — desenhe o esqueleto. Sabendo os ossos,
+    você sabe exatamente onde os músculos se conectam.</li>
+    <li><strong>Músculos</strong> — conecte a partir dos ossos:
+    peitoral, serrátil anterior, abdômen, oblíquo, tríceps, pronador,
+    ombro.</li>
+    </ol>
+    <h3 id="detalhes-importantes">Detalhes importantes</h3>
+    <ul>
+    <li>Indique se os ossos do <strong>antebraço</strong> estão
+    paralelos ou cruzados — quando o braço gira, eles se cruzam.</li>
+    <li><strong>Crânio</strong> e <strong>bacia</strong> são complexos o
+    bastante para um estudo próprio.</li>
+    <li>Depois de entender, você pode fazer um desenho finalizado e
+    mudar o ângulo livremente.</li>
+    </ul>
+    <h3 id="relação-com-perspectiva">Relação com perspectiva</h3>
+    <p>Desenhar de vários ângulos <em>é</em> o teste de que você entende
+    perspectiva. Decorar um ângulo não é saber a pose.</p>
+    <h3 id="métricas-de-proporção-básicas">Métricas de proporção
+    básicas</h3>
+    <ul>
+    <li>Meio do corpo = início do osso da pelvis</li>
+    <li>Meio do braço = na altura do umbigo</li>
+    <li>Tamanho da mão = tamanho da cabeça</li>
+    <li>Perna dividida ao meio: canela + pé (de um lado) e coxa (do
+    outro)</li>
+    </ul>
+    <h3 id="foreshortening-o-método-da-mola">Foreshortening: o método da
+    mola</h3>
+    <p>Para desenhar partes do corpo apontando para a câmera
+    (foreshortening), imagine uma <strong>mola</strong> (espiral em
+    perspectiva). A mola mostra a trajetória do cilindro — quando
+    comprimida de frente, o cilindro está apontando diretamente para
+    você.</p>
+    <p>Aplique a mola ao braço, perna ou mão apontada para câmera, e
+    trace os contornos do cilindro ao redor dela.</p>
+    <h3 id="erro-comum-no-estudo-de-poses">Erro comum no estudo de
+    poses</h3>
+    <p>Muitos iniciantes copiam poses do Pinterest copiando apenas o
+    <strong>contorno 2D</strong>. O resultado: formas planas que não
+    podem ser rotacionadas. Para evitar isso, desenhe a pose <strong>de
+    dentro para fora</strong> (ossos, depois músculos), não o contorno
+    externo.</p>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>Gesto → caixas → ângulos → ossos → músculos. Estrutura antes de
+    superfície. Métricas de proporção + método da mola para
+    foreshortening.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Comece toda pose pelo gesto, acertando o ângulo da caixa
+    torácica e da pélvis.</li>
+    <li>Coloque o corpo dentro de caixas e foque na rotação de cada uma
+    (acima ou abaixo do horizonte? virada para onde?).</li>
+    <li>Desenhe a mesma pose de vários ângulos; se só consegue do ângulo
+    que copiou, você não sabe perspectiva.</li>
+    <li>Construa de dentro para fora: ossos primeiro, depois músculos,
+    nunca o contorno externo.</li>
+    <li>Conecte os músculos a partir dos ossos (peitoral, serrátil,
+    abdômen, oblíquo, tríceps, ombro).</li>
+    <li>Indique se os ossos do antebraço estão paralelos ou cruzados
+    conforme o braço gira.</li>
+    <li>Use as métricas: meio do corpo no início da pélvis, meio do
+    braço no umbigo, mão do tamanho da cabeça.</li>
+    <li>Para foreshortening, desenhe uma mola (espiral em perspectiva) e
+    trace os contornos do cilindro ao redor.</li>
+    <li>Estude crânio e bacia separadamente, pois são complexos demais
+    para resolver no improviso.</li>
+    <li>Evite copiar só o contorno 2D do Pinterest; isso gera formas
+    planas que não rotacionam.</li>
+    <li>Depois de entender a estrutura, refaça a pose finalizada mudando
+    o ângulo livremente.</li>
+    <li>Treine gesto rápido (poses curtas) para soltar a mão antes de
+    partir para a construção.</li>
+    </ul>
+    <!-- tags: desenhar poses, como desenhar poses, gesto, gesture drawing, caixa torácica, pélvis, caixas, rotação, linha do horizonte, perspectiva, vários ângulos, ossos, esqueleto, músculos, peitoral, serrátil, abdômen, oblíquo, tríceps, ombro, antebraço, rádio ulna, crânio, bacia, proporções, métricas de proporção, mão do tamanho da cabeça, foreshortening, encurtamento, método da mola, espiral, cilindro, de dentro para fora, contorno 2D, Pinterest, pose plana, anatomia, figura humana, corpo humano, construção, draw poses, pose drawing, figure pose, construction, structure, gesture, spring method, ângulo, rotacionar, desenho de figura, estudo de pose, dinâmica, movimento -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

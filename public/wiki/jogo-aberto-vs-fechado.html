@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jogo Aberto vs Fechado — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/jogo-aberto-vs-fechado.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="jogo-aberto-vs-fechado">Jogo Aberto vs Fechado</h1>
+    <h3 id="definição">Definição</h3>
+    <p>Conceito da teoria dos jogos adaptado ao desenho: atividades se
+    dividem entre <strong>escopo fechado</strong> (uma solução, caminho
+    linear) e <strong>escopo aberto</strong> (muitas soluções, muitos
+    caminhos).</p>
+    <h3 id="escopo-fechado-no-desenho">Escopo fechado no desenho</h3>
+    <p><strong>Perspectiva</strong> é um jogo de escopo fechado: é
+    matemática pura, com regras fixas (pontos de fuga, linha do
+    horizonte). Você aprende as ~10 regras e aplica. Há resposta certa e
+    resposta errada.</p>
+    <p>Outros exemplos gerais: quebra-cabeças, equações, código
+    Morse.</p>
+    <h3 id="escopo-aberto-no-desenho">Escopo aberto no desenho</h3>
+    <p><strong>Arte e estilo</strong> são jogos de escopo aberto — ou,
+    como se chama em psicologia cognitiva, <strong>pensamento
+    divergente</strong> (vs. convergente). Não há uma ordem linear de
+    aprendizado, nem uma única resposta correta. Arte também pode ser
+    chamada de <em>problema de pensamento divergente</em>.</p>
+    <p>Outros exemplos: vida real, empreendedorismo, escrita.</p>
+    <h3 id="a-armadilha-da-linearidade">A armadilha da linearidade</h3>
+    <p>Iniciantes tentam aprender desenho como uma atividade física
+    (academia): “primeiro formas, depois linhas, depois anatomia”. Mas
+    <strong>atividades intelectuais não exigem progressão
+    linear</strong>. Diferente de levantar peso (onde pular etapas
+    quebra o pescoço), pegar um livro difícil ou tentar desenhar um
+    dragão no primeiro dia não causa nenhum dano.</p>
+    <blockquote>
+    <p>“Você pode pegar uma folha e desenhar uma caixa, depois pegar
+    outra folha e desenhar um dragão. Nada acontece com você.”</p>
+    </blockquote>
+    <p>Então: <strong>aprenda tudo ao mesmo tempo</strong>. A ordem dos
+    livros ou fundamentos não importa — contanto que você aprenda todos.
+    O elo mais fraco sempre aparece (ver <a
+    href="/wiki/os-seis-essenciais.html">Os Seis Essenciais</a>).</p>
+    <h3 id="implicação-prática">Implicação prática</h3>
+    <p>Pare de perguntar “o que aprendo primeiro?”. Comece hoje com o
+    que for difícil. A única progressão obrigatória é de dificuldade —
+    sempre tentar algo um pouco além do que já domina (ver <a
+    href="/wiki/rotacao-de-foco.html">Rotação de Foco</a>).</p>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>Desenho é um jogo de escopo aberto com alguns elementos de escopo
+    fechado (perspectiva). Não o trate como sequência linear: explore,
+    aprenda tudo de uma vez e progrida pela dificuldade, não pela “ordem
+    certa”.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Hoje mesmo desenhe algo “difícil demais” (um dragão, uma mão, um
+    carro) sem esperar dominar o básico.</li>
+    <li>Pare de perguntar “o que aprendo primeiro?” e abra três livros
+    diferentes na mesma semana.</li>
+    <li>Estude anatomia, perspectiva e gesto em paralelo, não em
+    sequência rígida.</li>
+    <li>Trate perspectiva como jogo fechado: decore as ~10 regras de uma
+    vez e aplique sempre.</li>
+    <li>Trate estilo e composição como jogo aberto: experimente sem medo
+    de errar, não há resposta única.</li>
+    <li>A cada sessão, suba um degrau de dificuldade: ângulo novo,
+    objeto novo, pose mais complexa.</li>
+    <li>Quando travar, identifique seu elo mais fraco e ataque
+    exatamente ele (ver <a href="/wiki/os-seis-essenciais.html">Os Seis
+    Essenciais</a>).</li>
+    <li>Use uma folha para uma caixa e a próxima para um dragão; alterne
+    fácil e difícil de propósito.</li>
+    <li>Não copie a “trilha de cursos” linear; monte sua própria mistura
+    de fundamentos.</li>
+    <li>Aceite que pensamento divergente não tem ordem certa: explore
+    vários caminhos ao mesmo tempo.</li>
+    <li>Lembre que pular etapa no desenho não te machuca como pular
+    carga na academia; arrisque mais.</li>
+    <li>Meça progresso pela dificuldade vencida, não pela quantidade de
+    “etapas” completadas.</li>
+    </ul>
+    <!-- tags: jogo aberto, jogo fechado, escopo aberto, escopo fechado, teoria dos jogos, pensamento divergente, pensamento convergente, psicologia cognitiva, ordem de aprendizado, progressão linear, progressao linear, aprender desenho, fundamentos, perspectiva, anatomia, elo mais fraco, dificuldade, prática deliberada, pratica deliberada, ordem certa, por onde começar, por onde comecar, divergent thinking, convergent thinking, open ended, closed ended, game theory, dragão no primeiro dia, dragao, não linear, nao linear, explorar, aprender tudo, regras de perspectiva, criatividade, livros de desenho, rotação de foco, rotacao de foco, zona de conforto, autodidata, estudo de desenho, sequência, sequencia, atalho, mindset -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

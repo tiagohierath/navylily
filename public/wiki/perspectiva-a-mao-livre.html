@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Perspectiva à Mão Livre — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/perspectiva-a-mao-livre.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="perspectiva-à-mão-livre">Perspectiva à Mão Livre</h1>
+    <h3 id="definição">Definição</h3>
+    <p>Desenhar perspectiva <strong>sem plotar pontos de fuga e
+    linhas-guia</strong> — sentindo, pela intuição, para onde as linhas
+    vão. É assim que você de fato aprende perspectiva, depois de
+    conhecer as regras.</p>
+    <h3 id="primeiro-as-regras-depois-a-mão-livre">Primeiro as regras,
+    depois a mão livre</h3>
+    <p>A <a href="/wiki/perspectiva-linear.html">Perspectiva Linear</a>
+    tem ~20 regras (linha do horizonte, pontos de fuga, ângulos) que
+    você memoriza (ver <a href="/wiki/livros-recomendados.html">Livros
+    Recomendados</a>: <em>Perspective Made Easy</em>). Mas:</p>
+    <blockquote>
+    <p>“Alguma hora você precisa praticar elas à mão livre para
+    conseguir sentir e internalizar as ideias. Você tem que ter a
+    intuição de sentir onde as linhas vão.”</p>
+    </blockquote>
+    <p>Isso espelha a teoria da intuição: as regras vão para o fundo da
+    mente e viram automáticas (e a filosofia do “sem técnica”).</p>
+    <h3 id="o-exercício">O exercício</h3>
+    <ol type="1">
+    <li>Pegue uma caneta e desenhe <strong>caixas à mão livre</strong>,
+    várias na mesma cena.</li>
+    <li>Deixe as regras “no fundo da mente” — não fique calculando com
+    pontos e linhas.</li>
+    <li>Suba a dificuldade aos poucos (caixas → formas mais difíceis →
+    um motor de F1, uma Porsche).</li>
+    </ol>
+    <h3 id="cilindro-caixa">Cilindro = caixa</h3>
+    <p>Um cilindro é só uma caixa com eixos:</p>
+    <blockquote>
+    <p>“Cilindros são literalmente caixas. A diferença é que têm um eixo
+    que vai para o ponto de fuga e um eixo paralelo a 90° — esse a 90° é
+    a curvatura do cilindro.”</p>
+    </blockquote>
+    <h3 id="benefícios">Benefícios</h3>
+    <p>Permite <strong>misturar perspectivas</strong> livremente (até
+    curva), o que seria difícil planejando tudo. É essencial para
+    desenhar mangás/quadrinhos com fluidez — e, para mim, a coisa mais
+    divertida do universo.</p>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>Memorize as regras, depois jogue-as no fundo da mente e desenhe à
+    mão livre até sentir a perspectiva no traço.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Encha páginas de caixas à mão livre, várias na mesma cena, sem
+    régua nem linhas-guia.</li>
+    <li>Marque mentalmente onde estaria a linha do horizonte e desenhe a
+    partir desse sentimento, sem plotar pontos.</li>
+    <li>Comece cada caixa pela face mais próxima e deixe as arestas
+    convergirem “a olho”.</li>
+    <li>Suba a dificuldade aos poucos: caixas → cilindros → escadas →
+    carros → motores → figuras.</li>
+    <li>Lembre que um cilindro é uma caixa com um eixo indo ao ponto de
+    fuga e outro a 90°, que vira a curvatura.</li>
+    <li>Desenhe a mesma caixa de vários ângulos seguidos para
+    internalizar a rotação.</li>
+    <li>Pratique a régua “fantasma”: passe a caneta no ar pelo trajeto
+    da linha antes de encostar no papel.</li>
+    <li>De vez em quando, confira uma caixa com régua de verdade para
+    calibrar o olho, depois volte à mão livre.</li>
+    <li>Misture perspectivas de propósito numa cena (linear + curva)
+    para soltar a mão.</li>
+    <li>Desenhe a caneta para se obrigar ao commitment de cada traço,
+    sem apagar.</li>
+    <li>Use referências reais (uma mesa, um quarto) e tente “ler” a
+    perspectiva sem medir.</li>
+    <li>Treine 10–15 minutos por dia só de caixas; é como aquecimento de
+    academia.</li>
+    <li>Quando errar feio, não apague: desenhe outra ao lado,
+    melhor.</li>
+    </ul>
+    <!-- tags: perspectiva à mão livre, freehand perspective, desenhar sem pontos de fuga, intuição de perspectiva, caixas à mão livre, box practice, perspectiva linear, pontos de fuga, vanishing points, linha do horizonte, internalizar regras, rotação de foco, sem técnica, cilindro, eixo, curvatura, scott robertson, perspective made easy, kim jung gi, mangá, quadrinhos, comics, desenhar de imaginação, construção, construction, traço com commitment, ink, caneta, sketchbook, aquecimento, warm up, draw boxes, rotacionar forma, ângulo, perspectiva curvilínea, misturar perspectivas, fluidez, soltar a mão, olho calibrado, eyeballing, perspectiva isométrica, prática diária, exercício de perspectiva, projeto hierath, intuição visual, automatizar, memória muscular -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

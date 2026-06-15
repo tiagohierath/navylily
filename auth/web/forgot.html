@@ -4,26 +4,42 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Recuperar senha — Navy Lily</title>
-  <style>
-    body { font-family: serif; }
-  </style>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="stylesheet" href="/site.css?v=1">
 </head>
-<body>
-  <form method="POST" action="/auth/recover">
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+  <form id="form" method="POST" action="/auth/recover">
     <h1>Recuperar senha</h1>
     <p>Digite seu e-mail e enviaremos um link para criar uma nova senha.</p>
     <p>
       <label for="email">E-mail</label><br>
-      <input id="email" name="email" type="email" required placeholder="voce@email.com" autofocus>
+      <input id="email" name="email" type="email" required placeholder="voce@email.com" autocomplete="email" autofocus>
     </p>
-    <button type="submit">Enviar link de recuperação</button>
+    <button id="submit" type="submit">Enviar link de recuperação</button>
     <p><a href="/login">Voltar para o login</a></p>
   </form>
+  </main>
   <script>
     (function () {
       const email = new URLSearchParams(location.search).get('email') || '';
       if (email.includes('@')) document.getElementById('email').value = email;
+      // One submission at a time: a pending label instead of a frozen-looking
+      // page, and no duplicate POST from a second click.
+      document.getElementById('form').addEventListener('submit', function () {
+        const b = document.getElementById('submit');
+        b.disabled = true;
+        b.textContent = 'Enviando…';
+      });
     })();
   </script>
+  <script src="/header.js?v=11" defer></script>
 </body>
 </html>

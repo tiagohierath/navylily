@@ -4,12 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Entrando… — Navy Lily</title>
-  <style>
-    body { font-family: serif; }
-  </style>
+  <link rel="stylesheet" href="/site.css?v=1">
 </head>
-<body>
+<body bgcolor="white">
+  <main>
   <p id="msg">Entrando…</p>
+  </main>
+  <script src="/header.js?v=11" defer></script>
   <script>
     // Link-based flows (email confirmation, the post-purchase login link,
     // password recovery) put a token in the URL fragment (#access_token=...),
@@ -37,8 +38,9 @@
           body: JSON.stringify({ access_token: token })
         });
         if (!res.ok) throw new Error('session');
-        // Go to the page they originally wanted, or the first paid lesson.
-        const next = new URLSearchParams(location.search).get('next') || '/protected/';
+        // Go to the page they originally wanted, or let the server pick their
+        // home (paid lessons for members, free lessons otherwise).
+        const next = new URLSearchParams(location.search).get('next') || '/after-login';
         location.replace(next);
       } catch (e) {
         msg.innerHTML = 'Não foi possível concluir o login.<br><a href="/login">Tentar novamente</a>';

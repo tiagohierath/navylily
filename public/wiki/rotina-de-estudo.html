@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rotina de Estudo — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/rotina-de-estudo.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="rotina-de-estudo">Rotina de Estudo</h1>
+    <h3 id="definição">Definição</h3>
+    <p>Minha rotina prática para evoluir no desenho. É a coisa mais
+    simples do mundo.</p>
+    <h3 id="o-método">O método</h3>
+    <ol type="1">
+    <li>Separe um tempo e ponha um <strong>timer</strong> (30 min, 1 h
+    ou 2 h).</li>
+    <li>Faça <strong>uma</strong> de três coisas:
+    <ul>
+    <li><strong>Desenhar de imaginação</strong> (com ou sem esboço — ver
+    <a href="/wiki/sem-tecnica.html">Sem Técnica</a>).</li>
+    <li><strong>Estudar</strong> de livros e fotos, construindo a <a
+    href="/wiki/biblioteca-visual.html">Biblioteca Visual</a>.</li>
+    <li><strong>Os dois</strong> (ex.: 30 min de imaginação, depois
+    estudo).</li>
+    </ul></li>
+    </ol>
+    <p>Mesmo começando com desenhos “feios”, continue até o fim do tempo
+    — sai coisa boa no meio do caminho (ver <a
+    href="/wiki/disciplina.html">Disciplina</a>).</p>
+    <h3 id="um-menu-de-exercícios-do-zero-ao-fim-do-ano">Um menu de
+    exercícios (do zero ao fim do ano)</h3>
+    <p>Dedique ~1 hora a um destes por sessão e vá <strong>rotacionando
+    o foco</strong>:</p>
+    <ul>
+    <li><strong>Observação</strong> — copiar um tema (motos, crânios) de
+    referência (ver <a href="/wiki/desenho-de-observacao.html">Desenho
+    de Observação</a>).</li>
+    <li><strong>Memória</strong> — desenhar o que viu, sem referência, e
+    conferir.</li>
+    <li><strong>Biblioteca visual</strong> — um objeto em todos os
+    ângulos fixos (ver <a href="/wiki/biblioteca-visual.html">Biblioteca
+    Visual</a>).</li>
+    <li><strong>Desconstrução</strong> — reduzir qualquer coisa a caixas
+    e cilindros.</li>
+    <li><strong>Perspectiva</strong> e <strong>Anatomia</strong> —
+    sempre na versão um pouco mais difícil do que você domina.</li>
+    </ul>
+    <p>O objetivo é fazer cada fundamento virar automático (ver <a
+    href="/wiki/rotacao-de-foco.html">Rotação de Foco</a> e <a
+    href="/wiki/os-seis-essenciais.html">Os Seis Essenciais</a>).</p>
+    <h3 id="as-duas-metades-são-obrigatórias">As duas metades são
+    obrigatórias</h3>
+    <p>Estudar e desenhar de imaginação são coisas diferentes, e
+    <strong>nenhuma pode ser pulada</strong>:</p>
+    <blockquote>
+    <p>“O erro mais comum dos iniciantes: eles só estudam, só fazem
+    exercícios de curso e de livro, e nunca desenham de imaginação. Você
+    tem que colocar em prática.”</p>
+    </blockquote>
+    <p>Hoje eu desenho de imaginação 99% do tempo — e, quanto mais
+    avançado fico, mais valorizo isso (ver <a
+    href="/wiki/aprender-desenhando.html">Aprender Desenhando</a>).</p>
+    <h3 id="conhecimento-específico">Conhecimento específico</h3>
+    <p>A razão de fundo: existe um conhecimento que <strong>só se ganha
+    praticando</strong> — o que Naval Ravikant chama de <em>conhecimento
+    específico</em>.</p>
+    <blockquote>
+    <p>“Tem conhecimento que eu não consigo te passar. Se eu colocar em
+    palavras, vou estar corroendo o significado dele.”</p>
+    </blockquote>
+    <p>Isso conecta com os <a
+    href="/wiki/tipos-de-conhecimento.html">Tipos de conhecimento</a>
+    (formal x informal) da wiki: o informal só vem da prática.</p>
+    <h3 id="ataque-o-elo-mais-fraco">Ataque o elo mais fraco</h3>
+    <p>Para escolher o que treinar, mire na sua maior fraqueza:</p>
+    <blockquote>
+    <p>“Imagine uma corrente em que um elo é de papel e os outros de
+    metal. Ao puxar, o de papel quebra primeiro.”</p>
+    </blockquote>
+    <p>Ache o fundamento mais fraco da sua arte e gaste horas nele —
+    você melhora muito mais rápido. (Pense: um milionário obeso não
+    precisa de mais dinheiro, precisa perder peso.) Isso é feedback
+    aplicado ao planejamento.</p>
+    <p><strong>Dica prática:</strong> junte <strong>todas</strong> as
+    referências <em>antes</em> de começar — pegue mais do que precisa.
+    Senão você para no meio para procurar, cai no Pinterest, vê o
+    WhatsApp e perde a sessão.</p>
+    <h3 id="sistema-de-propósitos-mini-missões">Sistema de propósitos
+    (mini-missões)</h3>
+    <p>Em vez de estudar aleatoriamente, organize o aprendizado em
+    mini-missões de 3 etapas:</p>
+    <ol type="1">
+    <li><strong>Problema ou curiosidade</strong>: o que está te
+    limitando agora? (não consigo desenhar carros) Ou o que você quer
+    aprender? (curiosidade sobre arquitetura japonesa)</li>
+    <li><strong>Trabalho</strong>: pesquise, copie referências, estude
+    livros específicos para resolver esse problema até que fique
+    aceitável.</li>
+    <li><strong>Completude</strong>: quando o tédio chegar, marque como
+    feito e passe para a próxima missão.</li>
+    </ol>
+    <p>Não precisa atingir perfeição — “aceitável” já basta para seguir
+    em frente. Você volta a qualquer tema mais tarde se ele voltar a ser
+    o elo mais fraco.</p>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>Timer ligado, uma das três opções, todo dia, mirando o elo mais
+    fraco. Use mini-missões para organizar o que estudar. Estude o que
+    dá para ensinar e pratique o que só a mão aprende.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Coloco um timer (30 min, 1h ou 2h) antes de começar e desenho
+    até ele tocar.</li>
+    <li>A cada sessão escolho UMA de três coisas: imaginação, estudo de
+    referência, ou as duas.</li>
+    <li>Continuo desenhando mesmo quando os primeiros traços saem
+    feios.</li>
+    <li>Nunca deixo de desenhar de imaginação só porque “ainda estou
+    estudando”.</li>
+    <li>Junto TODAS as referências antes de começar, mais do que eu acho
+    que preciso.</li>
+    <li>Não paro no meio para procurar referência (é onde caio no
+    Pinterest e no WhatsApp).</li>
+    <li>Identifico meu elo mais fraco e gasto horas nele em vez de
+    treinar o que já é forte.</li>
+    <li>Organizo o estudo em mini-missões: problema, trabalho,
+    completude.</li>
+    <li>Defino um problema concreto (“não consigo desenhar carros”) como
+    alvo da missão.</li>
+    <li>Paro a missão quando o resultado fica “aceitável”, sem buscar
+    perfeição.</li>
+    <li>Marco a missão como feita quando o tédio chega e passo para a
+    próxima.</li>
+    <li>Volto a um tema antigo só quando ele voltar a ser meu elo mais
+    fraco.</li>
+    <li>Rotaciono observação, memória, biblioteca visual, desconstrução,
+    perspectiva e anatomia.</li>
+    <li>Em perspectiva e anatomia, treino sempre um pouco acima do que
+    já domino.</li>
+    <li>Aceito que parte do conhecimento (o informal) só vem da mão na
+    massa.</li>
+    </ul>
+    <!-- tags: rotina de estudo, rotina de desenho, timer, sessão de estudo, desenhar de imaginação, estudo de referência, biblioteca visual, elo mais fraco, mini-missões, conhecimento específico, Naval Ravikant, conhecimento informal, prática, disciplina, observação, memória, desconstrução, perspectiva, anatomia, juntar referências, evitar distração, Pinterest, foco, planejamento de estudo, aceitável, completude, tédio, study routine, drawing practice, weakest link, deliberate practice, prática deliberada, hábito, consistência, todo dia, exercicios de desenho, motos, crânios, caixas, cilindros, evoluir no desenho, melhorar rapido, autodidata, plano de estudo, organizar estudo, curiosidade, problema, antifragil, foco rotativo, sketchbook, treino diario -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Perspectiva Bizantina — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/perspectiva-bizantina.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="perspectiva-bizantina">Perspectiva Bizantina</h1>
+    <h3 id="definição">Definição:</h3>
+    <p>Perspectiva Bizantina é uma forma de desenhar parecida com <a
+    href="/wiki/perspectiva-moderna.html">Perspectiva Moderna</a>. A sua
+    característica mais distinta é a projeção invertida, onde os objetos
+    são representados entre o papel e o observador. Perspectiva
+    bizantina resolve vários problemas da <a
+    href="/wiki/perspectiva-moderna.html">Perspectiva Moderna</a>, como
+    a distorção nos cantos do papel com <a
+    href="/wiki/polycentredness.html">Polycentredness</a> Perspectiva
+    Bizantina não é quase nunca utilizada hoje em dia, mas ainda é útil
+    aprender sobre. Diferente de <a
+    href="/wiki/perspectiva-moderna.html">Perspectiva Moderna</a>, a
+    versão Bizantina não tem métodos formais, como “pontos de fuga” ou
+    “linha do horizonte”, ela é bem mais sutil nesse aspecto.</p>
+    <p>Perspectiva Bizantina:</p>
+    <ul>
+    <li>Beyond Vision - Pavel Florenski</li>
+    <li>Perspective as symbolic form - Erwin Panofsky</li>
+    </ul>
+    <p>Como Pavel Florenski diz no seu livro “Beyond Vision”,
+    perspectiva bizantina é a forma natural de desenhar, onde você pode
+    desenhar uma casa de vários ângulos, não só de um ponto de vista
+    único como uma câmera. Também é a forma que crianças desenham por
+    padrão.</p>
+    <p>Perspectiva Bizantina é uma ideia bem forte em Racionalidade
+    Ecológica ou Psicologia Ecológica, focando em valorizar o ponto de
+    vista humano ao invés de uma “verdade lógica” ou “matemática”. É
+    comum ver até quatro lados de uma caixa de uma vez em perspectiva
+    bizantina, pois ela projeta os objetos ao contrário.</p>
+    <p>Nesse método de desenho, objetos são representados entre o plano
+    e o observador, isso tem motivos simbólicos ou teológicos, porém é
+    difícil descrever, o melhor simbolo pra isso são “imagens
+    operativas” (imagens que funcionam como o objeto representado, tipo
+    senhas ou circuitos de computador).</p>
+    <h3 id="vantagens">Vantagens:</h3>
+    <ol type="1">
+    <li>Fidelidade a experiência humana:
+    <ul>
+    <li>Representa melhor a forma que nós observamos; movendo o olho e o
+    corpo através do espaço.</li>
+    </ul></li>
+    </ol>
+    <h3 id="desvantagens">Desvantagens:</h3>
+    <ol type="1">
+    <li>Quase nunca utilizada nos dias de hoje.</li>
+    <li>Falta de precisão “objetiva” em geometria ou matemática.</li>
+    </ol>
+    <h2 id="veja-também">Veja também</h2>
+    <p><a href="https://youtu.be/VMJoPM7sDZo"># The Problem With Realism
+    in Christian Art | with Jonathan Pageau</a></p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Comece desenhando uma caixa simples mostrando até quatro lados
+    de uma vez, ao contrário do que a perspectiva linear permite.</li>
+    <li>Deixe as linhas que normalmente convergiriam num ponto de fuga
+    abrirem-se em vez de fecharem (projeção invertida).</li>
+    <li>Desenhe uma mesa ou prédio “como uma criança faria”: cada face
+    vista da sua melhor orientação, não do ponto de vista único.</li>
+    <li>Para um objeto, gire-o mentalmente e represente o que você veria
+    movendo a cabeça, somando os ângulos numa imagem só.</li>
+    <li>Use bizantina quando a linear distorcer demais as bordas da cena
+    (ver <a href="/wiki/polycentredness.html">Polycentredness</a>).</li>
+    <li>Esqueça régua, pontos de fuga e linha do horizonte; trabalhe
+    pela sensação e pela leitura humana do espaço.</li>
+    <li>Estude ícones bizantinos reais e copie como eles tratam tronos,
+    mesas e arquitetura.</li>
+    <li>Combine bizantina com <a
+    href="/wiki/perspectiva-moderna.html">Perspectiva Moderna</a> numa
+    mesma página para experimentar os dois efeitos.</li>
+    <li>Pense em “imagens operativas”: desenhe o objeto pelo que ele
+    faz/significa, não só pela aparência ótica.</li>
+    <li>Para narrativa, aproveite que a bizantina mostra vários lados ao
+    mesmo tempo para contar mais numa imagem.</li>
+    <li>Leia <em>Beyond Vision</em> (Florenski) e <em>Perspective as
+    Symbolic Form</em> (Panofsky) para entender o porquê simbólico.</li>
+    <li>Pratique desenhar a mesma casa em linear e em bizantina e
+    compare qual transmite melhor a experiência.</li>
+    </ul>
+    <!-- tags: perspectiva bizantina, byzantine perspective, perspectiva invertida, reverse perspective, projeção invertida, inverse perspective, pavel florenski, florensky, beyond vision, panofsky, perspective as symbolic form, ícone, ícones, arte cristã, jonathan pageau, perspectiva moderna, perspectiva linear, polycentredness, racionalidade ecológica, psicologia ecológica, ponto de vista humano, vários ângulos, quatro lados da caixa, sem ponto de fuga, sem linha do horizonte, desenho de criança, imagens operativas, simbolismo, teologia, distorção, mapa, projeção cartográfica, renascimento, antropocentrismo, idade média, arte medieval, perspectiva é distorção, desenhar casa de vários ângulos, experiência humana, movimento do olho, kim jung gi, isométrica, projeto hierath, história da perspectiva -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

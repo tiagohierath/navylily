@@ -3,122 +3,149 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Não existem soluções, apenas trocas — Navy Lily</title>
+  <title>Intuição — Navy Lily</title>
   <meta name="description" content="Aulas da Navy Lily.">
   <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/008.html">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <style>
-    body { font-family: serif; margin: 0; }
-    header.site {
-      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-      padding: .75rem 1rem; border-bottom: 1px solid #ddd;
-    }
-    header.site .brand {
-      font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
-    }
-    header.site form { display: flex; gap: .25rem; }
-    header.site input[name=q] { font: inherit; padding: .25rem .5rem; }
-    header.site .btn {
-      font: inherit; text-decoration: none; color: inherit;
-      border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
-    }
-    main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
-    /* Optional lesson thumbnail, shown under the heading; always 16:9. */
-    img.lesson-image {
-      display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
-      border-radius: 8px; margin: 1rem 0 1.5rem;
-    }
-    nav.lesson-nav {
-      display: flex; justify-content: space-between; gap: 1rem; margin: 2.5rem 0 1.5rem;
-    }
-    nav.lesson-nav a {
-      font: inherit; text-decoration: none; color: inherit;
-      border: 1px solid #ccc; border-radius: 6px; padding: .4rem .8rem;
-    }
-    nav.lesson-nav .nav-next { margin-left: auto; }
-    .lesson-complete { margin: 2rem 0 0; }
-    .lesson-complete-btn {
-      font: inherit; cursor: pointer; color: #fff;
-      border: 1px solid; border-radius: 6px; padding: .4rem .9rem;
-    }
-    .lesson-complete-btn.is-todo { background: #1A3F7A; border-color: #1A3F7A; }
-    .lesson-complete-btn.is-done { background: #2E7D32; border-color: #2E7D32; }
-    .lesson-complete-btn:disabled { opacity: .6; cursor: default; }
-    /* Phone: keep the two header actions side by side instead of each wrapping
-       to its own line — the search box drops to a full-width row of its own. */
-    @media (max-width: 480px) {
-      header.site { gap: .5rem; }
-      header.site form { order: 3; flex-basis: 100%; }
-      header.site input[name=q] { flex: 1; min-width: 0; }
-    }
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
   </style>
 </head>
-<body>
+<body bgcolor="white">
   <header class="site">
-    <a class="brand" href="/"><img src="/logo.png?v=2" alt="Navy Lily Works" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
     <form action="/lessons.html" method="get" role="search">
       <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
-      <button class="btn" type="submit">Buscar</button>
-    </form>
-    <a class="btn" href="/community">Comunidade</a>
-    <a class="btn" href="/comprar">Navy</a>
-    <a class="btn" href="/login">Perfil</a>
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
   </header>
   <main>
-    <h1 id="não-existem-soluções-apenas-trocas">Não existem soluções,
-    apenas trocas</h1>
-    <p>Um amigo me mostrou um video sobre outro youtuber de desenho, com
-    um estilo bem diferente do meu, esse youtuber estava dizendo que é
-    ruim finalizar desenhos no começo (que eu discordo, mas tudo bem).
-    Mas eu só pude pensar que, verdadeiramente existem estilos
-    diferentes de desenho e treino, e artistas tem tolerâncias bem
-    baixas.</p>
-    <p>E por tolerância baixa eu quero dizer, nem ferrando eu
-    conseguiria manter a rotina de desenho de outro artista muito
-    diferente da minha, e eu já tentei. Tem artistas que fazem vários
-    estudos e exercícios de gestual, eu sei fazer isso, eu só fiz por
-    disciplina ou por teste mas eu não amo fazer esses exercícios e não
-    me importo tanto com anatomia. Anatomia é um dos meus fundamentos
-    menos favoritos, e eu sou relativamente bom nele, eu vi todas as
-    aulas do Proko, eu fiz os livros, Michael Hampton, George Bridgman,
-    copiei todas as imagens, várias vezes.</p>
-    <p>Então, a mensagem é que eu nunca vou aguentar usar estilos
-    opostos do meu, não por purismo ideológico, mas por que eu não estou
-    afim. Eu realmente acredito que você deveria fazer coisas no desenho
-    que você está afim e te dão ânimo.</p>
-    <p>Finalizar desenhos me ajudou tanto que eu literalmente só
-    desenhei com tinta por anos. Então talvez seja cientificamente
-    (emoji de nerd) melhor fazer de outra forma, eu só prefiro fazer o
-    que eu estou afim. Eu coloco valor na minha própria curiosidade e
-    vontades.</p>
-    <p>E eu descrevi depois pra aquele amigo, bem, da forma que eu penso
-    sobre isso hoje em dia, que meu processo é altamente feminino no
-    sentido de ser horizontal. Horizontal basicamente significa feminino
-    em simbolismo cristão, pra contexto, apenas imagine o mar, e
-    masculino seria vertical tipo o sol. Por que a minha arte tem um
-    viés feminino no seu processo? Eu não faço tanta ideia na real, eu
-    suspeito que tenha a ver com o fato de que arte, nessa época da
-    história em que vivemos, precisa ser feminina, e eu só estou
-    intuindo isso, mas vai saber. E esse processo horizontal, na qual eu
-    prefiro saber de vários fundamentos e áreas distintas ao invés de ir
-    fundo em três fundamentos é o que me trouxe aqui. Não que fazer de
-    outra forma não produza arte boa, mas entre fazer o “certo” e fazer
-    o que eu estou afim, essa segunda opção é bem mais provável de
-    acontecer.</p>
-    <p>Em um universo imaginário perfeito, eu faria tudo igual uma
-    máquina, perfeitamente calibrado pra tomar a quantia certa de água,
-    proteínas e macropseudofuckinnutrientes e eu desenharia da melhor
-    forma para virar o melhor!!! Mas de novo, fazer coisas é melhor do
-    que não fazer elas perfeitamente (o perfeito é inimigo do feito). Só
-    faça coisas da forma que parece certo, e trabalhe bastante,
-    obviamente disciplina vai ser necessária as vezes, muitas vezes, mas
-    não é sempre a solução. Também é necessário ser bobo.</p>
-    <h2 id="aulas-relacionadas">Aulas relacionadas</h2>
+    <h1 id="intuição">Intuição</h1>
+    <p>Outra coisa sobre aprender idiomas, é que nem tudo funciona de
+    forma consciente, por exemplo reconhecimento de palavras e
+    frases.</p>
+    <p>Só pra contexto, eu aprendi o básico de ouvir código morse
+    (entender os sons), não me faça perguntas!!</p>
+    <p>No começo era bem difícil ouvir aqueles sons e entender as
+    letras, mas daí me recomendaram o método <em>Instant Character
+    Recognition</em> que era só sobre tentar ouvir uma letra sendo
+    tocada em Morse e digitar no teclado qual era. Tipo beep beeeeeep
+    beep = R. Entrada de informação é importante. E depois de se
+    acostumar nesse joguinho, onde você ouve letras e digita/anota qual
+    ouviu, você pode partir pra ouvir palavras inteiras e digitar
+    elas.</p>
+    <p>Mas por que eu estou contando essa história? Por que pra ficar
+    proficiente em código morse você tem que entender algo tipo 20
+    palavras por minuto, é <strong>impossível</strong> conscientemente
+    contar os sons tipo “oh três beeps curtos é essa letra”, se você
+    parar pra <strong>pensar</strong> você perde quinze palavras.</p>
+    <p>É a mesma coisa no desenho, tem coisas que você calcula
+    conscientemente, mas tem várias e várias coisas que você deixa pra
+    intuição, que você precisa fazer automaticamente. O Kim Jung Gi
+    desenhando perspectiva, provavelmente não estava pensando em nada de
+    perspectiva, mas em coisas tipo roupas, expressões faciais,
+    storytelling, etc. Perspectiva é um dos exemplos óbvios sobre coisas
+    que precisam ser internalizadas para que você possa focar em outros
+    fundamentos.</p>
+    <p>Enquanto eu escrevo esse texto, eu utilizo diversas regras de
+    gramática, mas obviamente eu não penso sobre, é automático.</p>
+    <p>E essa internalização, igual em aprender idiomas, só acontece com
+    quantidades absurdas de prática. É a ideia de Conhecimento
+    Informal/Específico.</p>
+    <p>Conhecimento formal pode ser ensinado, são tipo aulas como essa,
+    ou princípios, regras, métodos. Conhecimento informal é adquirido
+    por prática APENAS, ele não pode ser ensinado por que é bizarramente
+    complexo, também não pode ser racionalizado com eficiência. É bem
+    mais importante que o Formal pra uma experiência suave de
+    desenho.</p>
+    <details class="more">
+    <summary>
+    Aulas relacionadas
+    </summary>
     <ul>
-    <li><a href="/002.html">Bem vindo ao curso de desenho de
-    imaginação.</a></li>
-    <li><a href="/007.html">Começar do zero &gt; consertar</a></li>
+    <li><a href="/007.html">Anatomia</a></li>
+    <li><a href="/009.html">Desenho é não-linear</a></li>
     </ul>
+    </details>
+    <details class="more">
+    <summary>
+    Navy Wiki: Artigos avançados &amp; opcionais:
+    </summary>
+    <ul>
+    <li><a href="/wiki/entrada-de-informacao.html">Entrada de
+    Informação</a></li>
+    <li><a href="/wiki/perspectiva.html">Perspectiva</a></li>
+    </ul>
+    </details>
     <!--COMPLETE-->
     <nav class="lesson-nav">
       <a class="nav-prev" href="/007.html">← aula anterior</a>
@@ -127,8 +154,9 @@
 
     </nav>
     <div id="navy-join"></div>
-    <script src="/join.js"></script>
+    <script src="/join.js" defer></script>
   </main>
-  <script src="/header.js" defer></script>
+  <script src="/header.js?v=11" defer></script>
+  <script src="/lesson.js?v=1" defer></script>
 </body>
 </html>

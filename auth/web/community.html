@@ -9,17 +9,17 @@
     body { font-family: serif; margin: 0; }
     header.site {
       display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-      padding: .75rem 1rem; border-bottom: 1px solid #ddd;
+      padding: .75rem 1rem; 
     }
     header.site .brand {
       font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
     }
     header.site .btn {
       font: inherit; text-decoration: none; color: inherit;
-      border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
+      padding: .25rem .6rem;
     }
     /* The page you're on: marked in the nav instead of looking like elsewhere. */
-    header.site .btn[aria-current="page"] { border-color: #1A3F7A; color: #1A3F7A; font-weight: 600; }
+    header.site .btn[aria-current="page"] { color: #1A3F7A; font-weight: 600; }
     main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
     h1 { margin: 0 0 .25rem; }
     .hint { color: #666; font-size: .9rem; }
@@ -32,7 +32,7 @@
     /* A small square avatar, reused at a couple of sizes (set inline). */
     .ava {
       display: inline-flex; align-items: center; justify-content: center;
-      border: 1px solid #ccc; border-radius: 4px; overflow: hidden;
+      overflow: hidden;
       background: #eee; color: #333; box-sizing: border-box; vertical-align: middle;
     }
     .ava img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -40,24 +40,54 @@
     /* Compose box + the "why you can't post" gate that replaces it. The area
        reserves a line so the async-resolved gate pushes content down less. */
     #compose-area { min-height: 2.4rem; }
-    #compose { border: 1px solid #ddd; border-radius: 8px; padding: .75rem; margin-bottom: 1.5rem; }
+    #compose { padding: .5rem .75rem .4rem; margin-bottom: 1.5rem; }
     #gate { margin: .25rem 0 1.5rem; }
-    #compose textarea { font: inherit; width: 100%; box-sizing: border-box; }
-    #compose .controls { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-top: .5rem; }
+    .gate-list { margin: .4rem 0; padding-left: 1.25rem; }
+    .gate-list li { margin: .3rem 0; }
+    /* Twitter-shaped: your avatar beside one quiet line that grows as you type. */
+    #compose .crow { display: flex; gap: .6rem; align-items: flex-start; }
+    /* A bordered field with square corners so it reads as a writing box
+       (Twitter's composer), in the site's input colors. */
+    #compose textarea {
+      flex: 1; font: inherit; font-size: 1.05rem;
+      border: 1px solid #9FB0C9 !important; background: #D7E0EC !important; color: #0B1F3A !important;
+      resize: none; padding: .55rem .7rem; box-sizing: border-box;
+    }
+    #compose textarea:focus { border-color: #1A3F7A !important; }
+    #compose .controls { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; }
+    #compose .controls #compose-btn { margin-left: auto; }
     #compose button, .reply button, .editbox button { font: inherit; }
-    .compose-hint { color: #666; font-size: .8rem; margin-top: .35rem; }
-    .count { color: #666; font-size: .8rem; }
+    .iconbtn { font: inherit; font-size: 1.15rem; line-height: 1; cursor: pointer; padding: .4rem .5rem; }
+    .count { color: #666; font-size: .85rem; }
     .count.warn { color: #b00; }
-    #compose-img-preview img { max-width: 100%; margin-top: .5rem; border: 1px solid #eee; border-radius: 6px; }
-    #compose-md-preview { border: 1px dashed #ccc; border-radius: 6px; padding: .1rem .6rem .35rem; margin-top: .5rem; }
+    /* Attached image: a thumbnail with its ✕ right on it, like everywhere else. */
+    #compose-img-preview { position: relative; display: inline-block; max-width: 100%; }
+    #compose-img-preview img { max-height: 160px; max-width: 100%; display: block; margin: .25rem 0 .5rem; }
+    .imgx { position: absolute; top: .6rem; right: .35rem; width: 1.7rem; height: 1.7rem; padding: 0 !important; line-height: 1; cursor: pointer; }
+
+    /* Board tabs: one bar below the header, split into equal-width segments
+       (symmetric tabs). The selected board fills navy; !important overrides the
+       page-wide navy button fill so these read as tabs, not buttons. */
+    .boards { display: flex; margin: 0 0 1.25rem; border: 1px solid #0B1F3A; }
+    .board-tab {
+      flex: 1; text-align: center;
+      font: inherit; cursor: pointer; padding: .55rem .9rem; border: none;
+      background: #E6EAF1 !important; color: #28456B !important;
+    }
+    .board-tab + .board-tab { border-left: 1px solid #0B1F3A; }
+    .board-tab:not([aria-current="page"]):hover { background: #D7DEEA !important; }
+    .board-tab[aria-current="page"] { background: #0B1F3A !important; color: #fff !important; }
 
     /* Posts. */
-    .post { border-bottom: 1px solid #eee; padding: 1rem 0; }
+    .post { padding: 1rem 0; }
     .post .head { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
     .post .head a { text-decoration: none; color: inherit; }
-    .post .actions { margin-left: auto; display: flex; align-items: center; gap: .25rem; flex-wrap: wrap; justify-content: flex-end; }
+    .post .actions { margin-left: auto; display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; justify-content: flex-end; }
     .meta a { text-decoration: none; color: inherit; }
     .meta .name { font-weight: 600; }
+    .meta .memberbadge { display: inline-block; margin-left: .35rem; padding: 0 .32rem;
+      background: #1A3F7A; color: #fff; font-size: .62rem; font-weight: 700;
+      letter-spacing: .06em; line-height: 1.6; vertical-align: middle; cursor: help; }
     .meta .anon { color: #666; }
     .meta .time { color: #666; font-weight: 400; font-size: .9rem; }
     .meta .linkbtn, .meta .del-wrap { margin-left: .4rem; }
@@ -68,19 +98,31 @@
     /* The first line/heading of a post: a real heading (screen readers can jump
        post to post), shown slightly larger than the body. */
     h2.post-title { font-size: 1.15rem; font-weight: 600; margin: .4rem 0 .15rem; overflow-wrap: anywhere; }
-    .post .post-img { max-width: 100%; border: 1px solid #eee; border-radius: 6px; display: block; margin-top: .5rem; }
+    .post-title-link { color: inherit; text-decoration: none; }
+    .post-title-link:hover, .post-title-link:focus { text-decoration: underline; }
+    /* In the feed the body is one big click target that opens the thread; the
+       cursor says so, but text, links and the image keep their own behaviour. */
+    .post .content.clickable { cursor: pointer; }
+    .post .content.clickable .md { cursor: text; }
+    .post .post-img { max-width: 100%; display: block; margin-top: .5rem; }
     .post .foot { margin-top: .5rem; display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; }
     /* Text buttons: underlined (not color-only) and padded out to a usable
        touch target; the negative margin keeps the visual rhythm unchanged. */
     .linkbtn, .del {
       font: inherit; background: none; border: none; cursor: pointer;
       text-decoration: underline; color: #1A3F7A;
-      padding: .3rem .4rem; margin: -.3rem -.4rem;
+      padding: .45rem .4rem; margin: -.4rem -.35rem;
     }
+    /* Emoji buttons: no underline (an underlined emoji looks broken) and
+       grayscale, so the only color in the row is the red heart once liked. */
+    .cbtn, .like, .share, .iconbtn { text-decoration: none; filter: grayscale(1); }
+    .like[aria-pressed="true"] { filter: none; }
     .del { color: #b00; font-size: .85rem; }
     .comment .del, .comment .linkbtn { font-size: .8rem; }
     .confirm { font-size: .85rem; color: #b00; }
-    .confirm .linkbtn { font-size: .85rem; }
+    /* The yes/no pair are full-size, separated targets: a fat finger must not
+       land on "sim" while aiming at "não". */
+    .confirm .linkbtn { font-size: .85rem; padding: .45rem .7rem; margin: 0; }
     .confirm .yes { color: #b00; }
     .newreplies { color: #1A3F7A; font-weight: 600; font-size: .9rem; }
 
@@ -88,39 +130,98 @@
     .md { overflow-wrap: anywhere; }
     .md p { margin: .5rem 0; white-space: pre-wrap; }
     .md ul, .md ol { margin: .5rem 0; padding-left: 1.5rem; }
-    .md blockquote { margin: .5rem 0; padding-left: .75rem; border-left: 3px solid #ddd; color: #555; }
-    .md pre { background: #f6f6f6; padding: .5rem .6rem; border-radius: 6px; overflow-x: auto; }
+    .md blockquote { margin: .5rem 0; padding-left: .75rem; color: #555; }
+    .md pre { background: #f6f6f6; padding: .5rem .6rem; overflow-x: auto; }
     .md code { font-family: monospace; }
     .md pre code { font-size: .9rem; }
     .md a { color: #1A3F7A; }
     .comment .md p { margin: .25rem 0; }
 
     /* Comments under a post. */
-    .comments { margin: .75rem 0 0 .5rem; border-left: 2px solid #eee; padding-left: .75rem; }
+    .comments { margin: .75rem 0 0 .5rem; padding-left: .75rem; }
     .comment { display: flex; gap: .5rem; margin: .75rem 0; }
+    .comment.is-reply { margin-left: 2rem; border-left: 2px solid #c8d3e3; padding-left: .5rem; }
     .comment .cmain { min-width: 0; flex: 1; }
     .comment .meta .time { font-size: .85rem; }
+    .reply-to { font-size: .8rem; color: #666; margin-bottom: .1rem; }
+    .reply-to a { color: inherit; text-decoration: none; }
     .reply { margin-top: .5rem; }
     .reply textarea, .editbox textarea { font: inherit; width: 100%; box-sizing: border-box; }
     .reply .row, .editbox .row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-top: .25rem; }
     .msg { font-size: .85rem; }
 
-    #pinned:not(:empty) { border-bottom: 2px solid #ddd; margin-bottom: .5rem; }
+    #pinned:not(:empty) { margin-bottom: .5rem; }
     .pinned-label { margin: .75rem 0 0; }
+
+    /* Single-post page (/post/<id>): only the post + its thread show; the feed,
+       composer, boards and their messages are out of the way. */
+    body.post-page #boards,
+    body.post-page #compose-area,
+    body.post-page #ownerbar,
+    body.post-page #feed,
+    body.post-page #empty,
+    body.post-page #feed-error,
+    body.post-page #end,
+    body.post-page #more { display: none !important; }
+    .backlink { margin: .25rem 0 1rem; }
+    .backlink a { text-decoration: none; color: #1A3F7A; font-weight: 600; }
     #more { font: inherit; margin: 1.5rem auto; display: block; padding: .5rem 1rem; }
     @media (max-width: 480px) { main { padding: 1rem .75rem; } header.site { gap: .5rem; } }
+      /* navy form controls */
+    header.site { background: #ADB6C6; }
+    /* …but never the inline text actions (editar/apagar/sim/não/…): as filled
+       pills they'd flatten the hierarchy and lose the red danger color. */
+    button:not(.linkbtn):not(.del):not(.iconbtn) { background: #0B1F3A !important; color: #FFFFFF !important; }
+    button[type=button]:not(.linkbtn):not(.del):not(.iconbtn) { background: #28456B !important; }
+    /* Toolbar icons stay quiet, like Twitter's — the only filled pill is Publicar. */
+    .iconbtn { background: none; border: none; color: inherit; }
+    input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+    input::placeholder, textarea::placeholder { color: #3D5A80 !important; }
+    .lesson-complete-btn.is-done { background: #3D5A80 !important; }
+    /* Phone: compact header — smaller logo + tighter buttons share one row. */
+    @media (max-width: 480px) {
+      header.site { gap: .4rem; padding: .5rem .6rem; }
+      header.site .brand img { height: 16px !important; width: auto !important; }
+      header.site .btn { padding: .4rem .5rem; font-size: .9em; }
+    }
+  @media(max-width:640px){.lbl-rest{display:none}}
   </style>
 </head>
-<body>
+<body bgcolor="white">
+  <!-- Splash: black + white logo while the data loads (Discord-style).
+       splashDone() drops it; the timeout is a failsafe so a slow request or a
+       JS error never leaves the screen black. -->
+  <div id="splash"><img src="/logo.png?v=3" alt=""></div>
+  <style>
+    #splash { position: fixed; inset: 0; z-index: 999; background: #000;
+              display: flex; align-items: center; justify-content: center; }
+    #splash img { width: min(80vw, 420px); filter: brightness(0) invert(1);
+                  animation: splash-pulse 1.6s ease-in-out infinite; }
+    @keyframes splash-pulse { 50% { opacity: .35; } }
+    /* Desktop: nearly edge to edge; phones keep it readable, not absurd. */
+    @media (min-width: 768px) { #splash img { width: 88vw; } }
+  </style>
+  <script>
+    function splashDone() { var s = document.getElementById('splash'); if (s) s.remove(); }
+    setTimeout(splashDone, 4000);
+  </script>
   <header class="site">
-    <a class="brand" href="/"><img src="/logo.png?v=2" alt="Navy Lily Works" width="164" height="28" style="display:block"></a>
-    <a class="btn" href="/community" aria-current="page">Comunidade</a>
-    <a class="btn" href="/comprar">Navy</a>
-    <a class="btn" href="/login">Perfil</a>
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-current="page" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
   </header>
   <main>
-    <h1>Comunidade</h1>
-    <p class="hint">Espaço de feedback: compartilhe trabalhos e dúvidas. Comento para dar retorno.</p>
+    <!-- Owner-only: the "members first" review queue (must-review before free). -->
+    <p id="ownerbar" hidden><button type="button" id="queue-toggle" class="linkbtn">Fila de membros</button></p>
+
+    <!-- Boards: share work for critique ("feedback") and sketchbook pages
+         ("sketchbooks"). The selected board scopes both the feed and new posts. -->
+    <nav id="boards" class="boards" aria-label="Quadros">
+      <button type="button" class="board-tab" data-board="feedback">Feedback</button>
+      <button type="button" class="board-tab" data-board="sketchbooks">Sketchbooks</button>
+    </nav>
 
     <!-- Compose: shown only to members with a username, and only after the
          daily-limit check resolves (so the box never vanishes mid-typing).
@@ -129,22 +230,23 @@
     <div id="compose-area">
       <div id="compose" hidden>
         <form id="compose-form">
-          <textarea id="compose-body" rows="4" maxlength="2000"
-                    placeholder="Escreva… a primeira linha vira o título." aria-label="Sua publicação"></textarea>
-          <div class="controls">
-            <input type="file" id="compose-image" accept="image/png,image/jpeg,image/gif" aria-label="Anexar imagem">
-            <button type="button" id="compose-image-clear" hidden>remover imagem</button>
-            <button type="submit" id="compose-btn">Publicar</button>
-            <button type="button" id="compose-preview-btn">Pré-visualizar</button>
-            <span id="compose-count" class="count" aria-hidden="true">0/2000</span>
-            <span id="compose-msg" class="hint" role="status"></span>
+          <div class="crow">
+            <span id="compose-ava" aria-hidden="true"></span>
+            <textarea id="compose-body" rows="1" maxlength="2000"
+                      placeholder="Compartilhe um trabalho ou uma dúvida…" aria-label="Sua publicação"></textarea>
           </div>
-          <p class="compose-hint">Formatação Markdown: <code>**negrito**</code>, <code>*itálico*</code>, listas, <code>[link](https://…)</code>. A primeira linha (ou um título com <code>#</code>) vira o título. Imagem: JPG, PNG ou GIF de até 8&nbsp;MB. Limite de 1 publicação por dia.</p>
-          <div id="compose-md-preview" hidden></div>
           <div id="compose-img-preview"></div>
+          <div class="controls">
+            <button type="button" id="compose-attach" class="iconbtn" title="Anexar imagem — JPG, PNG ou GIF (pode arrastar ou colar)" aria-label="Anexar imagem">📷</button>
+            <button type="button" id="compose-attach-text" class="linkbtn">adicionar imagem</button>
+            <input type="file" id="compose-image" accept="image/png,image/jpeg,image/gif" hidden>
+            <span id="compose-count" class="count" role="status" hidden>0/2000</span>
+            <span id="compose-msg" class="hint" role="status"></span>
+            <button type="submit" id="compose-btn">Publicar</button>
+          </div>
         </form>
       </div>
-      <p id="gate" class="hint" role="status" hidden></p>
+      <div id="gate" class="hint" role="status" hidden></div>
     </div>
 
     <div id="pinned"></div>
@@ -156,15 +258,28 @@
     <button type="button" id="more" hidden>Carregar mais</button>
   </main>
 
-  <script src="/header.js" defer></script>
+  <script src="/header.js?v=11" defer></script>
   <script>
   (function () {
     var PAGE = 30;            // matches the server's feed page size
-    var BOARD = 'feedback';   // the one board for now
+    var VALID_BOARDS = { feedback: 1, sketchbooks: 1 };
+    var BOARD = (function () {  // selected board: scopes the feed + new posts
+      var b = (new URLSearchParams(location.search).get('board') || '').toLowerCase();
+      return VALID_BOARDS[b] ? b : 'feedback';
+    })();
     var me = {};              // /me result: { logged_in, member, owner, username, ... }
-    var canPost = false;      // member (or owner) with a username
+    var canPost = false;      // any logged-in account with a username (posting is free)
     var lastId = 0;           // smallest post id shown, for "load more"
-    var pinnedId = parseInt(new URLSearchParams(location.search).get('post'), 10) || 0;
+    var membersOnly = false;  // owner's "members first" review queue toggle
+    // A post can be opened on its own page: /post/<id> (Twitter-style) or, for
+    // older shared links, /community?post=<id>. Either turns on detail mode.
+    var pinnedId = (function () {
+      var m = location.pathname.match(/^\/post\/(\d+)/);
+      if (m) return parseInt(m[1], 10);
+      return parseInt(new URLSearchParams(location.search).get('post'), 10) || 0;
+    })();
+    var detailMode = !!pinnedId;          // single-post page: hide the feed chrome
+    if (detailMode) document.body.classList.add('post-page');
     var allPosts = [];        // every post object rendered so far (for re-renders)
     var meApplied = false, firstRendered = false;
 
@@ -347,6 +462,15 @@
       if (u) name.href = '/@' + encodeURIComponent(u);
       name.textContent = u ? '@' + u : 'anônimo';
       meta.appendChild(name);
+      // Paying members get a small "NAVY" tag — the "critique guaranteed"
+      // signal, and what the owner's review queue is built around. Only the
+      // feed carries author.member, so comment authors get no badge.
+      if (author && author.member) {
+        var badge = document.createElement('span'); badge.className = 'memberbadge';
+        badge.textContent = 'NAVY'; badge.title = 'Membro Navy — prioridade nos conselhos e feedback';
+        badge.setAttribute('aria-label', 'Membro Navy');
+        meta.appendChild(badge);
+      }
       var time = document.createElement('span'); time.className = 'time';
       time.appendChild(document.createTextNode(' · '));
       var t = document.createElement('time');
@@ -368,6 +492,7 @@
       var wrap = document.createElement('span'); wrap.className = 'del-wrap';
       var b = document.createElement('button');
       b.type = 'button'; b.className = 'del'; b.textContent = 'apagar';
+      wrap.appendChild(b); // show the button on first paint (reset() re-adds it after errors)
       function reset(errMsg) {
         wrap.textContent = ''; wrap.appendChild(b);
         if (errMsg) {
@@ -390,14 +515,20 @@
       return wrap;
     }
 
-    // Character counter for a textarea ("123/2000"); warns near the cap so the
-    // hard maxlength stop doesn't arrive as a surprise.
+    // Character counter for a textarea ("123/2000"). Quiet until the cap is
+    // actually near (no "0/2000" noise), then visible — and announced, so the
+    // hard maxlength stop doesn't arrive as a surprise for anyone.
     function bindCounter(ta, span, max) {
-      span.setAttribute('aria-hidden', 'true');
+      span.setAttribute('role', 'status');
       function update() {
         var n = ta.value.length;
         span.textContent = n + '/' + max;
         span.className = 'count' + (n >= Math.floor(max * 0.95) ? ' warn' : '');
+        span.hidden = n < Math.floor(max * 0.8);
+        // Phones have no resize handle: grow the box with the text instead
+        // (and shrink back to one line when it empties, e.g. after publishing).
+        if (!n) ta.style.height = '';
+        else if (ta.scrollHeight > ta.clientHeight) ta.style.height = ta.scrollHeight + 2 + 'px';
       }
       ta.addEventListener('input', update);
       update();
@@ -405,19 +536,86 @@
     }
     function mkCounter(ta, max) { return bindCounter(ta, document.createElement('span'), max); }
 
+    // ❤️ Likes — optimistic: the heart flips at once and rolls back if the
+    // server disagrees. target is {post_id: id} or {comment_id: id}; obj is the
+    // rendered post/comment itself, so re-renders keep the state.
+    function likeButton(target, obj) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'linkbtn like';
+      function paint() {
+        b.textContent = (obj.liked ? '❤️' : '🤍') + (obj.like_count ? ' ' + obj.like_count : '');
+        b.setAttribute('aria-pressed', obj.liked ? 'true' : 'false');
+        b.title = obj.liked ? 'Descurtir' : 'Curtir';
+        b.setAttribute('aria-label', (obj.liked ? 'Descurtir' : 'Curtir') +
+          (obj.like_count ? ' (' + obj.like_count + ' curtidas)' : ''));
+      }
+      paint();
+      b.addEventListener('click', function () {
+        if (!me.logged_in) {
+          // Don't destroy the heart — show a transient hint beside it (once),
+          // so the button is still there after they decide not to log in.
+          if (!b.dataset.hint) {
+            b.dataset.hint = '1';
+            var s = document.createElement('span'); s.className = 'msg hint';
+            s.appendChild(document.createTextNode(' Entre para curtir — '));
+            var a = document.createElement('a'); a.href = '/login?next=/community'; a.textContent = 'Entrar';
+            s.appendChild(a);
+            b.parentNode.insertBefore(s, b.nextSibling);
+            setTimeout(function () { if (s.parentNode) s.remove(); b.dataset.hint = ''; }, 6000);
+          }
+          return;
+        }
+        var want = !obj.liked;
+        obj.liked = want;
+        obj.like_count = Math.max(0, (obj.like_count || 0) + (want ? 1 : -1));
+        paint();
+        var fd = new FormData();
+        for (var k in target) fd.append(k, target[k]);
+        fd.append('on', want ? '1' : '0');
+        function undo() {
+          obj.liked = !want;
+          obj.like_count = Math.max(0, obj.like_count + (want ? -1 : 1));
+          paint();
+        }
+        fetch('/api/like', { method: 'POST', body: fd })
+          .then(function (r) { if (r.status !== 204) undo(); })
+          .catch(undo);
+      });
+      return b;
+    }
+
     // Post body area: title (a real heading), markdown body, image.
-    function fillPostContent(box, p) {
+    // detail = the single-post view (?post=ID). In the feed (detail falsy) the
+    // whole card opens the post, so the title is a link and the image is a plain
+    // thumbnail (a click anywhere opens the thread). On the post page the image
+    // links to the full-size file instead — the inline render is ~340px on a
+    // phone, useless for actually looking at a piece on an art board.
+    function fillPostContent(box, p, detail) {
       box.textContent = '';
       var parts = splitTitle(p.body);
       if (parts.title) {
-        var title = document.createElement('h2'); title.className = 'post-title'; title.textContent = parts.title;
+        var title = document.createElement('h2'); title.className = 'post-title';
+        if (detail) {
+          title.textContent = parts.title;
+        } else {
+          var tl = document.createElement('a'); tl.className = 'post-title-link';
+          tl.href = '/post/' + p.id; tl.textContent = parts.title;
+          title.appendChild(tl);
+        }
         box.appendChild(title);
       }
       if (parts.rest) box.appendChild(markdown(parts.rest));
       if (p.has_image) {
         var img = document.createElement('img');
         img.className = 'post-img'; img.src = '/post-img/' + p.id; img.alt = 'Imagem da publicação'; img.loading = 'lazy';
-        box.appendChild(img);
+        if (detail) {
+          var ilink = document.createElement('a');
+          ilink.href = '/post-img/' + p.id; ilink.target = '_blank'; ilink.rel = 'noopener';
+          ilink.appendChild(img);
+          box.appendChild(ilink);
+        } else {
+          box.appendChild(img);
+        }
       }
     }
 
@@ -437,7 +635,7 @@
       var msg = document.createElement('span'); msg.className = 'msg';
       row.appendChild(save); row.appendChild(cancel); row.appendChild(count); row.appendChild(msg);
       f.appendChild(ta); f.appendChild(row);
-      cancel.addEventListener('click', function () { fillPostContent(content, p); });
+      cancel.addEventListener('click', function () { fillPostContent(content, p, false); });
       f.addEventListener('submit', function (e) {
         e.preventDefault();
         var body = ta.value.trim();
@@ -447,7 +645,7 @@
         fetch('/api/posts/edit', { method: 'POST', body: fd })
           .then(function (r) {
             save.disabled = false;
-            if (r.status === 204) { p.body = body; fillPostContent(content, p); return; }
+            if (r.status === 204) { p.body = body; fillPostContent(content, p, false); return; }
             return showErr(msg, 'msg', r, 'Não foi possível salvar.');
           })
           .catch(function () { save.disabled = false; msg.textContent = 'Erro de conexão.'; msg.className = 'msg err'; });
@@ -456,7 +654,7 @@
       ta.focus();
     }
 
-    function renderPost(p) {
+    function renderPost(p, detail) {
       var author = p.author || {};
       var art = document.createElement('article');
       art.className = 'post'; art.dataset.id = p.id; art.id = 'post-' + p.id;
@@ -464,7 +662,7 @@
 
       var head = document.createElement('div'); head.className = 'head';
       head.appendChild(avatarLink(author, 40));
-      head.appendChild(metaRow(author, p.created_at, '/community?post=' + p.id));
+      head.appendChild(metaRow(author, p.created_at, '/post/' + p.id));
       var actions = document.createElement('span'); actions.className = 'actions';
       if (mine(author)) {
         var ed = document.createElement('button');
@@ -481,7 +679,19 @@
       art.appendChild(head);
 
       var content = document.createElement('div'); content.className = 'content';
-      fillPostContent(content, p);
+      fillPostContent(content, p, detail);
+      // In the feed, the post card opens its thread (like clicking a lesson) —
+      // except on real interactive bits (links, image-less buttons), while text
+      // is being selected, or while editing in place.
+      if (!detail) {
+        content.classList.add('clickable');
+        content.addEventListener('click', function (e) {
+          if (content.querySelector('.editbox')) return;
+          if (e.target.closest('a, button, textarea, input')) return;
+          if (window.getSelection && String(window.getSelection())) return;
+          location.href = '/post/' + p.id;
+        });
+      }
       art.appendChild(content);
 
       var foot = document.createElement('div'); foot.className = 'foot';
@@ -490,17 +700,27 @@
       cbtn.setAttribute('aria-expanded', 'false');
       cbtn.setAttribute('aria-controls', 'comments-' + p.id);
       art.dataset.ccount = p.comment_count || 0;
-      cbtn.textContent = 'comentários (' + art.dataset.ccount + ')';
+      cbtn.textContent = '💬 ' + art.dataset.ccount;
+      cbtn.title = 'Comentários';
+      cbtn.setAttribute('aria-label', 'Comentários (' + art.dataset.ccount + ')');
       cbtn.addEventListener('click', function () { toggleComments(art, p.id); });
       foot.appendChild(cbtn);
-      // Direct call-to-action: open the thread (if needed) and focus the reply box.
-      if (canPost) {
-        var reply = document.createElement('button');
-        reply.type = 'button'; reply.className = 'linkbtn';
-        reply.textContent = 'comentar';
-        reply.addEventListener('click', function () { openReply(art, p.id); });
-        foot.appendChild(reply);
-      }
+      foot.appendChild(likeButton({ post_id: p.id }, p));
+      // Links travel by WhatsApp here: native share sheet where it exists
+      // (i.e. on the phones), clipboard elsewhere. Tooltips can't do this.
+      var share = document.createElement('button');
+      share.type = 'button'; share.className = 'linkbtn share'; share.textContent = '🔗';
+      share.title = 'Compartilhar'; share.setAttribute('aria-label', 'Compartilhar');
+      share.addEventListener('click', function () {
+        var u = location.origin + '/post/' + p.id;
+        if (navigator.share) { navigator.share({ url: u }).catch(function () {}); return; }
+        if (!navigator.clipboard) return;
+        navigator.clipboard.writeText(u).then(function () {
+          share.textContent = '✅'; share.title = 'Link copiado!';
+          setTimeout(function () { share.textContent = '🔗'; share.title = 'Compartilhar'; }, 2000);
+        }, function () {});
+      });
+      foot.appendChild(share);
       // Replies that arrived since the author last opened this thread.
       if (art.dataset.mine) {
         var n = p.comment_count || 0;
@@ -555,10 +775,39 @@
 
     function renderComment(c, art, postId) {
       var author = c.author || {};
-      var div = document.createElement('div'); div.className = 'comment';
+      var div = document.createElement('div');
+      div.className = c.parent_comment_id ? 'comment is-reply' : 'comment';
       div.appendChild(avatarLink(author, 28));
       var main = document.createElement('div'); main.className = 'cmain';
+      // "↩ @username" indicator for replies
+      if (c.reply_to_username) {
+        var rto = document.createElement('div'); rto.className = 'reply-to';
+        rto.appendChild(document.createTextNode('↩ '));
+        var rtoA = document.createElement('a'); rtoA.href = '/@' + encodeURIComponent(c.reply_to_username);
+        rtoA.textContent = '@' + c.reply_to_username;
+        rto.appendChild(rtoA);
+        main.appendChild(rto);
+      }
       var meta = metaRow(author, c.created_at, null);
+      meta.appendChild(likeButton({ comment_id: c.id }, c));
+      if (canPost) {
+        var rb = document.createElement('button');
+        rb.type = 'button'; rb.className = 'linkbtn'; rb.textContent = 'responder';
+        (function (commentId, authorUsername) {
+          rb.addEventListener('click', function () {
+            // Toggle: close if already open for this comment
+            var existing = main.querySelector('.inline-reply-form');
+            if (existing) { existing.remove(); return; }
+            // Close any other open reply forms in this post
+            var others = art.querySelectorAll('.inline-reply-form');
+            others.forEach(function (f) { f.remove(); });
+            var f = makeInlineReplyForm(art, postId, commentId, authorUsername);
+            main.appendChild(f);
+            f.querySelector('textarea').focus();
+          });
+        })(c.id, author.username || '');
+        meta.appendChild(rb);
+      }
       if (mine(author)) {
         var ed = document.createElement('button');
         ed.type = 'button'; ed.className = 'linkbtn'; ed.textContent = 'editar';
@@ -579,8 +828,8 @@
     function replyForm(art, postId) {
       var f = document.createElement('form'); f.className = 'reply';
       var ta = document.createElement('textarea');
-      ta.rows = 2; ta.maxLength = 1000;
-      ta.placeholder = 'Escreva um comentário… Markdown funciona aqui também.';
+      ta.rows = 1; ta.maxLength = 1000;
+      ta.placeholder = 'Escreva um comentário…';
       ta.setAttribute('aria-label', 'Seu comentário');
       var row = document.createElement('div'); row.className = 'row';
       var btn = document.createElement('button'); btn.type = 'submit'; btn.textContent = 'Comentar';
@@ -605,52 +854,111 @@
       return f;
     }
 
+    // Inline reply form that appears under a specific comment. Submits with
+    // parent_comment_id so the server threads it.
+    function makeInlineReplyForm(art, postId, parentCommentId, parentUsername) {
+      var f = document.createElement('form'); f.className = 'reply inline-reply-form';
+      var ta = document.createElement('textarea');
+      ta.rows = 1; ta.maxLength = 1000;
+      ta.placeholder = parentUsername ? 'Responda a @' + parentUsername + '…' : 'Escreva uma resposta…';
+      ta.setAttribute('aria-label', 'Sua resposta');
+      var row = document.createElement('div'); row.className = 'row';
+      var btn = document.createElement('button'); btn.type = 'submit'; btn.textContent = 'Responder';
+      var cancel = document.createElement('button'); cancel.type = 'button'; cancel.textContent = 'Cancelar';
+      var count = mkCounter(ta, 1000);
+      var msg = document.createElement('span'); msg.className = 'msg';
+      cancel.addEventListener('click', function () { f.remove(); });
+      row.appendChild(btn); row.appendChild(cancel); row.appendChild(count); row.appendChild(msg);
+      f.appendChild(ta); f.appendChild(row);
+      f.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var body = ta.value.trim();
+        if (!body) return;
+        btn.disabled = true; msg.textContent = 'Enviando…'; msg.className = 'msg';
+        var fd = new FormData();
+        fd.append('post_id', postId);
+        fd.append('parent_comment_id', parentCommentId);
+        fd.append('body', body);
+        fetch('/api/comments', { method: 'POST', body: fd })
+          .then(function (r) {
+            btn.disabled = false;
+            if (r.status === 204) { loadComments(art, postId, { scrollLast: true, notice: 'Resposta publicada.' }); return; }
+            return showErr(msg, 'msg', r, 'Não foi possível responder.');
+          })
+          .catch(function () { btn.disabled = false; msg.textContent = 'Erro de conexão.'; msg.className = 'msg err'; });
+      });
+      return f;
+    }
+
     // The comments toggle announces its state (label + aria-expanded) instead of
     // being a count that mysteriously expands things.
     function setCbtn(art, open) {
       var cbtn = art.querySelector('.cbtn');
       if (!cbtn) return;
       cbtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      cbtn.textContent = open ? 'ocultar comentários' : 'comentários (' + (art.dataset.ccount || 0) + ')';
+      cbtn.textContent = '💬 ' + (art.dataset.ccount || 0);
+      cbtn.title = open ? 'Ocultar comentários' : 'Comentários';
+      cbtn.setAttribute('aria-label', (open ? 'Ocultar comentários (' : 'Comentários (') + (art.dataset.ccount || 0) + ')');
+    }
+
+    // Render a thread: comments in tree order (root comment → its replies indented),
+    // then the reply form — or, for whoever can't post, the membership gate.
+    // opts.scrollLast brings the newest comment into view; opts.notice confirms in form.
+    function fillComments(art, postId, list, opts) {
+      opts = opts || {};
+      var box = art.querySelector('.comments');
+      box.textContent = ''; box.dataset.loaded = '1';
+      var frag = document.createDocumentFragment();
+      if (!list.length) {
+        var none = document.createElement('p'); none.className = 'hint';
+        none.textContent = 'Ainda não há comentários.';
+        frag.appendChild(none);
+      } else {
+        // Build parent→children map; root comments have no parent_comment_id.
+        var childrenOf = {};
+        var roots = [];
+        list.forEach(function (c) {
+          var pid = c.parent_comment_id;
+          if (pid) {
+            if (!childrenOf[pid]) childrenOf[pid] = [];
+            childrenOf[pid].push(c);
+          } else {
+            roots.push(c);
+          }
+        });
+        function appendTree(c) {
+          frag.appendChild(renderComment(c, art, postId));
+          (childrenOf[c.id] || []).forEach(appendTree);
+        }
+        roots.forEach(appendTree);
+      }
+      var form = null;
+      if (canPost) { form = replyForm(art, postId); frag.appendChild(form); }
+      else { var g = document.createElement('div'); g.className = 'hint'; gateLine(g); frag.appendChild(g); }
+      box.appendChild(frag);
+      art.dataset.ccount = list.length;
+      setCbtn(art, !box.hidden);
+      if (art.dataset.mine) {
+        seen[postId] = list.length; writeSeen();
+        var nr = art.querySelector('.newreplies'); if (nr) nr.remove();
+      }
+      if (opts.scrollLast && list.length) {
+        var cs = box.querySelectorAll('.comment');
+        cs[cs.length - 1].scrollIntoView({ block: 'nearest' });
+      }
+      if (opts.notice && form) {
+        var m = form.querySelector('.msg'); m.textContent = opts.notice; m.className = 'msg ok';
+      }
     }
 
     // Fetch + (re)render a post's comments, refreshing the count label.
-    // opts.scrollLast brings the newest comment into view (e.g. right after
-    // posting it); opts.notice shows a confirmation in the fresh reply form.
     function loadComments(art, postId, opts) {
-      opts = opts || {};
       var box = art.querySelector('.comments');
       box.textContent = 'Carregando…';
       // Comments only — the post is already on screen, so don't refetch it.
       return fetch('/api/comments?post_id=' + postId, { headers: { Accept: 'application/json' } })
         .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
-        .then(function (d) {
-          box.textContent = ''; box.dataset.loaded = '1';
-          var list = d.comments || [];
-          var frag = document.createDocumentFragment();
-          if (!list.length) {
-            var none = document.createElement('p'); none.className = 'hint';
-            none.textContent = 'Ainda não há comentários.';
-            frag.appendChild(none);
-          }
-          list.forEach(function (c) { frag.appendChild(renderComment(c, art, postId)); });
-          var form = null;
-          if (canPost) { form = replyForm(art, postId); frag.appendChild(form); }
-          box.appendChild(frag);
-          art.dataset.ccount = list.length;
-          setCbtn(art, !box.hidden);
-          if (art.dataset.mine) {
-            seen[postId] = list.length; writeSeen();
-            var nr = art.querySelector('.newreplies'); if (nr) nr.remove();
-          }
-          if (opts.scrollLast && list.length) {
-            var cs = box.querySelectorAll('.comment');
-            cs[cs.length - 1].scrollIntoView({ block: 'nearest' });
-          }
-          if (opts.notice && form) {
-            var m = form.querySelector('.msg'); m.textContent = opts.notice; m.className = 'msg ok';
-          }
-        })
+        .then(function (d) { fillComments(art, postId, d.comments || [], opts); })
         .catch(function () { box.textContent = 'Não foi possível carregar os comentários.'; });
     }
 
@@ -664,20 +972,6 @@
         box.hidden = true;
         setCbtn(art, false);
       }
-    }
-
-    // "comentar": ensure the thread is open, then focus the reply box. The reply
-    // form is appended by loadComments, so wait for that fetch when it's pending.
-    function focusReply(art) {
-      var ta = art.querySelector('.reply textarea');
-      if (ta) { ta.scrollIntoView({ block: 'center' }); ta.focus(); }
-    }
-    function openReply(art, postId) {
-      var box = art.querySelector('.comments');
-      box.hidden = false;
-      setCbtn(art, true);
-      if (!box.dataset.loaded) loadComments(art, postId).then(function () { focusReply(art); });
-      else focusReply(art);
     }
 
     function updateEmpty() {
@@ -711,43 +1005,35 @@
         .catch(function () { fail('Erro de conexão.'); });
     }
 
-    // A single post linked from search (?post=ID): shown on top, labelled as
-    // such, with comments open. A dead link says so instead of failing silently.
-    function showPinned(id) {
+    // A "← Comunidade" link back to the feed, at the top of a post page.
+    function backLink() {
+      var p = document.createElement('p'); p.className = 'backlink';
+      var a = document.createElement('a'); a.href = '/community'; a.textContent = '← Comunidade';
+      p.appendChild(a); return p;
+    }
+
+    // The single-post page (/post/<id>): the post, then ALL its comments open,
+    // then the reply form (or the gate). A dead link says so instead of failing
+    // silently. detailMode hides the feed, so this is the whole page.
+    function showPostPage(id) {
       return fetch('/api/post?id=' + id, { headers: { Accept: 'application/json' } })
         .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
         .then(function (d) {
           if (!d.post) return;
-          var label = document.createElement('p'); label.className = 'hint pinned-label';
-          label.textContent = 'Publicação aberta pelo link — as demais seguem abaixo.';
-          pinned.appendChild(label);
-          var art = renderPost(d.post);
+          pinned.appendChild(backLink());
+          var art = renderPost(d.post, true);
           pinned.appendChild(art);
-          var box = art.querySelector('.comments');
-          box.hidden = false; box.dataset.loaded = '1';
-          var list = d.comments || [];
-          var frag = document.createDocumentFragment();
-          if (!list.length) {
-            var none = document.createElement('p'); none.className = 'hint';
-            none.textContent = 'Ainda não há comentários.';
-            frag.appendChild(none);
-          }
-          list.forEach(function (c) { frag.appendChild(renderComment(c, art, d.post.id)); });
-          if (canPost) frag.appendChild(replyForm(art, d.post.id));
-          box.appendChild(frag);
-          art.dataset.ccount = list.length;
-          setCbtn(art, true);
-          if (art.dataset.mine) {
-            seen[d.post.id] = list.length;
-            var nr = art.querySelector('.newreplies'); if (nr) nr.remove();
-          }
-          writeSeen();
+          art.querySelector('.comments').hidden = false;
+          fillComments(art, d.post.id, d.comments || []);
+          var parts = splitTitle(d.post.body);
+          document.title = (parts.title || 'Publicação') + ' — Comunidade Navy Lily';
         })
         .catch(function (status) {
-          var pmsg = document.createElement('p'); pmsg.className = 'hint pinned-label';
+          pinned.appendChild(backLink());
+          var pmsg = document.createElement('p'); pmsg.className = 'hint';
           pmsg.textContent = status === 404
-            ? 'A publicação do link não existe mais — pode ter sido apagada. As mais recentes seguem abaixo.'
-            : 'Não foi possível carregar a publicação do link. As mais recentes seguem abaixo.';
+            ? 'A publicação não existe mais — pode ter sido apagada.'
+            : 'Não foi possível carregar a publicação.';
           pinned.appendChild(pmsg);
         });
     }
@@ -756,7 +1042,8 @@
     // /me (rendering doesn't wait forever for identity — see boot below).
     function fetchFeedData(reset) {
       var url = '/api/posts?board=' + BOARD;
-      if (!reset && lastId) url += '&before=' + lastId;
+      if (membersOnly) url += '&members=1';            // owner queue: one unpaginated page
+      else if (!reset && lastId) url += '&before=' + lastId;
       return fetch(url, { headers: { Accept: 'application/json' } })
         .then(function (r) { return r.ok ? r.json() : Promise.reject(); });
     }
@@ -811,19 +1098,65 @@
       return fetchFeedData(reset).then(function (d) { renderFeed(d, reset); }).catch(function () { feedError(reset); });
     }
 
-    // Re-render every loaded post (used when identity arrives after a fast first
-    // paint: delete/edit/comment controls need to appear).
+    // Identity arrived after a fast first paint: swap each post for one with
+    // the member's controls — but leave posts the reader has opened or is
+    // typing in alone, so thread state and half-written replies survive (and
+    // nothing jumps under their thumb).
     function rerenderFeed() {
-      feed.textContent = '';
-      var frag = document.createDocumentFragment();
-      allPosts.forEach(function (p) { if (p.id !== pinnedId) frag.appendChild(renderPost(p)); });
-      feed.appendChild(frag);
+      allPosts.forEach(function (p) {
+        if (p.id === pinnedId) return;
+        var art = document.getElementById('post-' + p.id);
+        if (art && art.querySelector('.comments').hidden && !art.querySelector('form')) art.replaceWith(renderPost(p));
+      });
       writeSeen();
-      updateEmpty();
+    }
+
+    // Same idea on the post page: /me landed after the post rendered read-only,
+    // so re-fetch to bring in the reply form — unless a reply is being typed.
+    function rerenderPostPage() {
+      var art = pinned.querySelector('.post');
+      if (!art) return;
+      var ta = art.querySelector('.reply textarea');
+      if (ta && ta.value.trim()) return;
+      pinned.textContent = '';
+      showPostPage(pinnedId);
     }
 
     moreBtn.addEventListener('click', function () { loadFeed(false); });
     el('retry').addEventListener('click', function () { loadFeed(true); });
+
+    // Owner's review queue: flip to member posts only (oldest first), and back.
+    el('queue-toggle').addEventListener('click', function () {
+      membersOnly = !membersOnly;
+      this.textContent = membersOnly ? 'Ver tudo' : 'Fila de membros';
+      this.setAttribute('aria-pressed', membersOnly ? 'true' : 'false');
+      loadFeed(true);
+    });
+
+    // ----- Board tabs -----
+    var boardTabs = document.querySelectorAll('.board-tab');
+    function syncBoardTabs() {
+      Array.prototype.forEach.call(boardTabs, function (t) {
+        if (t.getAttribute('data-board') === BOARD) t.setAttribute('aria-current', 'page');
+        else t.removeAttribute('aria-current');
+      });
+    }
+    Array.prototype.forEach.call(boardTabs, function (t) {
+      t.addEventListener('click', function () {
+        var b = t.getAttribute('data-board');
+        if (b === BOARD) return;
+        BOARD = b;
+        syncBoardTabs();
+        // Reflect the board in the URL so a refresh or shared link keeps it;
+        // a pinned (linked) post belongs to one board, so drop it on switch.
+        var qs = new URLSearchParams(location.search);
+        qs.set('board', BOARD); qs.delete('post');
+        history.replaceState(null, '', location.pathname + '?' + qs.toString());
+        pinned.textContent = ''; pinnedId = 0;
+        loadFeed(true);
+      });
+    });
+    syncBoardTabs();
 
     // ----- Compose box -----
     var composeBody = el('compose-body');
@@ -832,87 +1165,101 @@
     // Draft survives a refresh or stray navigation.
     composeBody.addEventListener('input', function () {
       saveDraft(composeBody.value);
-      if (!el('compose-md-preview').hidden) renderComposePreview();
     });
     function restoreDraft() {
       if (!composeBody.value && readDraft()) {
         composeBody.value = readDraft();
-        composeBody.dispatchEvent(new Event('input')); // refresh counter/preview
+        composeBody.dispatchEvent(new Event('input')); // refresh counter
       }
     }
 
-    // Pre-publish preview: exactly the renderer posts use, so the first-line-
-    // becomes-title behaviour is visible before it's live.
-    function renderComposePreview() {
-      var pv = el('compose-md-preview');
-      pv.textContent = '';
-      var v = composeBody.value;
-      var label = document.createElement('p'); label.className = 'hint'; label.textContent = 'Pré-visualização:';
-      pv.appendChild(label);
-      if (!v.trim()) {
-        var none = document.createElement('p'); none.className = 'hint'; none.textContent = 'Nada para pré-visualizar ainda.';
-        pv.appendChild(none);
-        return;
-      }
-      var parts = splitTitle(v);
-      if (parts.title) {
-        var t = document.createElement('h2'); t.className = 'post-title'; t.textContent = parts.title;
-        pv.appendChild(t);
-      }
-      if (parts.rest) pv.appendChild(markdown(parts.rest));
+    // Image attach: previewed, removable, and shrunk client-side. Phone photos
+    // routinely exceed the server's 8 MB cap, and "resize it yourself" is a
+    // dead end on a phone — so anything heavy is re-encoded (≤2000px JPEG)
+    // before upload, which also turns minute-long cellular uploads into
+    // seconds. GIFs pass through: re-encoding would freeze them.
+    var MAX_IMG = 8 * 1024 * 1024, imageFile = null, imgPending = false;
+    function shrink(f) {
+      if (f.size <= 1.5 * 1024 * 1024 || f.type === 'image/gif') return Promise.resolve(f);
+      return new Promise(function (done) {
+        var url = URL.createObjectURL(f), img = new Image();
+        img.onload = function () {
+          var k = Math.min(1, 2000 / Math.max(img.width, img.height));
+          var cv = document.createElement('canvas');
+          cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+          cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+          cv.toBlob(function (b) { URL.revokeObjectURL(url); done(b && b.size < f.size ? b : f); }, 'image/jpeg', 0.85);
+        };
+        // Not decodable here? Send the original and let the server judge it.
+        img.onerror = function () { URL.revokeObjectURL(url); done(f); };
+        img.src = url;
+      });
     }
-    function closePreview() {
-      el('compose-md-preview').hidden = true;
-      el('compose-preview-btn').textContent = 'Pré-visualizar';
-    }
-    el('compose-preview-btn').addEventListener('click', function () {
-      var pv = el('compose-md-preview');
-      if (pv.hidden) { renderComposePreview(); pv.hidden = false; this.textContent = 'Fechar pré-visualização'; }
-      else closePreview();
-    });
-
-    // Image attach: previewed, removable, and size-checked BEFORE the upload
-    // burns time (the server caps requests at 8 MB).
-    var MAX_IMG = 8 * 1024 * 1024;
     function clearImage() {
       el('compose-image').value = '';
       el('compose-img-preview').textContent = '';
-      el('compose-image-clear').hidden = true;
+      imageFile = null;
     }
-    el('compose-image').addEventListener('change', function () {
+    // useImage runs any incoming file — picker, drag-and-drop or paste —
+    // through the same shrink-and-preview pipeline. The thumbnail carries its
+    // own ✕, so removing is one tap on the thing being removed.
+    function useImage(f) {
       var prev = el('compose-img-preview'); prev.textContent = '';
-      var clearBtn = el('compose-image-clear');
-      var f = this.files[0];
-      clearBtn.hidden = !f;
+      imageFile = null;
       if (!f) return;
-      if (f.size > MAX_IMG) {
-        clearImage();
-        var msg = el('compose-msg');
-        msg.textContent = 'Imagem muito grande — o máximo é 8 MB.'; msg.className = 'hint err';
-        return;
-      }
-      var url = URL.createObjectURL(f);
-      var img = document.createElement('img'); img.src = url; img.alt = 'Pré-visualização da imagem';
-      img.onload = function () { URL.revokeObjectURL(url); };
-      prev.appendChild(img);
+      imgPending = true;
+      shrink(f).then(function (g) {
+        imgPending = false;
+        if (g.size > MAX_IMG) {
+          clearImage();
+          var msg = el('compose-msg');
+          msg.textContent = 'Imagem muito grande — o máximo é 8 MB.'; msg.className = 'hint err';
+          return;
+        }
+        imageFile = g;
+        var url = URL.createObjectURL(g);
+        var img = document.createElement('img'); img.src = url; img.alt = 'Pré-visualização da imagem';
+        img.onload = function () { URL.revokeObjectURL(url); };
+        var x = document.createElement('button');
+        x.type = 'button'; x.className = 'imgx'; x.textContent = '✕';
+        x.title = 'Remover imagem'; x.setAttribute('aria-label', 'Remover imagem');
+        x.addEventListener('click', clearImage);
+        prev.appendChild(img); prev.appendChild(x);
+      });
+    }
+    el('compose-attach').addEventListener('click', function () { el('compose-image').click(); });
+    el('compose-attach-text').addEventListener('click', function () { el('compose-image').click(); });
+    el('compose-image').addEventListener('change', function () { useImage(this.files[0]); });
+    // Drag a picture onto the compose box — or paste one — and it attaches.
+    var composeBox = el('compose');
+    composeBox.addEventListener('dragover', function (e) { e.preventDefault(); });
+    composeBox.addEventListener('drop', function (e) {
+      e.preventDefault();
+      var f = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f && /^image\//.test(f.type)) useImage(f);
     });
-    el('compose-image-clear').addEventListener('click', clearImage);
+    composeBody.addEventListener('paste', function (e) {
+      var fs = e.clipboardData && e.clipboardData.files;
+      if (fs && fs[0] && /^image\//.test(fs[0].type)) { e.preventDefault(); useImage(fs[0]); }
+    });
 
     el('compose-form').addEventListener('submit', function (e) {
       e.preventDefault();
       var body = composeBody.value.trim();
-      var file = el('compose-image').files[0];
+      var file = imageFile;
       var msg = el('compose-msg'), btn = el('compose-btn');
+      // A picked/dropped file that shrink() hasn't finished with must not be lost.
+      if (imgPending && !file) { msg.textContent = 'Um instante — preparando a imagem…'; msg.className = 'hint'; return; }
       if (!body && !file) { msg.textContent = 'Escreva algo ou anexe uma imagem.'; msg.className = 'hint err'; return; }
       btn.disabled = true; msg.textContent = 'Publicando…'; msg.className = 'hint';
-      var fd = new FormData(); fd.append('body', body); fd.append('board', BOARD); if (file) fd.append('image', file);
+      var fd = new FormData(); fd.append('body', body); fd.append('board', BOARD); if (file) fd.append('image', file, file.name || 'foto.jpg');
       fetch('/api/posts', { method: 'POST', body: fd })
         .then(function (r) {
           btn.disabled = false;
           if (r.status === 204) {
             composeBody.value = ''; saveDraft('');
             composeBody.dispatchEvent(new Event('input'));
-            clearImage(); closePreview();
+            clearImage();
             msg.textContent = ''; msg.className = 'hint';
             setDailyGate(true, true); // success + the daily note, in the gate
             return loadFeed(true);
@@ -923,66 +1270,66 @@
     });
 
     // ----- Gate / daily limit -----
+    // The "why you can't participate" line, used at the top of the page and
+    // inside open threads. Posting is free, so the gate is small: log out →
+    // make an account; logged in without a handle → pick a username.
+    function gateLine(node) {
+      // Logged out: a short list of the ways in (post free / pay for priority /
+      // sign in), each item a link. Posting is free; the paid pitch is priority.
+      if (!me.logged_in) {
+        var ul = document.createElement('ul'); ul.className = 'gate-list';
+        [
+          ['/signup?next=/community', 'Crie uma conta gratuita para publicar desenhos'],
+          ['/comprar', 'Se torne um membro pago para prioridade em feedback'],
+          ['/login?next=/community', 'Entre, se já tem uma conta']
+        ].forEach(function (l) {
+          var li = document.createElement('li');
+          var a = document.createElement('a'); a.href = l[0]; a.textContent = l[1];
+          li.appendChild(a); ul.appendChild(li);
+        });
+        node.appendChild(ul);
+        return;
+      }
+      // Logged in but no username yet: one step left.
+      node.appendChild(document.createTextNode('Escolha um nome de usuário para participar. '));
+      var a = document.createElement('a'); a.href = '/profile'; a.textContent = 'Editar perfil';
+      node.appendChild(a);
+    }
+
     function setupComposeArea() {
       var gate = el('gate'), compose = el('compose');
       if (canPost) {
+        // Your own face next to the box — it reads as "you, about to speak".
+        var ava = el('compose-ava');
+        ava.textContent = '';
+        ava.appendChild(avatarBox({ username: me.username, has_avatar: me.has_avatar, avatar_ver: me.avatar_ver }, 40));
         // Resolve the daily limit BEFORE showing the box — the old flow showed
         // it immediately and could swap it away mid-typing, eating the draft.
         todayCheck().then(function (posted) { setDailyGate(posted, false); });
         return;
       }
-      compose.hidden = true; gate.hidden = false; gate.textContent = '';
-      // Posting and commenting are for Navy members only; everyone else just reads.
-      // Be honest about the gate: logging in alone does NOT grant posting — a free
-      // account still can't. So the logged-out gate leads with "subscribe" and
-      // offers "log in" only for people who are already members.
-      var text, links;
-      if (!me.logged_in) {
-        text = 'Publicar e comentar é para membros Navy.';
-        links = [['/comprar', 'Assinar'], ['/login?next=/community', 'Entrar']];
-      } else if (!(me.member || me.owner)) {
-        text = 'Assine a Navy para publicar e comentar.';
-        links = [['/comprar', 'Assinar']];
-      } else {
-        text = 'Escolha um nome de usuário para publicar.';
-        links = [['/profile', 'Editar perfil']];
-      }
-      gate.appendChild(document.createTextNode(text + ' '));
-      links.forEach(function (l, i) {
-        if (i) gate.appendChild(document.createTextNode(' · '));
-        var a = document.createElement('a'); a.href = l[0]; a.textContent = l[1]; gate.appendChild(a);
-      });
+      el('compose-area').style.minHeight = '';
+      compose.hidden = true; gate.textContent = '';
+      // Posting is free, so always explain how to start: make an account, or
+      // (logged in) pick a username.
+      gate.hidden = false; gateLine(gate);
     }
 
-    // One post per day. justPosted keeps the success visible — the limit note
-    // reads as information, not as a telling-off right after publishing.
+    // The compose box stays visible — there's no daily-limit message. A generous
+    // per-day cap still exists server-side as a spam backstop, but it isn't
+    // surfaced in the UI; the rare time it's hit, the submit shows the server's
+    // reply. justPosted just flashes a brief confirmation.
     function setDailyGate(posted, justPosted) {
       if (!canPost) return;
+      el('compose-area').style.minHeight = '';
       var gate = el('gate'), compose = el('compose');
-      if (!posted) {
-        gate.hidden = true; gate.textContent = '';
-        compose.hidden = false;
-        restoreDraft();
-        return;
-      }
-      var ta = composeBody;
-      if (!compose.hidden && ta.value.trim() && !justPosted) {
-        // Never yank a draft out from under the member (e.g. the slot was used
-        // in another tab); the server still enforces the limit on submit.
-        var msg = el('compose-msg');
-        msg.textContent = 'Você já publicou hoje — apague a publicação de hoje para postar esta.';
-        msg.className = 'hint err';
-        return;
-      }
-      compose.hidden = true;
-      gate.textContent = '';
+      gate.hidden = true; gate.textContent = '';
+      compose.hidden = false;
+      restoreDraft();
       if (justPosted) {
-        var ok = document.createElement('strong'); ok.className = 'ok'; ok.textContent = 'Publicado! ';
-        gate.appendChild(ok);
+        var msg = el('compose-msg');
+        msg.textContent = 'Publicado!'; msg.className = 'hint ok';
       }
-      gate.appendChild(document.createTextNode(
-        'O limite é de 1 publicação por dia — volte amanhã, ou apague a publicação de hoje para postar outra.'));
-      gate.hidden = false;
     }
 
     function fetchToday() {
@@ -990,9 +1337,13 @@
         .then(function (r) { return r.ok ? r.json() : null; })
         .catch(function () { return null; });
     }
-    // Starts immediately when the hint cookie says we're probably logged in, so
-    // members don't wait on /me -> /today in series (and visitors get no 401 noise).
-    var todayReq = /(?:^|;\s*)nl_hint=/.test(document.cookie) ? fetchToday() : null;
+    // The hint cookie says we're probably logged in: start the daily check now
+    // so members don't wait on /me -> /today in series (visitors get no 401
+    // noise), and reserve the compose box's slot so the feed doesn't lurch
+    // down under the reader's thumb when the box pops in on a slow link.
+    var hinted = /(?:^|;\s*)nl_hint=/.test(document.cookie);
+    var todayReq = hinted ? fetchToday() : null;
+    if (hinted) el('compose-area').style.minHeight = '7rem'; // the slim composer's height
     function todayCheck() {
       if (!todayReq) todayReq = fetchToday();
       return todayReq.then(function (d) { return !!(d && d.posted_today); });
@@ -1007,40 +1358,57 @@
     function applyMe(d) {
       meApplied = true;
       me = d || {};
-      canPost = !!(me.logged_in && (me.member || me.owner) && me.username);
+      // Posting is free: any account with a username can publish (a paid
+      // membership buys guaranteed critique, not the right to post).
+      canPost = !!(me.logged_in && me.username);
       empty.textContent = canPost ? 'Ainda não há publicações. Seja o primeiro!' : 'Ainda não há publicações.';
-      setupComposeArea();
+      if (me.owner && !detailMode) el('ownerbar').hidden = false; // members-first review queue
+      // The post page has no top composer (the reply form lives in the thread).
+      if (!detailMode) setupComposeArea();
     }
     function firstRender(fd) {
+      splashDone();
       if (firstRendered) return;
       firstRendered = true;
       if (fd) renderFeed(fd, true); else feedError(true);
     }
 
-    var feedData = fetchFeedData(true).catch(function () { return null; });
+    // The post page doesn't need the feed; only the feed flow fetches it.
+    var feedData = detailMode ? null : fetchFeedData(true).catch(function () { return null; });
     var meReq = fetch('/me', { headers: { Accept: 'application/json' } })
       .then(function (r) { return r.ok ? r.json() : {}; })
       .catch(function () { return {}; });
 
-    if (!pinnedId) {
+    if (detailMode) {
+      // Post page: render once identity is known (canPost decides reply form vs
+      // gate), but don't wait forever on a slow/hung /me — render read-only at
+      // 1.5s and patch the reply form in when /me finally lands.
+      var postRendered = false;
+      function renderPostPageOnce() {
+        if (postRendered) return Promise.resolve();
+        postRendered = true;
+        splashDone();
+        return showPostPage(pinnedId);
+      }
+      Promise.race([meReq, new Promise(function (res) { setTimeout(res, 1500); })])
+        .then(function (d) { if (d && !meApplied) applyMe(d); return renderPostPageOnce(); });
+      meReq.then(function (d) {
+        var late = !meApplied;
+        if (late) applyMe(d);
+        if (postRendered && late && me.logged_in) rerenderPostPage();
+      });
+    } else {
       // Don't hold the (public) posts hostage to a slow /me: wait at most 1.5s
       // for identity, then render read-only; controls are patched in when /me lands.
       Promise.race([meReq, new Promise(function (res) { setTimeout(res, 1500); })])
         .then(function (d) { if (d && !meApplied) applyMe(d); return feedData; })
         .then(firstRender);
+      meReq.then(function (d) {
+        var late = !meApplied;
+        if (late) applyMe(d);
+        if (late && firstRendered && me.logged_in) rerenderFeed();
+      });
     }
-    meReq.then(function (d) {
-      var late = !meApplied;
-      if (late) applyMe(d);
-      if (pinnedId) {
-        // A linked post pins on top: render it first so the page builds
-        // top-down instead of inserting above what's already being read.
-        return showPinned(pinnedId)
-          .then(function () { return feedData; })
-          .then(firstRender);
-      }
-      if (late && firstRendered && me.logged_in) rerenderFeed();
-    });
   })();
   </script>
 </body>

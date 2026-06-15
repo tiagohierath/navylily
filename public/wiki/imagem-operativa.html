@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Imagem Operativa — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/imagem-operativa.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="imagem-operativa">Imagem Operativa</h1>
+    <h3 id="definição">Definição</h3>
+    <p>Um <strong>mapa que é o próprio território</strong> — uma
+    representação que <em>funciona como</em> a coisa representada. É o
+    conceito que uso para explicar o Bitcoin e que fecha o tema mapa ≠
+    território e a <a href="/wiki/dualidade.html">Dualidade</a>.</p>
+    <blockquote>
+    <p>A imagem de uma senha <strong>é</strong> a senha. A imagem do seu
+    Bitcoin <strong>é</strong> o seu Bitcoin. Se você vazou a imagem de
+    um circuito secreto, você vazou o circuito.</p>
+    </blockquote>
+    <p>Senhas, circuitos, instruções de engenharia e o Bitcoin são
+    imagens operativas: autorreferentes. O Bitcoin não representa ouro
+    ou bananas (como o dólar antes de 1971) — <strong>um Bitcoin é um
+    Bitcoin</strong>.</p>
+    <h3 id="o-problema-que-isso-resolve">O problema que isso
+    resolve</h3>
+    <ul>
+    <li><strong>Problema do oráculo</strong>: computadores nunca sabem
+    nada do mundo real. “5 bananas numa lista” pode ser mentira — o mapa
+    não é o território.</li>
+    <li><strong>Gasto duplo</strong>: informação é sempre copiável
+    (mover info = copiá-la), então uma “moeda digital” poderia ser gasta
+    infinitamente. Por isso dinheiro digital precisa ser uma
+    <strong>lista</strong> (ver <a href="/wiki/arte-que-dura.html">Arte
+    que Dura</a>).</li>
+    <li><strong>Generais bizantinos</strong>: coordenar no tempo quando
+    os mensageiros podem mentir. “O problema do espaço é a coordenação
+    através do tempo.”</li>
+    </ul>
+    <h3 id="a-ponte-prova-de-trabalho">A ponte: prova de trabalho</h3>
+    <p>A única forma de ligar o mundo da informação ao mundo real é
+    <strong>trabalho/energia</strong>. A lista “mais verdadeira” é a que
+    tem mais energia gasta nela (o “peso”). Achar o número é como uma
+    loteria — caríssimo de produzir, trivial de verificar. Essa
+    <strong>simetria</strong> (fácil verificar, difícil forjar) é a base
+    de toda criptografia.</p>
+    <h3 id="causalidade-e-imprevisibilidade">Causalidade e
+    imprevisibilidade</h3>
+    <p>Citando Aristóteles: um bom final é <strong>imprevisível, mas
+    inevitável</strong> (como a Odisseia, ou um acorde de ré que resolve
+    em sol). Cada bloco contém o hash do anterior
+    (<strong>causalidade</strong> → não dá para mudar o passado) e
+    transações que ninguém previu (<strong>imprevisibilidade</strong> →
+    não dá para pular para o futuro).</p>
+    <h3 id="render-unto-caesar-a-inversão">Render unto Caesar (a
+    inversão)</h3>
+    <p>A moeda de César tinha a <strong>imagem</strong> dele; o homem
+    tem a imagem de Deus (“dai a César o que é de César”). O Bitcoin
+    <strong>não tem imagem</strong> — e aí está a <a
+    href="/wiki/inversao.html">Inversão</a>: antes púnhamos nossa imagem
+    na moeda; agora é a moeda que imprime a imagem dela na gente (ver <a
+    href="/wiki/ferramentas-moldam-voce.html">Ferramentas Moldam
+    Você</a>).</p>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>A imagem operativa é o ponto onde o símbolo deixa de mentir e
+    passa a <em>ser</em> a coisa — alcançado, no Bitcoin, queimando
+    energia real para ancorar a informação no mundo.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Ao desenhar, pergunte se sua imagem está representando algo
+    (mapa) ou tentando ser a própria coisa (imagem operativa) — isso
+    muda a intenção.</li>
+    <li>Trate diagramas, instruções e esquemas como imagens operativas:
+    nesses casos, a clareza precisa ser perfeita, pois a imagem é a
+    coisa.</li>
+    <li>Cuide do que você expõe: vazar a imagem de um circuito secreto é
+    vazar o circuito; o mesmo vale para sua arte e processos não
+    publicados.</li>
+    <li>Busque o “final imprevisível, mas inevitável” de Aristóteles nas
+    suas composições: surpreenda sem quebrar a causalidade interna.</li>
+    <li>Construa cada parte de um trabalho ancorada na anterior (como
+    blocos com o hash do anterior) para que o todo tenha coerência
+    inquebrável.</li>
+    <li>Use a simetria “difícil de fazer, fácil de verificar” como teste
+    de qualidade: um bom desenho é caro de produzir e óbvio de
+    reconhecer.</li>
+    <li>Pense no trabalho/energia como prova: o esforço real que você
+    queima no desenho é o que ancora seu valor, igual à prova de
+    trabalho.</li>
+    <li>Diferencie símbolo e realidade nos seus estudos: saiba quando
+    está desenhando a coisa e quando está desenhando um sinal dela.</li>
+    <li>Aplique a ideia de imagem operativa à assinatura/marca: faça
+    dela algo autorreferente e difícil de falsificar.</li>
+    <li>Lembre do problema do oráculo ao usar referência: a foto pode
+    “mentir” sobre o 3D — confira contra a realidade.</li>
+    <li>Estude causalidade e imprevisibilidade em boas histórias e traga
+    isso para narrativas visuais.</li>
+    <li>Ao explicar um conceito visualmente, prefira mostrar a coisa
+    funcionando (operativa) a apenas descrevê-la (representativa).</li>
+    </ul>
+    <!-- tags: imagem operativa, operative image, simbolo, simbolo e realidade, mapa e territorio, representacao, Bitcoin, prova de trabalho, proof of work, energia, trabalho, problema do oraculo, oracle problem, gasto duplo, double spend, generais bizantinos, byzantine generals, criptografia, hash, blockchain, causalidade, imprevisibilidade, Aristoteles, final inevitavel, Odisseia, render unto Caesar, dai a Cesar, imagem de Deus, inversao, dualidade, Perspectiva e Distorcao, autorreferencia, senha, circuito, engenharia, dinheiro, ouro, 1971, padrao ouro, simetria, verificar, falsificar, logos, informacao, filosofia, conceito, narrativa visual, diagrama, clareza, intencao, como representar, semiotica -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

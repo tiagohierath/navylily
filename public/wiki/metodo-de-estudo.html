@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Método de Estudo — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/metodo-de-estudo.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="método-de-estudo">Método de Estudo</h1>
+    <h3 id="definição">Definição</h3>
+    <p>O ciclo de aprendizado que uso para internalizar qualquer tema
+    novo no desenho. A ideia central: aprender é um <em>loop</em>, não
+    um evento.</p>
+    <h3 id="o-loop">O loop</h3>
+    <ol type="1">
+    <li><strong>Pesquisa</strong> uma referência do que quer
+    aprender.</li>
+    <li><strong>Desenha sem ver</strong> — de memória, logo após
+    olhar.</li>
+    <li><strong>Avalia</strong> o que errou ou o que não sabia (faz um
+    diagnóstico honesto das suas lacunas).</li>
+    <li><strong>Pesquisa de novo</strong> justamente as partes que
+    falharam.</li>
+    <li><strong>Desenha de memória de novo</strong> e repete até
+    fixar.</li>
+    </ol>
+    <blockquote>
+    <p>“Você pesquisa uma referência, desenha sem ver e vê o que você
+    não sabe. Aí você tenta desenhar de memória de novo.”</p>
+    </blockquote>
+    <h3 id="princípio-fundamental">Princípio fundamental</h3>
+    <blockquote>
+    <p>“Você só consegue desenhar o que você já viu.”</p>
+    </blockquote>
+    <p>Por isso a <a
+    href="/wiki/entrada-de-informacao-visual.html">Entrada de Informação
+    Visual</a> é o combustível de todo o método.</p>
+    <h3 id="as-4-dicas-para-maximizar-o-aprendizado">As 4 dicas para
+    maximizar o aprendizado</h3>
+    <ol type="1">
+    <li><strong>Entrada de informação visual</strong> — ver muita coisa
+    (ver <a href="/wiki/entrada-de-informacao-visual.html">Entrada de
+    Informação Visual</a>).</li>
+    <li><strong>Desenhar bastante</strong> — não é exatamente “todo
+    dia”, é volume.</li>
+    <li><strong>Aumentar a dificuldade aos poucos</strong> — sempre
+    desenhar algo um pouco mais difícil; ângulos novos, objetos que não
+    estão na memória.</li>
+    <li><strong>Ter uma <a href="/wiki/zona-de-conforto.html">Zona de
+    Conforto</a></strong> — um grupo fixo de objetos que você sempre
+    desenha. Contradiz de propósito a dica 3: o equilíbrio entre os dois
+    é o segredo.</li>
+    </ol>
+    <h3 id="mais-princípios-práticos">Mais princípios práticos</h3>
+    <ul>
+    <li><strong>Comece com ~3 objetos.</strong> Fique bom em três coisas
+    e as pessoas acharão que você “desenha de tudo”. Depois vá
+    adicionando (ver <a href="/wiki/zona-de-conforto.html">Zona de
+    Conforto</a>).</li>
+    <li><strong>Faça desenhos maiores.</strong> Use a folha toda e o
+    <strong>braço inteiro</strong>; isso treina o ombro e abre espaço
+    para detalhes menores depois.</li>
+    <li><strong>Use livros.</strong> Ver <a
+    href="/wiki/usar-livros.html">Usar Livros</a> — o atalho mais
+    subestimado.</li>
+    <li><strong>Construa sua <a
+    href="/wiki/biblioteca-visual.html">Biblioteca Visual</a>.</strong>
+    Desenhe objetos de referência em vários ângulos até não precisar
+    mais da referência.</li>
+    <li><strong>Foque um aspecto de cada vez.</strong> Ver <a
+    href="/wiki/rotacao-de-foco.html">Rotação de Foco</a>.</li>
+    <li><strong>Copie a natureza, não outros artistas.</strong> Ver <a
+    href="/wiki/copiar-a-natureza.html">Copiar a Natureza</a>.</li>
+    </ul>
+    <h3 id="hábitos-e-produtividade">Hábitos e produtividade</h3>
+    <p>Marcar hábitos ajuda muito (contador de hábitos na parede).
+    Detalhe prático: colar o papel na parede para não doer o pescoço de
+    ficar olhando para baixo. Mais sobre rotina e foco em <a
+    href="/wiki/produtividade.html">Produtividade</a>.</p>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>Pesquisar, errar, diagnosticar, repetir. A prática deliberada
+    vence a prática cega.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Escolha um tema novo, pesquise uma referência e estude-a por
+    alguns minutos.</li>
+    <li>Vire a referência de costas e desenhe de memória o que acabou de
+    ver.</li>
+    <li>Compare com a referência e liste honestamente o que errou ou não
+    sabia.</li>
+    <li>Pesquise de novo exatamente as partes que falharam, não o tema
+    inteiro.</li>
+    <li>Repita o ciclo até conseguir desenhar de memória sem grandes
+    erros.</li>
+    <li>Comece com ~3 objetos só; fique ótimo neles antes de adicionar
+    novos.</li>
+    <li>Faça desenhos grandes, usando a folha toda e o braço inteiro,
+    para treinar o ombro.</li>
+    <li>Aumente a dificuldade aos poucos: ângulos novos, objetos fora da
+    sua memória.</li>
+    <li>Mantenha uma zona de conforto fixa e alterne entre ela e o
+    desafio novo.</li>
+    <li>Cole o papel na parede para não doer o pescoço de olhar para
+    baixo.</li>
+    <li>Use um habit tracker na parede para marcar os dias em que
+    praticou.</li>
+    <li>Copie a natureza e fotos, não outros artistas, para construir
+    sua biblioteca visual.</li>
+    <li>Foque um aspecto por sessão (só luz, só proporção) em vez de
+    tudo de uma vez.</li>
+    </ul>
+    <!-- tags: método de estudo, metodo de estudo, ciclo de aprendizado, loop de aprendizado, desenhar de memória, desenhar de memoria, prática deliberada, pratica deliberada, diagnóstico, diagnostico, autoavaliação, autoavaliacao, referência, referencia, biblioteca visual, entrada de informação visual, entrada de informacao visual, zona de conforto, rotação de foco, rotacao de foco, dificuldade progressiva, habit tracker, hábitos, habitos, copiar a natureza, usar livros, repetição espaçada, repeticao espacada, memorização, memorizacao, feedback, study method, deliberate practice, drawing from memory, visual library, learning loop, prática diária, pratica diaria, foco, ombro, desenho grande, papel na parede, estudo de desenho, internalizar, fixar conhecimento -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

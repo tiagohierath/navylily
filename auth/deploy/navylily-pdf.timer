@@ -1,0 +1,14 @@
+# Fires navylily-pdf.service on the 1st of every month (see the .service file
+# for install steps). Persistent=true catches up after a missed run — this is
+# a laptop, it won't always be awake at 04:00 on the 1st.
+
+[Unit]
+Description=Monthly Navy Lily course PDF rebuild
+
+[Timer]
+OnCalendar=*-*-01 04:00:00
+Persistent=true
+RandomizedDelaySec=10min
+
+[Install]
+WantedBy=timers.target

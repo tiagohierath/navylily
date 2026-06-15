@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Foco — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/foco.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="foco">Foco</h1>
+    <h3 id="definição">Definição</h3>
+    <p>Habilidade fundamental do desenho com <strong>dois
+    eixos</strong>: tempo (quanto tempo você consegue se concentrar) e
+    intensidade (quão difícil é o que você está fazendo).</p>
+    <blockquote>
+    <p>“O que me faria desenhar melhor não seria nada além de mais
+    paciência.”</p>
+    </blockquote>
+    <h3 id="como-treinar">Como treinar</h3>
+    <ul>
+    <li>Aumente gradualmente os dois eixos: mais tempo E coisas mais
+    difíceis.</li>
+    <li>Você atinge a barreira de tempo primeiro (não dá para desenhar
+    mais de 24h). Depois disso, aumente a intensidade: remova
+    distrações, eleve a dificuldade.</li>
+    </ul>
+    <h3 id="tinta-como-treino-de-foco">Tinta como treino de foco</h3>
+    <p>Desenhar com <strong>tinta</strong> (brush pen, caneta Bic) exige
+    foco perfeito por muito tempo — você não pode errar nunca. É o
+    material que mais treina foco.</p>
+    <blockquote>
+    <p>“Desenhar de imaginação + tinta é o que me ajudou mais com
+    foco.”</p>
+    </blockquote>
+    <p>Leia <a href="/wiki/materiais-de-desenho.html">Materiais de
+    Desenho</a> e <a href="/wiki/processo-lento.html">Processo
+    Lento</a>.</p>
+    <h3
+    id="reconhecimento-instantâneo-analogia-com-morse">Reconhecimento
+    instantâneo (analogia com Morse)</h3>
+    <p>Aprendi código Morse com o método de “reconhecimento instantâneo
+    de caractere” — você ouve a letra em velocidade real e tenta
+    adivinhar. É impossível contar os bips; tem que virar reflexo.</p>
+    <p>O desenho funciona da mesma forma: você precisa treinar até que
+    as regras (perspectiva, anatomia) fiquem
+    <strong>automáticas</strong> e não ocupem mais processamento
+    consciente. Ver <a href="/wiki/rotacao-de-foco.html">Rotação de
+    Foco</a> e <a href="/wiki/os-seis-essenciais.html">Os Seis
+    Essenciais</a>.</p>
+    <h3 id="proteger-a-atenção">Proteger a atenção</h3>
+    <p>Desenhar com tinta sem esboço exige um <strong>estado mental
+    quase sagrado</strong>: um único erro não tem conserto. Sinto quando
+    minha concentração caiu (depois de comer demais, de uma interrupção)
+    — e sei que vou começar a errar.</p>
+    <blockquote>
+    <p>“Para desenhar bem, não importa tanto aprender coisas novas ou
+    praticar mais horas. A única coisa que importa é proteger a minha
+    atenção.”</p>
+    </blockquote>
+    <p>50 TikToks ou Shorts de manhã <strong>vão afetar
+    negativamente</strong> a qualidade do seu desenho nesse dia.
+    Paciência, coragem, atenção são as virtudes que fazem você desenhar
+    melhor — não mais técnica.</p>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>Foco é treinável como qualquer fundamento. Aumente tempo e
+    intensidade aos poucos. Tinta e imaginação são os aceleradores.
+    Proteja sua atenção como recurso finito.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Trate foco como fundamento: aumente gradualmente o tempo que
+    você sustenta a concentração.</li>
+    <li>Aumente também a intensidade: a cada sessão, faça algo um pouco
+    mais difícil que na anterior.</li>
+    <li>Quando bater na barreira de tempo (não dá para desenhar 24h),
+    foque em subir a dificuldade.</li>
+    <li>Desenhe com tinta (brush pen, BIC) para treinar foco perfeito —
+    você não pode errar nunca.</li>
+    <li>Combine tinta com desenho de imaginação: é o que mais acelera o
+    ganho de foco.</li>
+    <li>Antes de uma sessão, entre num “estado quase sagrado”: sem
+    celular, sem interrupções.</li>
+    <li>Não veja 50 shorts ou TikToks de manhã; isso piora a qualidade
+    do seu desenho naquele dia.</li>
+    <li>Repare nos sinais de queda de concentração (depois de comer
+    demais, depois de uma interrupção) e pare antes de errar feio.</li>
+    <li>Trate sua atenção como recurso finito: proteja-a em vez de só
+    “praticar mais horas”.</li>
+    <li>Treine os fundamentos (perspectiva, anatomia) até virarem
+    automáticos, liberando atenção para o resto.</li>
+    <li>Use a analogia do Morse: pratique reconhecimento instantâneo até
+    não precisar mais “contar”.</li>
+    <li>Cultive paciência e coragem — são essas virtudes, não mais
+    técnica, que fazem você desenhar melhor.</li>
+    </ul>
+    <!-- tags: foco, concentracao, atencao, proteger a atencao, tempo e intensidade, deep work, paciencia, coragem, virtude, tinta, brush pen, caneta BIC, desenho de imaginacao, desenho sem esboco, estado mental, fluxo, flow, distracoes, TikTok, shorts, redes sociais, codigo morse, reconhecimento instantaneo, intuicao, automatico, fundamentos, perspectiva, anatomia, processo lento, treinar foco, recurso finito, qualidade do desenho, interrupcao, energia, mindset, focus, attention, train focus, como ter foco, como concentrar, sustentar atencao, barreira de tempo, dificuldade progressiva, deliberate practice, Os Seis Essenciais, rotacao de foco, material de desenho, jejum de tela -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

@@ -7,7 +7,7 @@
 #   sudo systemctl enable --now navylily
 #   journalctl -u navylily -f          # watch logs
 #
-# WorkingDirectory is REQUIRED: the server resolves web/, ../public, ../protected
+# WorkingDirectory is REQUIRED: the server resolves web/ and ../public
 # relative to it, and loads auth/.env from it.
 
 [Unit]

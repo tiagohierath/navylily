@@ -179,8 +179,12 @@ if [ "$NOTIFY" -eq 1 ] && [ "$NEW_COUNT" -gt 0 ]; then
   sent=0; failed=0
   while IFS= read -r to; do
     [ -n "$to" ] || continue
-    signup_url="$SITE_URL/signup?email=$(jq -rn --arg e "$to" '$e|@uri')"
+    to_uri="$(jq -rn --arg e "$to" '$e|@uri')"
+    signup_url="$SITE_URL/signup?email=$to_uri"
+    login_url="$SITE_URL/login?email=$to_uri"
+    forgot_url="$SITE_URL/forgot?email=$to_uri"
     body="$(jq -n --arg from "$RESEND_FROM" --arg to "$to" --arg url "$signup_url" \
+      --arg login "$login_url" --arg forgot "$forgot_url" \
       --arg subject "Seu presente: 1 ano grátis na Navy Lily 🎁" '
       { from: $from, to: [$to], subject: $subject,
         html: ("<div style=\"font-family:system-ui,sans-serif;max-width:480px;margin:auto;color:#1a1a1a\">"
@@ -189,6 +193,7 @@ if [ "$NOTIFY" -eq 1 ] && [ "$NEW_COUNT" -gt 0 ]; then
           + "<p>Para entrar, crie sua senha com este e-mail:</p>"
           + "<p><a href=\"\($url)\" style=\"display:inline-block;padding:.8rem 1.2rem;background:#1f6feb;color:#fff;text-decoration:none;border-radius:8px\">Criar minha conta</a></p>"
           + "<p style=\"color:#666;font-size:.9rem\">Use este mesmo e-mail ao criar a conta — seu acesso já está liberado para ele.</p>"
+          + "<p style=\"color:#666;font-size:.9rem\">Já tem conta com este e-mail? Não precisa criar outra: é só <a href=\"\($login)\">entrar</a> (ou <a href=\"\($forgot)\">redefinir sua senha</a>) — o acesso já está no mesmo e-mail.</p>"
           + "</div>") }')"
     resp="$(curl -sS -w $'\n%{http_code}' -X POST https://api.resend.com/emails \
       -H "Authorization: Bearer $RESEND_API_KEY" \

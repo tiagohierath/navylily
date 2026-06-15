@@ -9,20 +9,20 @@
     body { font-family: serif; margin: 0; }
     header.site {
       display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-      padding: .75rem 1rem; border-bottom: 1px solid #ddd;
+      padding: .75rem 1rem; 
     }
     header.site .brand {
       font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
     }
     header.site .btn {
       font: inherit; text-decoration: none; color: inherit;
-      border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
+      padding: .25rem .6rem;
     }
     main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
     /* The big square avatar on the profile itself. */
     .avatar {
-      width: 128px; height: 128px; border-radius: 8px; overflow: hidden;
-      border: 1px solid #ccc; box-sizing: border-box; background: #eee;
+      width: 128px; height: 128px; overflow: hidden;
+      box-sizing: border-box; background: #eee;
       display: inline-flex; align-items: center; justify-content: center;
       font: 600 56px serif; color: #333;
     }
@@ -50,20 +50,53 @@
       input[type=text] { width: 100%; }
       #username-form button, #bio-form button, #avatar-form button { display: block; }
     }
+      /* navy form controls */
+    header.site { background: #ADB6C6; }
+    button { background: #0B1F3A !important; color: #FFFFFF !important; }
+    button[type=button] { background: #28456B !important; }
+    input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+    input::placeholder, textarea::placeholder { color: #51719A !important; }
+    .lesson-complete-btn.is-done { background: #3D5A80 !important; }
+    /* Phone: compact header — smaller logo + tighter buttons share one row. */
+    @media (max-width: 480px) {
+      header.site { gap: .4rem; padding: .5rem .6rem; }
+      header.site .brand img { height: 16px !important; width: auto !important; }
+      header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+    }
+  @media(max-width:640px){.lbl-rest{display:none}}
   </style>
 </head>
-<body>
+<body bgcolor="white">
+  <!-- Splash: black + white logo while the data loads (Discord-style).
+       splashDone() drops it; the timeout is a failsafe so a slow request or a
+       JS error never leaves the screen black. -->
+  <div id="splash"><img src="/logo.png?v=3" alt=""></div>
+  <style>
+    #splash { position: fixed; inset: 0; z-index: 999; background: #000;
+              display: flex; align-items: center; justify-content: center; }
+    #splash img { width: min(80vw, 420px); filter: brightness(0) invert(1);
+                  animation: splash-pulse 1.6s ease-in-out infinite; }
+    @keyframes splash-pulse { 50% { opacity: .35; } }
+    /* Desktop: nearly edge to edge; phones keep it readable, not absurd. */
+    @media (min-width: 768px) { #splash img { width: 88vw; } }
+  </style>
+  <script>
+    function splashDone() { var s = document.getElementById('splash'); if (s) s.remove(); }
+    setTimeout(splashDone, 4000);
+  </script>
   <header class="site">
-    <a class="brand" href="/"><img src="/logo.png?v=2" alt="Navy Lily Works" style="height:28px;width:auto;display:block"></a>
-    <a class="btn" href="/community">Comunidade</a>
-    <a class="btn" href="/comprar">Navy</a>
-    <a class="btn" href="/login">Perfil</a>
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
   </header>
   <main>
   <p id="loading">Carregando…</p>
 
   <div id="profile" hidden>
     <h1 id="display-name"></h1>
+    <p id="streak-line" hidden></p>
     <p id="public-link" class="hint" hidden></p>
 
     <!-- Avatar: free to change whenever. -->
@@ -110,16 +143,23 @@
       <span id="bio-msg"></span>
     </div>
 
+    <!-- Device-local study state (same localStorage the lesson pages write):
+         continue where you left off + saved lessons. Filled by the script
+         below; each line stays hidden when this device has nothing for it. -->
+    <hr>
+    <p id="continue-link" hidden></p>
+    <p id="saved-list" hidden></p>
+
     <hr>
     <p class="hint"><strong>E-mail:</strong> <span id="email"></span></p>
     <p><strong>Assinatura:</strong> <span id="member"></span></p>
-    <p id="lessons-link" hidden><a href="/protected/">Ir para as aulas pagas →</a></p>
-    <p id="buy-link" hidden><a href="/comprar">Assinar a Navy (R$ 197/ano) →</a></p>
+    <p id="lessons-link" hidden><a href="/community">Postar na comunidade →</a></p>
+    <p id="buy-link" hidden><a href="/comprar">Assinar para prioridade nos conselhos e feedback (R$ 497/ano) →</a></p>
     <p><a href="/auth/logout">Sair</a></p>
   </div>
   </main>
 
-  <script src="/header.js" defer></script>
+  <script src="/header.js?v=11" defer></script>
   <script>
   (function () {
     var MAX_CHARS = 1000;
@@ -184,6 +224,19 @@
       curUsername = d.username || '';
       curBio = d.bio || '';
       el('display-name').textContent = d.username ? '@' + d.username : 'Sem nome de usuário';
+      (function() {
+        var TIERS = [[0,'🌱'],[1,'🌿'],[2,'🌸'],[4,'✨'],[8,'🔥'],[16,'⭐'],[32,'🌙'],[63,'💎'],[126,'👑'],[251,'🐱🪷'],[500,'🌻']];
+        function lsj(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}}
+        function dk(dt){return dt.getFullYear()+'-'+('0'+(dt.getMonth()+1)).slice(-2)+'-'+('0'+dt.getDate()).slice(-2);}
+        var sdays=lsj('nl-study-days')||{},sd=new Date(),streak=0;
+        if(!sdays[dk(sd)])sd.setDate(sd.getDate()-1);
+        while(sdays[dk(sd)]){streak++;sd.setDate(sd.getDate()-1);}
+        if(streak<1)return;
+        var sem=TIERS[0][1];for(var i=0;i<TIERS.length;i++){if(streak>=TIERS[i][0])sem=TIERS[i][1];}
+        var sl=el('streak-line');
+        sl.textContent=sem+' '+streak+' dia'+(streak===1?'':'s')+' seguidos';
+        sl.hidden=false;
+      })();
       el('username-view').textContent = d.username ? '@' + d.username : '(não definido)';
       el('username-edit').textContent = d.username ? 'editar' : 'escolher';
       el('bio-view').textContent = d.bio || '(sem bio)';
@@ -192,7 +245,8 @@
       el('member').textContent = d.member
         ? 'Ativa' + (until ? ' — acesso até ' + until : '')
         : (until ? 'Inativa — expirou em ' + until : 'Inativa');
-      el(d.member ? 'lessons-link' : 'buy-link').hidden = false;
+      el('lessons-link').hidden = false;    // posting is free — everyone gets the link
+      el('buy-link').hidden = !!d.member;    // non-members: upsell guaranteed critique
       el('username-input').value = curUsername;
       el('bio-input').value = curBio;
       // Public vanity link, once a username exists.
@@ -218,6 +272,7 @@
       renderBioCount();
       el('loading').hidden = true;
       el('profile').hidden = false;
+      splashDone();
     }
 
     function load() {
@@ -308,10 +363,41 @@
     });
 
     load().catch(function () {
+      splashDone();
       el('loading').textContent = 'Não foi possível carregar sua conta. ';
       var a = document.createElement('a'); a.href = '/login'; a.textContent = 'Entrar';
       el('loading').appendChild(a);
     });
+
+    // Device-local study state, written by the lesson pages into localStorage
+    // (nl-last-lesson, nl-bookmarks). Shown here instead of on the lesson
+    // lists; sits inside #profile, so it appears together with the account.
+    (function () {
+      function lsGet(k, d) { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } }
+      var last = lsGet('nl-last-lesson', null);
+      if (last && last.h) {
+        var p = el('continue-link');
+        var a = document.createElement('a');
+        a.href = last.h;
+        a.textContent = '▶ continuar de onde parou: ' + (last.t || 'última aula') + ' →';
+        p.appendChild(a);
+        p.hidden = false;
+      }
+      var bms = lsGet('nl-bookmarks', {});
+      var keys = Object.keys(bms);
+      if (keys.length) {
+        var s = el('saved-list');
+        s.appendChild(document.createTextNode('⭐ Aulas salvas: '));
+        keys.forEach(function (k, i) {
+          if (i) s.appendChild(document.createTextNode(' · '));
+          var a = document.createElement('a');
+          a.href = bms[k].h;
+          a.textContent = bms[k].t || k;
+          s.appendChild(a);
+        });
+        s.hidden = false;
+      }
+    })();
   })();
   </script>
 </body>

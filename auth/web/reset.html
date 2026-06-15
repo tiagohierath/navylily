@@ -4,24 +4,25 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Nova senha — Navy Lily</title>
-  <style>
-    body { font-family: serif; }
-  </style>
+  <link rel="stylesheet" href="/site.css?v=1">
 </head>
-<body>
+<body bgcolor="white">
+  <main>
   <h1>Definir nova senha</h1>
-  <p id="msg" hidden></p>
+  <p id="msg" role="alert" hidden></p>
   <form id="form">
     <p>
       <label for="password">Nova senha</label><br>
-      <input id="password" type="password" required minlength="8" maxlength="72" placeholder="8 a 72 caracteres" autofocus>
+      <input id="password" type="password" required minlength="8" maxlength="72" placeholder="8 a 72 caracteres" autocomplete="new-password" autofocus>
     </p>
     <p>
       <label for="confirm">Confirmar senha</label><br>
-      <input id="confirm" type="password" required minlength="8" maxlength="72" placeholder="repita a senha">
+      <input id="confirm" type="password" required minlength="8" maxlength="72" placeholder="repita a senha" autocomplete="new-password">
     </p>
-    <button type="submit">Salvar nova senha</button>
+    <button id="submit" type="submit">Salvar nova senha</button>
   </form>
+  </main>
+  <script src="/header.js?v=11" defer></script>
   <script>
     // The recovery link lands on /auth/callback, which forwards the URL fragment
     // (#access_token=...&type=recovery) here. Read the token from the fragment —
@@ -50,13 +51,20 @@
           msg.hidden = false;
           return;
         }
+        // Pending state while the request is in flight; restored on failure so
+        // the form can be retried.
+        const btn = document.getElementById('submit');
+        btn.disabled = true;
+        const label = btn.textContent;
+        btn.textContent = 'Salvando…';
+        const retry = function () { btn.disabled = false; btn.textContent = label; };
         try {
           const res = await fetch('/auth/reset', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ access_token: token, password: password })
           });
-          if (res.ok) { location.replace('/protected/'); return; }
+          if (res.ok) { location.replace('/after-login'); return; }
           // Show the server's actual reason. A 401 means the link itself is
           // bad/expired (offer a fresh one); other errors — e.g. same/weak
           // password — are fixable right here, so keep the form up to retry.
@@ -66,10 +74,12 @@
           } else {
             msg.textContent = reason;
             msg.hidden = false;
+            retry();
           }
         } catch (e) {
           msg.textContent = 'Não foi possível alterar a senha. Tente novamente.';
           msg.hidden = false;
+          retry();
         }
       });
     })();

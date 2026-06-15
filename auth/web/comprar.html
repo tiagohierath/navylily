@@ -12,14 +12,14 @@
     /* Same site header as every other page. */
     header.site {
       display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-      padding: .75rem 1rem; border-bottom: 1px solid #ddd;
+      padding: .75rem 1rem; 
     }
     header.site .brand {
       font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
     }
     header.site .btn {
       font: inherit; text-decoration: none; color: inherit;
-      border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
+      padding: .25rem .6rem;
     }
     @media (max-width: 480px) { header.site { gap: .5rem; } }
     main { max-width: 40rem; margin: 0 auto; padding: 1rem 1.25rem 2.5rem; }
@@ -27,44 +27,97 @@
     .price { font-size: 2rem; font-weight: 700; margin: .5rem 0; }
     .price small { font-size: 1rem; font-weight: 400; color: var(--muted); }
     .lead { color: var(--muted); margin: 0 0 1.5rem; }
+    .perks { margin: 1rem 0; padding-left: 1.25rem; }
+    .perks li { margin: .4rem 0; }
     .methods { display: grid; gap: .75rem; margin: 1.5rem 0; }
     button, a[role=button] {
-      display: block; font: inherit; padding: .85rem 1rem; border: 1px solid #ccc;
-      border-radius: 6px; background: #fff; cursor: pointer; text-align: left;
+      display: block; font: inherit; padding: .85rem 1rem; 
+      background: #E6EAF1; cursor: pointer; text-align: left;
       color: inherit; text-decoration: none;
     }
-    button.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+    button.primary { background: var(--ink); color: #fff; }
     button[disabled] { color: var(--muted); cursor: not-allowed; }
     .tag { float: right; font-size: .75rem; color: var(--muted); }
-    .card { border: 1px solid var(--line); border-radius: 6px; padding: 1.25rem; }
+    /* The site theme fills <button>s navy; a muted-gray tag is unreadable on
+       that, so tags riding on buttons go light instead. */
+    button .tag { color: #C9D6E8; }
+    .card { padding: 1.25rem; }
     .qr { display: block; margin: 1rem auto; }
     textarea { width: 100%; font-family: monospace; }
     .muted { color: var(--muted); font-size: .9rem; }
+    .err { color: #b00; font-size: .9rem; }
+    #buyEmail { font: inherit; padding: .5rem .6rem; width: 100%; max-width: 20rem; }
     [hidden] { display: none; }
+      /* navy form controls */
+    header.site { background: #ADB6C6; }
+    button { background: #0B1F3A !important; color: #FFFFFF !important; }
+    button[type=button] { background: #28456B !important; }
+    input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+    input::placeholder, textarea::placeholder { color: #51719A !important; }
+    .lesson-complete-btn.is-done { background: #3D5A80 !important; }
+    /* Phone: compact header — smaller logo + tighter buttons share one row. */
+    @media (max-width: 480px) {
+      header.site { gap: .4rem; padding: .5rem .6rem; }
+      header.site .brand img { height: 16px !important; width: auto !important; }
+      header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+    }
+  @media(max-width:640px){.lbl-rest{display:none}}
   </style>
 </head>
-<body>
+<body bgcolor="white">
+  <!-- Splash: black + white logo while the data loads (Discord-style).
+       splashDone() drops it; the timeout is a failsafe so a slow request or a
+       JS error never leaves the screen black. -->
+  <div id="splash"><img src="/logo.png?v=3" alt=""></div>
+  <style>
+    #splash { position: fixed; inset: 0; z-index: 999; background: #000;
+              display: flex; align-items: center; justify-content: center; }
+    #splash img { width: min(80vw, 420px); filter: brightness(0) invert(1);
+                  animation: splash-pulse 1.6s ease-in-out infinite; }
+    @keyframes splash-pulse { 50% { opacity: .35; } }
+    /* Desktop: nearly edge to edge; phones keep it readable, not absurd. */
+    @media (min-width: 768px) { #splash img { width: 88vw; } }
+  </style>
+  <script>
+    function splashDone() { var s = document.getElementById('splash'); if (s) s.remove(); }
+    setTimeout(splashDone, 4000);
+  </script>
   <header class="site">
-    <a class="brand" href="/"><img src="/logo.png?v=2" alt="Navy Lily Works" style="height:28px;width:auto;display:block"></a>
-    <a class="btn" href="/community">Comunidade</a>
-    <a class="btn" href="/comprar">Navy</a>
-    <a class="btn" href="/login">Perfil</a>
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-current="page" aria-label="Navy" title="Navy">⛵</a>
   </header>
   <main>
   <h1>Navy Assinatura</h1>
 
   <!-- Shown to already-active members instead of the buy options (toggled by /me) -->
   <div id="memberBox" class="card" hidden>
-    <p>Você já é um membro Navy e tem acesso a aulas exclusivas e feedback na comunidade.</p>
-    <p><a href="/protected/">Ir para as aulas</a></p>
+    <p>Você é um membro Navy: suas publicações na Comunidade têm <strong>prioridade nos conselhos e feedback</strong> do Tiago.</p>
+    <p><a href="/community">Ir para a comunidade</a></p>
   </div>
 
-  <!-- Buy pitch + payment options. Starts hidden and is revealed only after /me
-       says the visitor is NOT a member, so paying members never see a "pay" flash. -->
+  <!-- Buy pitch + payment options. Starts hidden and is revealed once /me says
+       the visitor is NOT a member, so paying members never see a "pay" flash —
+       but a slow /me only holds it for 1.5s; after that the logged-out view
+       renders and is reconciled when /me lands. -->
   <div id="buyView" hidden>
-    <p class="price">R$ 197 <small>/ ano</small></p>
-    <p class="lead">Ao se inscrever, você tem acesso a todas as aulas exclusivas, materiais e guias de apoio. E ainda pode pedir feedback ou conselhos na aba de <a href="/community">Comunidade</a>.</p>
-    <p>O Tiago vai responder suas dúvidas ou te dizer como melhorar, ou superar alguma dificuldade nos estudos de desenho.</p>
+    <p class="price">R$ 497 <small>/ ano</small></p>
+    <ul class="perks">
+      <li><strong>Prioridade na fila</strong>: seu trabalho vai para a frente, revisado antes das publicações gratuitas.</li>
+      <li>Conselhos e feedback do Tiago no seu trabalho.</li>
+      <li>Respostas mais consistentes e rápidas.</li>
+    </ul>
+
+    <!-- Anonymous buyers: the e-mail access is granted to (same no-login flow
+         as the Join widget). Hidden when a session already identifies the
+         buyer — the server prefers the session anyway. -->
+    <div id="emailRow" hidden>
+      <p style="margin:1rem 0 .2rem;"><label for="buyEmail">Seu e-mail (o acesso é liberado para ele)</label></p>
+      <p style="margin:.2rem 0;"><input id="buyEmail" type="email" placeholder="voce@email.com" autocomplete="email"></p>
+      <p id="emailErr" class="err" role="alert" hidden>Digite um e-mail válido.</p>
+    </div>
 
     <!-- Step 1: choose a payment method -->
     <div id="choose" class="methods">
@@ -82,7 +135,7 @@
 
   <div id="pix" class="card" hidden>
     <p>Escaneie o QR Code com o app do seu banco:</p>
-    <img id="qr" class="qr" alt="QR Code PIX" width="240" height="240">
+    <img id="qr" class="qr" alt="QR Code PIX" width="240" height="240" loading="lazy">
     <p>Ou use o PIX copia e cola:</p>
     <textarea id="brcode" rows="3" readonly></textarea>
     <p><button id="copy" type="button">Copiar código</button></p>
@@ -91,42 +144,96 @@
 
   <div id="paid" class="card" hidden>
     <h2>✅ Pagamento confirmado!</h2>
-    <p>Seu acesso foi liberado. <a href="/protected/">Ir para as aulas</a></p>
+    <p>Pronto — suas publicações agora têm prioridade nos conselhos e feedback do Tiago. <a href="/community">Ir para a comunidade</a></p>
+  </div>
+
+  <!-- Paid, but no session to redirect: the access link just e-mailed does the
+       login (an anonymous buyer bounced off /protected/ would land back here). -->
+  <div id="paidAnon" class="card" hidden>
+    <h2>✅ Pagamento confirmado!</h2>
+    <p>Pronto! Enviamos um <strong>link de acesso</strong> para
+       <strong id="paidMail"></strong> — abra-o para entrar; suas publicações na comunidade agora têm prioridade nos conselhos e feedback do Tiago.</p>
+    <p class="muted">Não chegou? Confira também a caixa de spam.</p>
   </div>
 
   <div id="error" class="card" hidden>
-    <p>Não foi possível gerar o PIX agora. <a href="/comprar">Tentar de novo</a></p>
+    <p>Não foi possível gerar o PIX agora. <button id="retryPix" type="button">Tentar de novo</button></p>
   </div>
   </main>
 
   <script>
     let chargeId = null;
+    let buyEmailUsed = ''; // the address the current charge was opened for
 
     const show = (id) => document.getElementById(id).hidden = false;
     const hide = (id) => document.getElementById(id).hidden = true;
 
     // Show exactly one of memberBox / buyView once we know who's looking, so a
-    // paying member never sees the "pay R$197" UI flash. If /me fails, fall back
-    // to the buy view so a non-member can still purchase.
+    // paying member never sees the "pay R$497" UI flash — but never hold the
+    // page hostage to a slow /me: after 1.5s render the logged-out view and
+    // reconcile when /me lands. Anonymous buyers get an e-mail field (the same
+    // no-login flow as the Join widget); a session hides it.
+    let meState = null;
+    function render() {
+      splashDone();
+      if (meState && meState.member) { hide('buyView'); show('memberBox'); return; }
+      document.getElementById('emailRow').hidden = !!(meState && meState.logged_in);
+      show('buyView');
+    }
     fetch('/me', { headers: { Accept: 'application/json' } })
       .then((r) => r.json())
-      .then((d) => { if (d && d.member) { show('memberBox'); } else { show('buyView'); } })
-      .catch(() => { show('buyView'); });
+      .then((d) => { meState = d || {}; render(); })
+      .catch(() => { meState = {}; render(); });
+    setTimeout(() => { if (!meState) render(); }, 1500);
+
+    // The buyer's address: the session covers it when logged in (the server
+    // prefers it over anything posted); otherwise the typed e-mail, validated.
+    // Returns null only when the anonymous input isn't usable yet.
+    function readBuyEmail() {
+      if (meState && meState.logged_in) return meState.email || '';
+      const v = (document.getElementById('buyEmail').value || '').trim().toLowerCase();
+      const bad = v.indexOf('@') < 0;
+      document.getElementById('emailErr').hidden = !bad;
+      return bad ? null : v;
+    }
 
     document.getElementById('pickPix').addEventListener('click', function () {
-      startPix();
+      const v = readBuyEmail();
+      if (v !== null) startPix(v);
     });
 
-    async function startPix() {
-      hide('choose');
+    // Card checkout needs the e-mail too — carried on the link for anonymous
+    // buyers; a logged-in session makes the plain href enough.
+    document.getElementById('pickCard').addEventListener('click', function (e) {
+      const v = readBuyEmail();
+      if (v === null) { e.preventDefault(); return; }
+      if (v) {
+        e.preventDefault();
+        location.href = '/card/new?email=' + encodeURIComponent(v);
+      }
+    });
+
+    // Enter in the e-mail field goes with PIX, the primary method.
+    document.getElementById('buyEmail').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); document.getElementById('pickPix').click(); }
+    });
+
+    async function startPix(email) {
+      buyEmailUsed = email;
+      hide('choose'); hide('emailRow'); hide('error'); hide('pix');
       show('loading');
       try {
-        const r = await fetch('/pix/new');
+        const r = await fetch('/pix/new', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ email: email })
+        });
         if (!r.ok) throw new Error('pix/new ' + r.status);
         const d = await r.json();
         chargeId = d.id;
         document.getElementById('qr').src = d.brCodeBase64;
         document.getElementById('brcode').value = d.brCode;
+        document.getElementById('status').textContent = 'Aguardando pagamento…';
         hide('loading');
         show('pix');
         poll();
@@ -135,6 +242,14 @@
         show('error');
       }
     }
+
+    // "Tentar de novo" after a failed charge: back to the method chooser, no
+    // page reload — a typed e-mail survives.
+    document.getElementById('retryPix').addEventListener('click', function () {
+      hide('error');
+      show('choose');
+      render();
+    });
 
     document.getElementById('copy').addEventListener('click', function () {
       const t = document.getElementById('brcode');
@@ -159,19 +274,32 @@
         const d = await r.json();
         if (d.status === 'PAID' || d.status === 'APPROVED') {
           hide('pix');
-          show('paid');
-          setTimeout(function () { location.href = '/protected/'; }, 1500);
+          if (d.logged_in) {
+            show('paid');
+            setTimeout(function () { location.href = '/community'; }, 1500);
+          } else {
+            // No session to redirect into: the e-mailed access link does the login.
+            document.getElementById('paidMail').textContent = buyEmailUsed;
+            show('paidAnon');
+          }
           return;
         }
         if (d.status === 'EXPIRED' || d.status === 'CANCELLED' || d.status === 'FAILED') {
-          document.getElementById('status').textContent =
-            'PIX expirado. Recarregue a página para gerar outro.';
+          // A fresh charge is one click away — never "reload the page" at the
+          // moment someone is trying to pay.
+          const st = document.getElementById('status');
+          st.textContent = 'PIX expirado. ';
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = 'Gerar novo PIX';
+          b.addEventListener('click', function () { startPix(buyEmailUsed); });
+          st.appendChild(b);
           return;
         }
       } catch (e) { /* keep polling */ }
       setTimeout(poll, 4000);
     }
   </script>
-  <script src="/header.js" defer></script>
+  <script src="/header.js?v=11" defer></script>
 </body>
 </html>

@@ -1,0 +1,42 @@
+### Visão geral
+
+Cada material induz um estado mental e um tipo de erro diferente. Trocar de material faz seus desenhos piorarem por um tempo — e isso é normal.
+
+> "De longe, a parte mais estranha sobre mudar de material é que os seus desenhos ficam absolutamente péssimos por algum tempo, e aí você tem que recuperar."
+
+### Grafite (lápis)
+
+A forma mais relaxante e satisfatória de desenhar. Permite apagar, então é ideal para **retratos** e para o iniciante aprender [[Anatomia]] e proporção. Ver [[Processo Lento]].
+
+### Caneta esferográfica / Bic
+
+Boa para **textura fina** — o autor diz ter uma técnica "secreta" de textura com Bic que não revela. A caneta de gel (tipo Pentel) acaba rápido e é desconfortável de desenhar, apesar de boa para escrever.
+
+### Caneta pincel (Brush Pen)
+
+Brush Pen da **Pentel**, a menor ponta. Precisa comprar refis (duram meses). Inspirada no artista **Kim Jungi**. Faz linhas finíssimas (do tamanho de um cílio). Exige [[Processo Lento]]: você não pode apagar nada.
+
+### Pena (quill)
+
+Pena de pato. Precisa de cortes para abrir as pontas; ao apertar no papel, as pontas abrem e sai mais tinta (como tinteiro). Ponta reta dá um traço de caligrafia.
+
+### Pincel + água
+
+Pincel com água e tinta acrílica para obter cinzas e [[Texturas]].
+
+### Sketchbooks
+
+A5 (metade de um A4), estilo Moleskine; Canson. Tamanho menor para portabilidade; alguns do dobro do tamanho para storyboards.
+
+### Pincel com água (Water Brush)
+
+Brush pen de água da Pentel. Muito mais sensível que caneta ou lápis — você não sente a ponta tocar o papel. Produz gradações de cor misturada com tinta acrílica ou nanquim. Requer paciência para aprender a controlar.
+
+Dicas:
+- Segure longe da ponta (não mancha o dedo, reduz dor).
+- Use a técnica do **ghosting**: mova o braço todo (não só o pulso ou os dedos) e faça o traço "no ar" várias vezes antes de tocar o papel. Isso treina linhas retas e controle.
+- Espere a frustração inicial — vai fazer coisas terríveis antes de pegar o jeito.
+
+### Conclusão
+
+Não existe material "certo". Existe o material certo para o efeito e para o estado mental que você quer.

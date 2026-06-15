@@ -1,0 +1,107 @@
+/* Navy Lily — one stylesheet for the whole site.
+   System serif font everywhere (no web-font downloads). Flat design: no
+   shadows, rounded corners, or gradients — for speed and a plain-HTML feel.
+   Dark mode is layered on top of these rules by header.js. */
+body { font-family: serif; margin: 0; }
+header.site {
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: .75rem 1rem; 
+}
+header.site .brand {
+  font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
+}
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { font: inherit; padding: .25rem .5rem; }
+header.site .btn {
+  font: inherit; text-decoration: none; color: inherit;
+  padding: .25rem .6rem;
+}
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+/* Reading typography: clear heading steps, paragraphs with room to breathe. */
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+/* End-of-lesson toggles (related lessons, wiki citations): quiet next to the
+   prev/next buttons, which stay the main call to action. */
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+/* End-of-lesson actions (completar + salvar): one flex toolbar. */
+.lesson-complete, .nl-extras {
+  display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0;
+}
+.lesson-complete button, .nl-extras button {
+  font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0;
+}
+/* Optional lesson thumbnail, shown under the heading; always 16:9. */
+img.lesson-image {
+  display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
+  margin: 1rem 0 1.5rem;
+}
+/* Landing page + lessons index: each lesson is a row — square thumbnail left,
+   title and a 3-line preview right. */
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a {
+  display: flex; gap: 1rem; align-items: flex-start;
+  text-decoration: none; color: inherit;
+}
+.article a:hover .title { text-decoration: underline; }
+.article .thumb {
+  flex: 0 0 120px; width: 120px; height: 120px;
+  object-fit: cover; object-position: center; display: block; background: #eee;
+}
+/* No image yet: flat placeholder with a barely-there boat. */
+.article span.thumb {
+  background: #D7DEE9; display: flex; align-items: center; justify-content: center;
+  font-size: 48px;
+}
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+/* Thumbnails start grayed out; completing the lesson restores the colors. */
+.article .thumb { filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview {
+  margin: .25rem 0 0; color: #555; font-size: .9em;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+/* Wiki index: a plain list of terms, one link per line. */
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav {
+  display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem;
+}
+/* Filled like the primary buttons (dark mode restyles it in header.js). */
+nav.lesson-nav a {
+  font: inherit; text-decoration: none; font-weight: 600;
+  background: #0B1F3A; color: #fff; padding: .5rem .9rem;
+}
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn {
+  font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem;
+}
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+/* Phone: smaller logo + compact buttons share the top row; the search box drops
+   to its own full-width row. */
+@media (max-width: 480px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site form { order: 3; flex-basis: 100%; }
+  header.site input[name=q] { flex: 1; min-width: 0; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+}
+/* navy form controls */
+header.site { background: #ADB6C6; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }

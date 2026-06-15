@@ -3,80 +3,178 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>teste — Navy Lily</title>
+  <title>Desenho é não-linear — Navy Lily</title>
   <meta name="description" content="Aulas da Navy Lily.">
   <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/009.html">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <style>
-    body { font-family: serif; margin: 0; }
-    header.site {
-      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-      padding: .75rem 1rem; border-bottom: 1px solid #ddd;
-    }
-    header.site .brand {
-      font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
-    }
-    header.site form { display: flex; gap: .25rem; }
-    header.site input[name=q] { font: inherit; padding: .25rem .5rem; }
-    header.site .btn {
-      font: inherit; text-decoration: none; color: inherit;
-      border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
-    }
-    main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
-    /* Optional lesson thumbnail, shown under the heading; always 16:9. */
-    img.lesson-image {
-      display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
-      border-radius: 8px; margin: 1rem 0 1.5rem;
-    }
-    nav.lesson-nav {
-      display: flex; justify-content: space-between; gap: 1rem; margin: 2.5rem 0 1.5rem;
-    }
-    nav.lesson-nav a {
-      font: inherit; text-decoration: none; color: inherit;
-      border: 1px solid #ccc; border-radius: 6px; padding: .4rem .8rem;
-    }
-    nav.lesson-nav .nav-next { margin-left: auto; }
-    .lesson-complete { margin: 2rem 0 0; }
-    .lesson-complete-btn {
-      font: inherit; cursor: pointer; color: #fff;
-      border: 1px solid; border-radius: 6px; padding: .4rem .9rem;
-    }
-    .lesson-complete-btn.is-todo { background: #1A3F7A; border-color: #1A3F7A; }
-    .lesson-complete-btn.is-done { background: #2E7D32; border-color: #2E7D32; }
-    .lesson-complete-btn:disabled { opacity: .6; cursor: default; }
-    /* Phone: keep the two header actions side by side instead of each wrapping
-       to its own line — the search box drops to a full-width row of its own. */
-    @media (max-width: 480px) {
-      header.site { gap: .5rem; }
-      header.site form { order: 3; flex-basis: 100%; }
-      header.site input[name=q] { flex: 1; min-width: 0; }
-    }
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
   </style>
 </head>
-<body>
+<body bgcolor="white">
   <header class="site">
-    <a class="brand" href="/"><img src="/logo.png?v=2" alt="Navy Lily Works" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
     <form action="/lessons.html" method="get" role="search">
       <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
-      <button class="btn" type="submit">Buscar</button>
-    </form>
-    <a class="btn" href="/community">Comunidade</a>
-    <a class="btn" href="/comprar">Navy</a>
-    <a class="btn" href="/login">Perfil</a>
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
   </header>
   <main>
-    <p>desenho</p>
-    <h1 id="teste">teste</h1>
-    <p>teste</p>
+    <h1 id="desenho-é-não-linear">Desenho é não-linear</h1>
+    <p>Por que não existe <strong>uma</strong> ordem única para aprender
+    a desenhar?</p>
+    <p>Eu não sei se consigo pensar em assuntos puramente lineares,
+    talvez partes de matemática e partes de programação são bem
+    lineares, e <strong>partes</strong> de ilustração, ou anatomia. Mas
+    aprender desenho é bem não-linear.</p>
+    <p>A questão é que, se eu fingir que existe uma sequência única, eu
+    poderia te vender um curso, poderia dizer “nah, só eu tenho O
+    MÉTODO, se você falhar, é por que não seguiu direito.”</p>
+    <p>O que é algo linear? Um método linear é sempre: sequência
+    estreita, e direção única, tipo o alfabeto, ou os números
+    naturais.</p>
+    <p>Agora algo <strong>não</strong>-linear seria, cores, ou casas
+    numa cidade ou fundamentos do desenho.</p>
+    <p>Existem partes em Anatomia que são super-linear, por exemplo, é
+    sempre bom estudar ossos antes de músculos, é uma direção bem óbvia.
+    Se você tentar desenhar anatomia sem saber o básico dos ossos, vai
+    ser bem mais difícil do que precisa ser.</p>
+    <p>Mas desenho em geral é descentralizado e você precisa entender
+    que você não está falhando por que ainda não descobriu a sequência
+    certa de estudo, isso é quase uma superstição. Você pode começar por
+    anatomia (igual eu), ou por perspectiva, ou por pintura, e chegar
+    num nível bom.</p>
+    <p>Aprender perspectiva ajuda em anatomia, mas isso não implica uma
+    direção tipo “SEMPRE comece por perspectiva.”</p>
+    <p>Uma das piores consequências de estudar de forma linear é que
+    você pensa em Fases, você espera completar elas pra avançar, e isso
+    é quase sempre uma armadilha por duas razões:</p>
+    <ol type="1">
+    <li>Não existe completar fundamentos, o que isso sequer significa?
+    Você APRENDEU perspectiva até o final? Você se tornou uma câmera ou
+    algo assim?</li>
+    <li>Estudar <strong>vários</strong> assuntos e fundamentos é
+    <strong>melhor</strong> que focar em um só.</li>
+    </ol>
+    <p>Sério, não existem fases, não pense “Vou aprender anatomia e
+    DEPOIS perspectiva”. Você nunca vai aprender nada até o final.</p>
+    <p>Estudar anatomia E perspectiva no mesmo dia é melhor que estudar
+    apenas um OU outro, eles se complementam. Até estudar assuntos fora
+    de Desenho vão ser absurdamente útil, tipo arquitetura, moda,
+    engenharia, design, etc.</p>
+    <p>Essa visão Holística, onde você valoriza mais estudar um pouco de
+    tudo, é a base da minha filosofia de estudo.</p>
+    <p>Existem duas direções de estudo: Horizontal e Vertical.</p>
+    <p>Você <strong>provavelmente</strong> só pensa em estudar de modo
+    vertical, indo <strong>fundo</strong> em um assunto específico. E
+    horizontal seria se mover lateralmente, entre várias áreas.
+    Vertical: vou aprender tudo sobre Perspectiva Horizontal: wow, li
+    sobre arquitetura, vou ver como costurar funciona, vou ler sobre
+    anatomia, etc.</p>
+    <p>Você precisa aprender a conciliar ambos os modos, e eu te digo,
+    mover lateralmente (entre temas) traz bem mais resultado do que
+    Verticalmente apenas, e é bem mais divertido se você seguir sua
+    curiosidade natural.</p>
+    <p>Tentar achar um caminho secreto perfeito, um método perfeito, é
+    procrastinação.</p>
+    <details class="more">
+    <summary>
+    Aulas relacionadas
+    </summary>
+    <ul>
+    <li><a href="/008.html">Intuição</a></li>
+    <li><a href="/010.html">Como fazer perguntas</a></li>
+    </ul>
+    </details>
+    <details class="more">
+    <summary>
+    Navy Wiki: Artigos avançados &amp; opcionais:
+    </summary>
+    <ul>
+    <li><a href="/wiki/anatomia.html">Anatomia</a></li>
+    <li><a href="/wiki/perspectiva.html">Perspectiva</a></li>
+    </ul>
+    </details>
     <!--COMPLETE-->
     <nav class="lesson-nav">
       <a class="nav-prev" href="/008.html">← aula anterior</a>
 
+      <a class="nav-next" href="/010.html">próxima aula →</a>
 
     </nav>
     <div id="navy-join"></div>
-    <script src="/join.js"></script>
+    <script src="/join.js" defer></script>
   </main>
-  <script src="/header.js" defer></script>
+  <script src="/header.js?v=11" defer></script>
+  <script src="/lesson.js?v=1" defer></script>
 </body>
 </html>

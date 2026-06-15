@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Como Visualizar Melhor no Desenho — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/como-visualizar-melhor-no-desenho.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="como-visualizar-melhor-no-desenho">Como Visualizar Melhor no
+    Desenho</h1>
+    <p>“Não atentando nós nas coisas que se vêem, mas nas que se não
+    vêem; porque as que se vêem são temporais, e as que se não vêem são
+    eternas.” 2 Coríntios 4:18</p>
+    <h1 id="a-importância-da-vizualização">A importância da
+    vizualização</h1>
+    <p>Vou usar nesse post a palavra visualização, não confundir com
+    observação, visualizar é mais como imaginar imagens na cabeça para
+    resolver problemas no desenho.<br />
+    Pessoas que não desenham acham que visualizar é a coisa mais
+    importante, e que todos os artistas ficam o tempo todo copiando o
+    que estão imaginando no papel. Isso não é verdade.</p>
+    <p>Algumas coisas: desenhar não tem tanto a ver com copiar o que
+    você está visualizando, visualizar não é tão importante e é apenas
+    uma ferramenta.</p>
+    <p>Quando desenhamos usamos esboços e outros métodos para calcular e
+    verificar os nossos próximos traços. Então usamos por exemplo as
+    regras da perspectiva e as informações da anatomia para desenhar uma
+    pessoa. Eu não imagino uma pessoa na minha cabeça e reproduzo no
+    papel os traços. Eu verifico as informações através de vários
+    sistemas.</p>
+    <p>Por exemplo ao desenhar uma mesa, você vai verificar se as linhas
+    convergem para um ponto na linha do horizonte, isso é uma regra de
+    perspectiva.</p>
+    <p>Nós aprendemos a verificar tudo manualmente, e depois, com a
+    chegada da intuição nós começamos a fazer sem pensar e sem verificar
+    tanto.</p>
+    <h1 id="o-que-fazer-se-não-consigo-visualizar">O que fazer se não
+    consigo visualizar?</h1>
+    <p>Você deve ter visto testes online, tipo “imagine essa maça”, para
+    ver se você consegue imaginar coisas, se você tem aphantasia.</p>
+    <p>Vão pedir pra você imaginar uma maça, e você diz se consegue ver
+    ela de forma vívida ou não, se não consegue imaginar provavelmente
+    tem Aphantasia. Se alguém tem curiosidade, eu estou no nível três da
+    imagem eu acredito, a minha visualização é muito boa mas eu não
+    consigo sentir que eu estou tipo vendo a maça.</p>
+    <p>Isso literalmente não importa pra esse post, não importa se você
+    consegue, e não tem problema se você tiver aphantasia, pois pessoas
+    com isso conseguem resolver problemas visuais, eles só não tem
+    consciência da visualização deles.</p>
+    <p>Por exemplo, mesmo pessoas com aphantasia conseguem resolver
+    problemas visuais. Por exemplo rotacionar objetos mentalmente pra
+    saber se eles são o mesmo objeto, ou se só foram rotacionados.</p>
+    <p>Aphantasia NÃO é desculpa, e se eu entendi os testes, eu
+    provavelmente tenho um pouco dessa condição.</p>
+    <h1 id="como-e-quando-visualizar">Como e quando visualizar?</h1>
+    <p>Visualizar pra mim é uma ferramente que só é usada as vezes, onde
+    é a forma mais rápida e mais eficiente de resolver algum problema no
+    desenho. Por exemplo se você for desenhar uma mão com uma arma, sem
+    esboço, e ter que saber quais partes da mão estão visíveis.</p>
+    <p>Você vai perceber, desenhando, que não pode verificar tudo no
+    papel, ou por que você está desenhando a tinta, ou por que encheria
+    a folha de grafite. E você vai ser obrigado a fazer duas coisas:
+    confiar na sua intuição pra acertar sem verificar, e verificar as
+    coisas sem desenhar.</p>
+    <p>Confiar na intuição é algo mais complexo, que vem com o
+    tempo.</p>
+    <p>Mas é essencial começar a verificar as coisas sem desenhar elas
+    no papel. E você vai ficar bom nisso se tentar bastante. Quando for
+    desenhar uma mesa em perspectiva, não faça o esboço todo, verifique
+    se as linhas estão certas sem desenhar elas, com a mente.</p>
+    <p>Aprender essa habilidade é essencial para desenhar bem, com o
+    tempo duas coisas vão acontecer:</p>
+    <ul>
+    <li><p>Você vai ficar muito rápido em verificar as regras que
+    precisam ser verificadas manualmente de forma consciente.</p></li>
+    <li><p>Muitas coisas que antes você precisava pensar sobre, vão ser
+    feitas sem precisar pensar. (Por intuição)</p></li>
+    </ul>
+    <p>Se você precisa de ajuda para desenhar melhor, considere o <a
+    href="https://projetohierath.carrd.co/">Projeto Hierath</a>, é a
+    melhor decisão que você vai fazer para aprender a desenhar.</p>
+    <h1 id="exercícios-para-visualizar-melhor">Exercícios para
+    visualizar melhor</h1>
+    <p>Vou te apresentar aqui experiências que vão te fazer aprender
+    sobre visualização, você pode fazer esses exercícios uma vez apenas,
+    ou fazer eles todos os dias se preferir.</p>
+    <h2 id="tabuleiro-de-xadrez">1. Tabuleiro de xadrez</h2>
+    <p>Pegue uma posição aleatória de xadrez, pode ser um puzzle de
+    xadrez, e memorize o tabuleiro todo. Você pode com os olhos abertos
+    ver e tentar memorizar a primeira fileira, e tentar recriar ela de
+    memória. E fazer isso até memorizar o tabuleiro todo.</p>
+    <p>Eu já fiz isso uma vez e foi divertido até, só demora um pouco.
+    Mas com isso você vai entender um pouquinho mais sobre visualização.
+    Lembre-se, não importa se você vê coisas claramente na sua cabeça,
+    eu mesmo não “vejo” tão bem, mas isso é OK. O importante é você
+    saber onde cada peça fica.</p>
+    <h2 id="memorize-coisas-cada-vez-mais-difíceis">2. Memorize coisas
+    cada vez mais difíceis</h2>
+    <p>Você pode memorizar coisas avançadas de anatomia e arquitetura,
+    eu mesmo amo memorizar carros e motores de carro também. Nâo vou me
+    estender tanto pois eu já falei em outro post sobre biblioteca
+    visual, mas isso também é importante.</p>
+    <h1 id="conclusão">Conclusão</h1>
+    <p>Continue desenhando bastante, e tentando ao máximo visualizar
+    para resolver problemas de perspectiva e memorização. Isso vai te
+    ajudar no futuro. <a
+    href="https://glossary.bitbo.io/dont-trust-verify/">Não confie,
+    verifique.</a></p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Trato visualização como ferramenta ocasional, não como o centro
+    do desenho.</li>
+    <li>Verifico meus traços com regras (perspectiva) e informação
+    (anatomia), em vez de copiar uma imagem mental.</li>
+    <li>Ao desenhar uma mesa, confiro se as linhas convergem para o
+    ponto na linha do horizonte.</li>
+    <li>Quando não dá para esboçar tudo (tinta ou folha cheia), verifico
+    as linhas só com a mente.</li>
+    <li>Treino verificar mentalmente uma mesa em perspectiva antes de
+    traçar, sem desenhar o esboço inteiro.</li>
+    <li>Não uso aphantasia como desculpa: resolvo problemas visuais
+    mesmo sem “ver” vívido na cabeça.</li>
+    <li>Faço o exercício do tabuleiro de xadrez: memorizo uma posição
+    fileira por fileira e recrio de memória.</li>
+    <li>Memorizo coisas cada vez mais difíceis (anatomia, arquitetura,
+    motores de carro) para treinar a mente.</li>
+    <li>Confio na intuição para acertar sem verificar, sabendo que ela
+    só vem com o tempo.</li>
+    <li>Pratico verificar regras rápido e de forma consciente até virar
+    automático.</li>
+    <li>Uso a visualização para problemas como saber quais partes da mão
+    ficam visíveis segurando uma arma.</li>
+    <li>Aceito que cada vez mais coisas serão feitas por intuição, sem
+    precisar pensar conscientemente.</li>
+    </ul>
+    <!-- tags: visualização, visualizar, imaginar imagens, imaginação, aphantasia, afantasia, ver na cabeça, memória visual, desenho de memória, verificar, intuição, perspectiva, linha do horizonte, ponto de fuga, anatomia, resolver problemas visuais, rotação mental, tabuleiro de xadrez, memorizar, biblioteca visual, desenhar sem esboço, esboço, traços, mente, visual thinking, mental imagery, visualize, aphantasia, mind's eye, spatial reasoning, raciocínio espacial, treino mental, exercícios de visualização, desenho intuitivo, automático, confiar verificar, dont trust verify, observação, imaginar maçã, condição, neurodivergência, habilidade visual, calcular traços, sistemas de verificação, desenho avançado, fundamentos, drawing skill, foco, prática -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

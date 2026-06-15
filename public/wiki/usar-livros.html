@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Usar Livros — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/usar-livros.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="usar-livros">Usar Livros</h1>
+    <h3 id="definição">Definição</h3>
+    <p>A minha defesa de que <strong>livros</strong> são a melhor forma
+    de aprender desenho a sério — superior a vídeos do YouTube para
+    fixar conhecimento.</p>
+    <blockquote>
+    <p>“Me surpreende que quem desenha não estuda com livro. Se você
+    ficar só aprendendo no YouTube, você não vai memorizar nada, você
+    vai aprender as coisas de forma muito superficial.”</p>
+    </blockquote>
+    <h3 id="o-método">O método</h3>
+    <p>Pegue um livro de <a href="/wiki/anatomia.html">Anatomia</a> ou
+    de <a href="/wiki/perspectiva.html">Perspectiva</a> e trate como
+    projeto:</p>
+    <blockquote>
+    <p>“Eu vou memorizar todas as páginas, eu vou copiar todas as
+    páginas e fazer uma sequência de estudos até ficar bom.”</p>
+    </blockquote>
+    <p>Na prática eu pirateio o PDF (livro físico está caro), abro no
+    computador e <strong>copio no papel</strong> — porque no papel se
+    memoriza melhor (ver <a href="/wiki/papel-x-digital.html">Papel x
+    Digital</a>).</p>
+    <h3 id="livros-citados">Livros citados</h3>
+    <ul>
+    <li><strong>Anatomia</strong>: Michael Hampton, Morpho, George
+    Bridgman, Tom Fox, Charles Bargue.</li>
+    <li><strong>Cor e luz</strong>: <em>Color and Light</em>, James
+    Gurney.</li>
+    <li><strong>Negócios/marketing</strong>: ver <a
+    href="/wiki/ganhar-dinheiro-com-arte.html">Ganhar Dinheiro com
+    Arte</a>.</li>
+    </ul>
+    <h3 id="relação-com-outros-conceitos">Relação com outros
+    conceitos</h3>
+    <p>Livros são a fonte primária que alimenta a <a
+    href="/wiki/biblioteca-visual.html">Biblioteca Visual</a> e encarnam
+    o princípio de <a href="/wiki/copiar-a-natureza.html">Copiar a
+    Natureza</a> (aprender da fonte, não de derivados).</p>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>Vídeo te mostra; livro te faz memorizar. Estude com livros e
+    copie tudo.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Escolho um livro de anatomia ou perspectiva e trato como um
+    projeto de estudo.</li>
+    <li>Defino a meta de copiar e memorizar todas as páginas do
+    livro.</li>
+    <li>Faço uma sequência de estudos a partir do livro até ficar bom no
+    tema.</li>
+    <li>Abro o PDF no computador e copio no papel, porque no papel
+    memorizo melhor.</li>
+    <li>Prefiro o livro ao YouTube quando quero fixar o conhecimento de
+    verdade.</li>
+    <li>Uso vídeo só como visão geral; o aprendizado profundo vem do
+    livro.</li>
+    <li>Para anatomia, estudo Michael Hampton, Morpho, Bridgman, Tom Fox
+    e Bargue.</li>
+    <li>Para cor e luz, estudo Color and Light, do James Gurney.</li>
+    <li>Copio página por página em vez de só ler passivamente.</li>
+    <li>Trato cada livro como fonte primária que alimenta minha <a
+    href="/wiki/biblioteca-visual.html">Biblioteca Visual</a>.</li>
+    <li>Reviso as páginas copiadas depois para checar o que ficou
+    memorizado.</li>
+    <li>Se o livro físico está caro, busco o PDF e imprimo ou copio à
+    mão.</li>
+    </ul>
+    <!-- tags: usar livros, estudar com livros, livro de desenho, livro de anatomia, livro de perspectiva, michael hampton, morpho, george bridgman, tom fox, charles bargue, james gurney, color and light, cor e luz, copiar páginas, memorizar, sequência de estudos, pdf, livro físico, youtube, vídeo, aprendizado profundo, fixar conhecimento, papel x digital, copiar no papel, biblioteca visual, copiar a natureza, fonte primária, projeto de estudo, drawing books, anatomy book, perspective book, study with books, deep learning, memorization, copy practice, autodidata, fundamentos, referência, estudo dirigido, leitura ativa, sketchbook, exercícios de cópia, mestres, técnica, prática, disciplina, revisão -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

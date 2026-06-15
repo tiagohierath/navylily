@@ -5,8 +5,7 @@
 //     credentials, with our own opaque, revocable sessions on top (the secret's
 //     SHA-256 hash is stored in public.auth_sessions; the cookie holds id.secret).
 //  2. Create AbacatePay PIX charges and receive their webhooks to
-//     grant/revoke paid membership.
-//  3. Gate the protected/ lessons: logged-in AND an active paying member.
+//     grant/revoke paid community membership.
 //
 // Zero external Go dependencies: it talks to Supabase over plain HTTP
 // (GoTrue at /auth/v1, PostgREST at /rest/v1) and to AbacatePay over HTTPS.
@@ -22,7 +21,9 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"html"
 	"image"
 	_ "image/gif" // register GIF decoder for image.Decode
 	"image/jpeg"  // avatars are stored as small JPEGs
@@ -53,11 +54,10 @@ type Config struct {
 	AbacateURL       string // AbacatePay API base, e.g. https://api.abacatepay.com/v2
 	AbacateKey       string // AbacatePay API key (Bearer) for creating PIX charges
 	WebhookSecret    string // shared secret AbacatePay sends as ?webhookSecret=
-	PriceCents       int    // charge amount in cents (197 BRL -> 19700)
+	PriceCents       int    // charge amount in cents (497 BRL -> 49700)
 	ProductID        string // AbacatePay product id (prod_...) for the hosted card subscription
 	OneTimeProductID string // one-time product (prod_...) for coupon/discounted hosted checkouts
 	SiteURL          string // public URL of the site, for magic-link redirect
-	ProtectedDir     string // filesystem dir with paid lessons (gated, outside PublicDir)
 	PublicDir        string // filesystem dir with free lessons (served openly at /)
 	AvatarDir        string // filesystem dir where uploaded profile pictures are stored
 	PostImageDir     string // filesystem dir where forum post images are stored
@@ -96,9 +96,9 @@ func loadConfig() Config {
 	// already-set key, so loading it first makes its values take precedence).
 	loadDotEnv(".env.local")
 	loadDotEnv(".env")
-	price, err := strconv.Atoi(env("PRICE_CENTS", "19700"))
+	price, err := strconv.Atoi(env("PRICE_CENTS", "49700"))
 	if err != nil || price <= 0 {
-		log.Fatalf("PRICE_CENTS must be a positive integer (cents); got %q", env("PRICE_CENTS", "19700"))
+		log.Fatalf("PRICE_CENTS must be a positive integer (cents); got %q", env("PRICE_CENTS", "49700"))
 	}
 	return Config{
 		Port:             env("PORT", "8090"),
@@ -113,7 +113,6 @@ func loadConfig() Config {
 		ProductID:        env("ABACATE_PRODUCT_ID", ""),         // empty -> card button disabled
 		OneTimeProductID: env("ABACATE_ONETIME_PRODUCT_ID", ""), // empty -> coupon flow disabled
 		SiteURL:          strings.TrimRight(env("SITE_URL", "http://localhost:8090"), "/"),
-		ProtectedDir:     env("PROTECTED_DIR", "../protected"),
 		PublicDir:        env("PUBLIC_DIR", "../public"),
 		AvatarDir:        env("AVATAR_DIR", "data/avatars"),
 		PostImageDir:     env("POST_IMAGE_DIR", "data/posts"),
@@ -350,10 +349,26 @@ func signUp(email, password, next string) error {
 		map[string]any{"email": email, "password": password})
 }
 
+// resendConfirmation asks GoTrue to send a fresh signup-confirmation link
+// (the original may be expired or lost to spam). Same redirect rules as signUp.
+func resendConfirmation(email string) error {
+	redirect := cfg.SiteURL + "/auth/callback"
+	return gotrueRequest("gotrue resend", "POST",
+		"/auth/v1/resend?redirect_to="+url.QueryEscape(redirect),
+		map[string]any{"type": "signup", "email": email})
+}
+
+// errEmailNotConfirmed marks a sign-in that failed only because the account
+// hasn't clicked its confirmation link yet — the form shows a "confirm your
+// e-mail" message (with a resend button) instead of "wrong password", which
+// would otherwise be a dead end for fresh signups.
+var errEmailNotConfirmed = errors.New("email not confirmed")
+
 // passwordSignIn verifies an email+password against GoTrue. On success it
 // returns the user's id and verified email. GoTrue rejects wrong passwords and
-// (when confirmations are on) unconfirmed accounts with a non-200, which we
-// surface as a generic invalid-credentials error.
+// (when confirmations are on) unconfirmed accounts with a non-200; the
+// unconfirmed case is told apart via error_code, the rest stays a generic
+// invalid-credentials error so the form can't enumerate accounts.
 func passwordSignIn(email, password string) (userID, verifiedEmail string, err error) {
 	resp, err := supabaseDo("POST", "/auth/v1/token?grant_type=password",
 		map[string]any{"email": email, "password": password}, anonHeaders(""))
@@ -362,6 +377,14 @@ func passwordSignIn(email, password string) (userID, verifiedEmail string, err e
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
+		b, _ := io.ReadAll(resp.Body)
+		var ge struct {
+			ErrorCode string `json:"error_code"`
+		}
+		json.Unmarshal(b, &ge)
+		if ge.ErrorCode == "email_not_confirmed" {
+			return "", "", errEmailNotConfirmed
+		}
 		return "", "", fmt.Errorf("invalid credentials")
 	}
 	var out struct {
@@ -434,7 +457,8 @@ func isActiveMember(email string) (bool, error) {
 }
 
 // isMember is isActiveMember for UI paths where a lookup failure just renders
-// as "not a member" (the /protected/ gate handles the error explicitly instead).
+// as "not a member" (the community write handlers check membership and surface
+// the error explicitly instead).
 func isMember(email string) bool {
 	ok, err := isActiveMember(email)
 	if err != nil {
@@ -479,6 +503,23 @@ func memberUntil(email string) (until time.Time, found bool, err error) {
 		return time.Time{}, false, err
 	}
 	return rows[0].ExpiresAt, true, nil
+}
+
+// memberShielded reports whether a cancel/expire/refund webhook must NOT revoke
+// this email's access right now. It fails CLOSED, the hard never-revoke rule: it
+// returns true (protect) when the member still has unexpired paid-through time
+// AND whenever the membership lookup errors — a transient read failure must never
+// be the reason a paying member loses access. It returns false only after
+// positively confirming there's no row, or the row is already past expires_at (in
+// which case the active_members view already hides it, so writing a terminal
+// status is merely cosmetic).
+func memberShielded(email string) bool {
+	until, found, err := memberUntil(email)
+	if err != nil {
+		log.Printf("memberShielded(%s): %v — not revoking on a read error", email, err)
+		return true
+	}
+	return found && until.After(time.Now().UTC())
 }
 
 func logPaymentEvent(ev map[string]any) {
@@ -546,7 +587,7 @@ func createPixCharge(email string) (pixCharge, error) {
 		"method": "PIX",
 		"data": map[string]any{
 			"amount":      cfg.PriceCents,
-			"description": "Navy Lily — acesso anual às aulas pagas",
+			"description": "Navy Lily — assinatura anual da comunidade",
 			"expiresIn":   3600,  // 1h to pay
 			"externalId":  email, // our account email — webhook grants by this, not the typed one
 			// No customer object: v2 rejects a partial customer ("all fields
@@ -644,7 +685,7 @@ func createCheckout(email, coupon string) (string, error) {
 		"methods":       []string{"PIX", "CARD"},
 		"externalId":    email, // webhook grants by this
 		"returnUrl":     cfg.SiteURL + "/comprar",
-		"completionUrl": cfg.SiteURL + "/protected/",
+		"completionUrl": cfg.SiteURL + "/community",
 		"metadata":      map[string]any{"email": email},
 	}
 	if coupon != "" {
@@ -700,7 +741,10 @@ func couponValid(code string) bool {
 	if strings.ToUpper(d.Status) != "ACTIVE" {
 		return false
 	}
-	if d.MaxRedeems >= 0 && d.RedeemsCount >= d.MaxRedeems {
+	// maxRedeems <= 0 means unlimited (absent in the API → Go zero value), so
+	// only enforce a cap when it's a positive number. The old `>= 0` check
+	// treated every uncapped coupon as already exhausted.
+	if d.MaxRedeems > 0 && d.RedeemsCount >= d.MaxRedeems {
 		return false
 	}
 	return true
@@ -1127,9 +1171,10 @@ func completeWidget(email, slug string) string {
 		// and harmless, whereas hiding the control would look broken.
 		log.Printf("completeWidget isCompleted: %v", err)
 	}
+	mark := "🌊" // a completed lesson earns a wave
 	state, label, flag := "todo", "Completar aula", "0"
 	if done {
-		state, label, flag = "done", "✓ Aula concluída", "1"
+		state, label, flag = "done", mark+" Aula concluída", "1"
 	}
 	return `<div class="lesson-complete" data-slug="` + slug + `">` +
 		`<button type="button" class="lesson-complete-btn is-` + state + `" data-done="` + flag + `">` +
@@ -1146,10 +1191,11 @@ const completeScript = `<script>
   if(!box) return;
   var btn = box.querySelector('.lesson-complete-btn');
   var slug = box.getAttribute('data-slug');
+  var mark = '🌊';
   function render(done){
     btn.classList.toggle('is-done', done);
     btn.classList.toggle('is-todo', !done);
-    btn.textContent = done ? '✓ Aula concluída' : 'Completar aula';
+    btn.textContent = done ? mark + ' Aula concluída' : 'Completar aula';
     btn.title = done ? 'Clique para desfazer' : '';
     btn.dataset.done = done ? '1' : '0';
   }
@@ -1305,7 +1351,6 @@ func handleLessons(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	shell = bytes.Replace(shell, []byte("<!--LESSONS-->"), []byte(lessonList(cfg.PublicDir, "/")), 1)
-	shell = bytes.Replace(shell, []byte("<!--PAID-->"), []byte(lessonList(cfg.ProtectedDir, "/protected/")), 1)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	setPublicCache(w, 300) // public listing; same for everyone, refreshes in 5 min
 	w.Write(shell)
@@ -1327,22 +1372,6 @@ func lessonList(dir, hrefPrefix string) string {
 	return list.String()
 }
 
-// firstLesson returns the filename (e.g. "001.html") of the lowest-numbered
-// real lesson in dir — the same set lessonList renders, skipping empty-title
-// placeholders — or "" if there are none. Glob returns sorted paths, so the
-// first match is the lowest number.
-func firstLesson(dir string) string {
-	files, _ := filepath.Glob(filepath.Join(dir, "[0-9][0-9][0-9].html"))
-	for _, f := range files {
-		src, _ := os.ReadFile(f)
-		if between(string(src), "<title>", " — Navy Lily") == "" {
-			continue // placeholder
-		}
-		return filepath.Base(f)
-	}
-	return ""
-}
-
 // between returns the text of s between the first a and the following b,
 // trimmed; "" if either marker is missing.
 func between(s, a, b string) string {
@@ -1361,26 +1390,52 @@ func between(s, a, b string) string {
 // handleSitemap builds sitemap.xml at request time from every *.html in
 // PublicDir, so a new lesson is included just by dropping the file in (same
 // "glob the dir" approach as handleLessons). The homepage ("/") is listed
-// explicitly; each page's <lastmod> is its file mtime. Only PublicDir is
-// walked — paid lessons under protected/ are gated and must stay out.
+// explicitly; each page's <lastmod> is its file mtime.
 func handleSitemap(w http.ResponseWriter, r *http.Request) {
-	files, _ := filepath.Glob(filepath.Join(cfg.PublicDir, "*.html"))
+	lastmod := func(f string) string {
+		info, err := os.Stat(f)
+		if err != nil {
+			return ""
+		}
+		return fmt.Sprintf("<lastmod>%s</lastmod>", info.ModTime().UTC().Format("2006-01-02"))
+	}
 	var b strings.Builder
 	b.WriteString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
 	b.WriteString("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n")
-	fmt.Fprintf(&b, "  <url><loc>%s/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>\n", cfg.SiteURL)
+	fmt.Fprintf(&b, "  <url><loc>%s/</loc>%s<changefreq>weekly</changefreq><priority>1.0</priority></url>\n",
+		cfg.SiteURL, lastmod(filepath.Join(cfg.PublicDir, "root.html")))
+	files, _ := filepath.Glob(filepath.Join(cfg.PublicDir, "*.html"))
 	for _, f := range files {
-		lastmod := ""
-		if info, err := os.Stat(f); err == nil {
-			lastmod = fmt.Sprintf("<lastmod>%s</lastmod>", info.ModTime().UTC().Format("2006-01-02"))
+		base := filepath.Base(f)
+		// root.html IS "/" and wiki.html IS "/wiki" (handleStatic 301s the
+		// .html spellings), so only the canonical URLs are listed.
+		if base == "root.html" || base == "wiki.html" {
+			continue
 		}
 		fmt.Fprintf(&b, "  <url><loc>%s/%s</loc>%s<changefreq>weekly</changefreq><priority>0.8</priority></url>\n",
-			cfg.SiteURL, filepath.Base(f), lastmod)
+			cfg.SiteURL, base, lastmod(f))
+	}
+	fmt.Fprintf(&b, "  <url><loc>%s/wiki</loc>%s<changefreq>weekly</changefreq><priority>0.8</priority></url>\n",
+		cfg.SiteURL, lastmod(filepath.Join(cfg.PublicDir, "wiki.html")))
+	wiki, _ := filepath.Glob(filepath.Join(cfg.PublicDir, "wiki", "*.html"))
+	for _, f := range wiki {
+		fmt.Fprintf(&b, "  <url><loc>%s/wiki/%s</loc>%s<changefreq>weekly</changefreq><priority>0.6</priority></url>\n",
+			cfg.SiteURL, filepath.Base(f), lastmod(f))
 	}
 	b.WriteString("</urlset>\n")
 	w.Header().Set("Content-Type", "application/xml; charset=utf-8")
 	setPublicCache(w, 3600) // public, regenerated cheaply; an hour at the edge is plenty
 	w.Write([]byte(b.String()))
+}
+
+// handleRobots serves the origin robots.txt. Cloudflare prepends its managed
+// "content signals" block (AI-crawler rules) at the edge; this origin part is
+// what search engines act on — everything crawlable, plus the Sitemap pointer
+// Google uses to discover new lessons.
+func handleRobots(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	setPublicCache(w, 3600)
+	fmt.Fprintf(w, "User-agent: *\nAllow: /\n\nSitemap: %s/sitemap.xml\n", cfg.SiteURL)
 }
 
 // serveHTMLNoStore serves an HTML page from disk with Cache-Control: no-store.
@@ -1408,6 +1463,108 @@ func page(file string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) { serveHTMLNoStore(w, r, file) }
 }
 
+// servePageWithErro serves a form page, substituting its <!--ERRO--> marker
+// with a server-rendered error block. Rendering errors server-side (instead of
+// un-hiding a <p> with inline JS) keeps failures visible without JavaScript
+// and lets role="alert" announce them to screen readers.
+func servePageWithErro(w http.ResponseWriter, r *http.Request, file, erroHTML string) {
+	b, err := os.ReadFile(file)
+	if err != nil {
+		log.Printf("servePageWithErro %s: %v", file, err)
+		http.Error(w, "página indisponível", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store")
+	w.Write(bytes.Replace(b, []byte("<!--ERRO-->"), []byte(erroHTML), 1))
+}
+
+func erroP(msg string) string {
+	return `<p id="erro" role="alert" style="color:#b00;">` + msg + `</p>`
+}
+
+// handleLoginPage serves the login form. Visitors who are already logged in
+// are sent on to their destination — the header "Perfil" button points here,
+// so a member on a slow connection (or without JS) must not land back on a
+// form they've already passed.
+func handleLoginPage(w http.ResponseWriter, r *http.Request) {
+	if currentEmail(r) != "" {
+		dest := sanitizeNext(r.URL.Query().Get("next"))
+		if dest == "" {
+			dest = "/profile"
+		}
+		http.Redirect(w, r, dest, http.StatusSeeOther)
+		return
+	}
+	var msg string
+	switch r.URL.Query().Get("erro") {
+	case "":
+	case "confirma":
+		msg = erroP("Sua conta ainda não foi confirmada. Abra o link que enviamos por e-mail (confira também o spam).") +
+			resendFormHTML(r.URL.Query().Get("email"))
+	default:
+		msg = erroP("E-mail ou senha incorretos.")
+	}
+	servePageWithErro(w, r, "web/login.html", msg)
+}
+
+// handleAfterLogin sends a just-logged-in user to their home: the lesson index.
+// The whole course is free now, so there's nothing to gate — everyone lands on
+// the lessons. Link-based logins (e-mail confirmation, password reset) use it
+// as their default destination.
+func handleAfterLogin(w http.ResponseWriter, r *http.Request) {
+	dest := "/login"
+	if currentEmail(r) != "" {
+		dest = "/lessons.html"
+	}
+	http.Redirect(w, r, dest, http.StatusSeeOther)
+}
+
+// resendFormHTML renders the one-button "resend confirmation e-mail" form
+// shown under the unconfirmed-account login error.
+func resendFormHTML(email string) string {
+	if !strings.Contains(email, "@") {
+		return ""
+	}
+	return `<form method="POST" action="/auth/resend"><input type="hidden" name="email" value="` +
+		html.EscapeString(email) + `"><button type="submit">Reenviar e-mail de confirmação</button></form>`
+}
+
+// handleSignupPage serves the signup form, with the same server-rendered
+// errors and logged-in redirect as handleLoginPage.
+func handleSignupPage(w http.ResponseWriter, r *http.Request) {
+	if currentEmail(r) != "" {
+		dest := sanitizeNext(r.URL.Query().Get("next"))
+		if dest == "" {
+			dest = "/profile"
+		}
+		http.Redirect(w, r, dest, http.StatusSeeOther)
+		return
+	}
+	var msg string
+	switch r.URL.Query().Get("erro") {
+	case "":
+	case "email":
+		msg = erroP("Digite um e-mail válido.")
+	case "senha":
+		msg = erroP("As senhas devem ter entre 8 e 72 caracteres e ser iguais.")
+	default:
+		// The most common cause is an e-mail that already has an account —
+		// e.g. a gifted legacy member who already registered. Don't dead-end
+		// them on a generic failure: point to login and password reset. Phrased
+		// conditionally so it doesn't confirm whether the account exists.
+		email := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("email")))
+		q := ""
+		if strings.Contains(email, "@") {
+			q = "?email=" + url.QueryEscape(email)
+		}
+		msg = erroP(`Não foi possível criar a conta. Se você já tem cadastro com este e-mail, ` +
+			`<a href="/login` + q + `">entre</a> ou ` +
+			`<a href="/forgot` + q + `">redefina sua senha</a>.`)
+	}
+	servePageWithErro(w, r, "web/signup.html", msg)
+}
+
 // script serves a static JS asset: same bytes for everyone, edge-cacheable.
 func script(file string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -1417,10 +1574,9 @@ func script(file string) http.HandlerFunc {
 	}
 }
 
-// handleStatic serves the free, open lessons from PublicDir. It is the
-// catch-all ("/") route, so it must never reach the paid lessons: the served
-// tree is rooted at PublicDir, and protected/ lives outside it. The only path
-// to a paid lesson is /protected/, which handleProtected gates.
+// handleStatic serves the free, open lessons and other static pages from
+// PublicDir. It is the catch-all ("/") route; the served tree is rooted at
+// PublicDir, so a request can only ever reach public, free content.
 func handleStatic(w http.ResponseWriter, r *http.Request) {
 	// filepath.Clean on a rooted path collapses any ../ so requests can't
 	// escape PublicDir.
@@ -1432,10 +1588,27 @@ func handleStatic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	clean := filepath.Clean("/" + strings.TrimPrefix(r.URL.Path, "/"))
+	// One URL per page: the .html spellings of the landing page and wiki index
+	// 301 to their canonical paths, so search engines don't index duplicates.
+	if clean == "/root.html" {
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
+		return
+	}
+	if clean == "/wiki.html" {
+		http.Redirect(w, r, "/wiki", http.StatusMovedPermanently)
+		return
+	}
 	if clean == "/" {
 		// Landing page: the headline + lesson menu built by parser.sh.
 		setPublicCache(w, 300)
 		http.ServeFile(w, r, filepath.Join(cfg.PublicDir, "root.html"))
+		return
+	}
+	if clean == "/wiki" {
+		// Wiki index (parser.sh builds it next to the wiki/ entry pages, which
+		// the directory check below would otherwise 404).
+		setPublicCache(w, 300)
+		http.ServeFile(w, r, filepath.Join(cfg.PublicDir, "wiki.html"))
 		return
 	}
 	full := filepath.Join(cfg.PublicDir, clean)
@@ -1453,12 +1626,38 @@ func handleStatic(w http.ResponseWriter, r *http.Request) {
 	// The rest of PublicDir is free, public, non-personalized content (the header
 	// is personalized client-side via header.js + /me, neither of which is
 	// cached). Cache assets aggressively; keep HTML short so edits show up fast.
-	if strings.HasSuffix(clean, ".html") {
+	// The service worker must revalidate every load — a day-cached sw.js would
+	// pin clients to stale caching logic. The search index follows the lessons.
+	switch {
+	case clean == "/sw.js":
+		w.Header().Set("Cache-Control", "no-cache")
+	// PDFs are rebuilt monthly under the same URL, so they can't ride the
+	// day-long asset cache — five minutes keeps the newest edition flowing.
+	// They download under a month-stamped name so each edition saves as a
+	// new file instead of tripping the browser's "download again?" prompt.
+	case strings.HasSuffix(clean, ".pdf"):
 		setPublicCache(w, 300)
-	} else {
+		setPDFDownloadName(w, clean)
+	case strings.HasSuffix(clean, ".html") || clean == "/search.txt":
+		setPublicCache(w, 300)
+	default:
 		setPublicCache(w, 86400)
 	}
 	http.ServeFile(w, r, full)
+}
+
+// setPDFDownloadName makes a course PDF download as an attachment named after
+// the file plus the current month — "curso gratuito junho 2026.pdf" — so every
+// monthly edition lands as a distinct file in the user's downloads folder.
+// Month names are kept ASCII ("marco") to stay inside the plain quoted-string
+// syntax of Content-Disposition.
+func setPDFDownloadName(w http.ResponseWriter, clean string) {
+	months := [...]string{"janeiro", "fevereiro", "marco", "abril", "maio", "junho",
+		"julho", "agosto", "setembro", "outubro", "novembro", "dezembro"}
+	now := time.Now()
+	base := strings.ReplaceAll(strings.TrimSuffix(filepath.Base(clean), ".pdf"), "-", " ")
+	name := fmt.Sprintf("%s %s %d.pdf", base, months[now.Month()-1], now.Year())
+	w.Header().Set("Content-Disposition", `attachment; filename="`+name+`"`)
 }
 
 // sanitizeNext keeps only same-origin relative paths as a post-login destination.
@@ -1477,6 +1676,16 @@ func nextQS(next string) string {
 	return "&next=" + url.QueryEscape(next)
 }
 
+// emailQS renders an &email=... query fragment (or ""), used to carry the
+// typed e-mail back through an error redirect so the form re-fills it instead
+// of making the user retype everything.
+func emailQS(email string) string {
+	if !strings.Contains(email, "@") {
+		return ""
+	}
+	return "&email=" + url.QueryEscape(email)
+}
+
 // handleSignin verifies an email+password against GoTrue and, on success, mints
 // our own opaque session. On failure it bounces back to /login with ?erro=1 so
 // the form can show a generic "wrong e-mail or password" message.
@@ -1489,12 +1698,19 @@ func handleSignin(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 	next := sanitizeNext(r.FormValue("next"))
 	if !strings.Contains(email, "@") || password == "" {
-		http.Redirect(w, r, "/login?erro=1"+nextQS(next), http.StatusSeeOther)
+		http.Redirect(w, r, "/login?erro=1"+emailQS(email)+nextQS(next), http.StatusSeeOther)
 		return
 	}
 	userID, vEmail, err := passwordSignIn(email, password)
 	if err != nil {
-		http.Redirect(w, r, "/login?erro=1"+nextQS(next), http.StatusSeeOther)
+		// Unconfirmed accounts get their own message (with a resend button)
+		// instead of a misleading "wrong password"; either way the typed e-mail
+		// rides back so only the password needs retyping.
+		code := "1"
+		if errors.Is(err, errEmailNotConfirmed) {
+			code = "confirma"
+		}
+		http.Redirect(w, r, "/login?erro="+code+emailQS(email)+nextQS(next), http.StatusSeeOther)
 		return
 	}
 	token, err := createServerSession(userID, vEmail)
@@ -1507,7 +1723,9 @@ func handleSignin(w http.ResponseWriter, r *http.Request) {
 	setHint(w, vEmail)
 	dest := next
 	if dest == "" {
-		dest = "/protected/"
+		// The whole course is free, so everyone lands on the lesson index —
+		// login must never feel like a paywall.
+		dest = "/lessons.html"
 	}
 	http.Redirect(w, r, dest, http.StatusSeeOther)
 }
@@ -1531,17 +1749,37 @@ func handleSignup(w http.ResponseWriter, r *http.Request) {
 		// bcrypt (GoTrue) hard-caps passwords at 72 bytes; rejecting here keeps
 		// the error accurate instead of falling through to the generic "e-mail em
 		// uso" message when GoTrue 400s on an over-long password.
-		http.Redirect(w, r, "/signup?erro=senha"+nextQS(next), http.StatusSeeOther)
+		http.Redirect(w, r, "/signup?erro=senha"+emailQS(email)+nextQS(next), http.StatusSeeOther)
 		return
 	}
 	if err := signUp(email, password, next); err != nil {
 		// GoTrue rejects e.g. weak/breached passwords or an already-registered
 		// e-mail. Keep the reason generic so the form can't enumerate accounts.
 		log.Printf("signUp: %v", err)
-		http.Redirect(w, r, "/signup?erro=falha"+nextQS(next), http.StatusSeeOther)
+		http.Redirect(w, r, "/signup?erro=falha"+emailQS(email)+nextQS(next), http.StatusSeeOther)
 		return
 	}
-	serveHTMLNoStore(w, r, "web/check-email.html")
+	// Redirect (PRG) instead of serving the page on the POST: otherwise a
+	// refresh re-submits the form and greets the brand-new account with
+	// "e-mail pode já estar em uso".
+	http.Redirect(w, r, "/check-email", http.StatusSeeOther)
+}
+
+// handleResend re-sends the signup confirmation e-mail (the button under the
+// "account not confirmed" login error). Like /auth/recover it always lands on
+// /check-email and rate-limits per address, so it can't enumerate accounts.
+func handleResend(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+	email := strings.ToLower(strings.TrimSpace(r.FormValue("email")))
+	if strings.Contains(email, "@") && allowMagicLink(email) {
+		if err := resendConfirmation(email); err != nil {
+			log.Printf("resendConfirmation: %v", err)
+		}
+	}
+	http.Redirect(w, r, "/check-email", http.StatusSeeOther)
 }
 
 // handleRecover sends a password-reset e-mail. It always reports success (and
@@ -1558,7 +1796,8 @@ func handleRecover(w http.ResponseWriter, r *http.Request) {
 			log.Printf("sendPasswordReset: %v", err)
 		}
 	}
-	serveHTMLNoStore(w, r, "web/check-email.html")
+	// PRG: land on a GET page so a refresh doesn't re-submit the form.
+	http.Redirect(w, r, "/check-email", http.StatusSeeOther)
 }
 
 // handleSession bridges a GoTrue access token (from a confirmation / one-time
@@ -1805,6 +2044,28 @@ func handleAvatarMe(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, p)
 }
 
+// computeStreak returns the number of consecutive days (ending today or
+// yesterday local time) in which the account completed at least one lesson.
+func computeStreak(days map[string]int) int {
+	today := time.Now().Format("2006-01-02")
+	streak := 0
+	// Start checking from today; if today has no completion, start from yesterday
+	// (streak is still "alive" until the end of today).
+	cur, _ := time.Parse("2006-01-02", today)
+	if days[today] == 0 {
+		cur = cur.AddDate(0, 0, -1)
+	}
+	for {
+		key := cur.Format("2006-01-02")
+		if days[key] == 0 {
+			break
+		}
+		streak++
+		cur = cur.AddDate(0, 0, -1)
+	}
+	return streak
+}
+
 // handlePublicProfileAPI powers the public /@username page. It returns ONLY the
 // public fields — username, bio, avatar version, membership — and NEVER the
 // e-mail. 404 when no such username exists so the page can show "not found".
@@ -1819,12 +2080,21 @@ func handlePublicProfileAPI(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "usuário não encontrado", http.StatusNotFound)
 		return
 	}
+	days, _, err := getHeatmap(p.Email)
+	streak := 0
+	if err != nil {
+		log.Printf("getHeatmap (streak): %v", err) // non-fatal: streak stays 0
+	} else {
+		streak = computeStreak(days)
+	}
 	writeJSON(w, map[string]any{
 		"username":   p.Username,
 		"bio":        p.Bio,
 		"has_avatar": p.HasAvatar,
 		"avatar_ver": avatarVer(p.AvatarUpdatedAt),
 		"member":     isMember(p.Email),
+		"streak":     streak,
+		"is_owner":   currentEmail(r) == p.Email,
 	})
 }
 
@@ -1932,69 +2202,40 @@ func handlePublicAvatar(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, path)
 }
 
-// handleProtected gates the paid lessons.
+// handleProtected redirects the retired paid-lesson URLs to the now-free site.
+// The whole course moved into the free lessons, so /protected/ no longer gates
+// anything; old bookmarks land on the lesson index, and the old "curso
+// completo" PDF link lands on the single free course PDF.
 func handleProtected(w http.ResponseWriter, r *http.Request) {
-	email := currentEmail(r)
-	if email == "" {
-		// Not logged in -> straight to checkout.
-		http.Redirect(w, r, "/comprar", http.StatusSeeOther)
+	if strings.HasSuffix(r.URL.Path, ".pdf") {
+		ptMonths := []string{"", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+			"Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"}
+		now := time.Now()
+		pdfName := fmt.Sprintf("Navylily_%s_%d.pdf", ptMonths[now.Month()], now.Year())
+		http.Redirect(w, r, "/downloads/"+pdfName, http.StatusFound)
 		return
 	}
-	member, err := isActiveMember(email)
-	if err != nil {
-		log.Printf("isActiveMember: %v", err)
-		http.Error(w, "erro ao verificar acesso", http.StatusBadGateway)
-		return
-	}
-	if !member {
-		// Logged in but hasn't bought (or expired) -> send to checkout.
-		http.Redirect(w, r, "/comprar", http.StatusSeeOther)
-		return
-	}
-	// Serve the requested file from the protected dir, safely.
-	rel := strings.TrimPrefix(r.URL.Path, "/protected/")
-	if rel == "" {
-		// There's no index.html in the paid dir, so land the user on the first
-		// lesson — callback.html and the post-login/reset redirects all treat
-		// /protected/ as "the first paid lesson". The redirect re-enters this
-		// handler, so access stays gated.
-		first := firstLesson(cfg.ProtectedDir)
-		if first == "" {
-			http.NotFound(w, r)
-			return
-		}
-		http.Redirect(w, r, "/protected/"+first, http.StatusSeeOther)
-		return
-	}
-	clean := filepath.Clean("/" + rel) // prevents ../ traversal
-	full := filepath.Join(cfg.ProtectedDir, clean)
-	// Paid lesson pages carry the same per-viewer "completar aula" control as the
-	// free ones; the slug is namespaced ("protected/NNN") so it never collides
-	// with a free lesson. (Paid content is already served uncached below.)
-	if slug := lessonSlug(r.URL.Path); slug != "" {
-		serveLessonHTML(w, r, full, slug, email)
-		return
-	}
-	// Paid content is per-member and gated: never let a browser or shared proxy
-	// (Cloudflare) cache it where the gate no longer applies.
-	w.Header().Set("Cache-Control", "private, no-store")
-	http.ServeFile(w, r, full)
+	http.Redirect(w, r, "/lessons.html", http.StatusMovedPermanently)
 }
 
-// handleBuy serves the PIX checkout page. Buying requires being logged in
-// (access is granted by email), so anonymous visitors go to /login first and
-// come back here. The page itself fetches /pix/new and polls /pix/status.
+// handleBuy serves the checkout page, logged in or not. Anonymous buyers type
+// the e-mail that receives access right on the page — the same no-login flow
+// as the inline Join widget; a login wall here just cost the sale. The page
+// itself fetches /pix/new and polls /pix/status.
 func handleBuy(w http.ResponseWriter, r *http.Request) {
-	if currentEmail(r) == "" {
-		http.Redirect(w, r, "/login?next=/comprar", http.StatusSeeOther)
-		return
-	}
 	serveHTMLNoStore(w, r, "web/comprar.html")
 }
 
 // handlePixNew opens a fresh PIX charge for the logged-in buyer and returns the
 // QR (brCodeBase64) + copy-paste code (brCode) as JSON for the checkout page.
 func handlePixNew(w http.ResponseWriter, r *http.Request) {
+	// POST-only: this opens a real PIX charge. A GET (an <img>/<a> a third-party
+	// site could embed) must not be able to spin up charges in a visitor's name.
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", http.MethodPost)
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	email := buyerEmail(r)
 	if email == "" {
 		http.Error(w, "e-mail inválido", http.StatusBadRequest)
@@ -2055,7 +2296,9 @@ func handleCheckoutNew(w http.ResponseWriter, r *http.Request) {
 func handleCardNew(w http.ResponseWriter, r *http.Request) {
 	email := buyerEmail(r)
 	if email == "" {
-		http.Redirect(w, r, "/login?next=/comprar", http.StatusSeeOther)
+		// No session and no usable ?email=: back to the checkout page, which
+		// asks for the address — login is not required to buy.
+		http.Redirect(w, r, "/comprar", http.StatusSeeOther)
 		return
 	}
 	if cfg.ProductID == "" {
@@ -2081,15 +2324,13 @@ func handlePixStatus(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "missing id", http.StatusBadRequest)
 		return
 	}
-	// Logged-in buyer: trust the session. Anonymous buyer (Join widget): trust
-	// the e-mail we bound to this charge when it was created — never one supplied
-	// by the poller — so nobody can claim someone else's paid charge. The durable
-	// payment_events binding covers a server restart between create and poll.
+	// Access is granted to the e-mail this charge was BOUND to when it was created
+	// — never the caller's session — so nobody (anonymous OR logged in) can claim
+	// someone else's paid charge just by polling its id. The in-memory binding is
+	// set at creation; the durable payment_events binding covers a server restart
+	// between create and poll. loggedIn only decides whether to mail a login link.
 	loggedIn := currentEmail(r)
-	email := loggedIn
-	if email == "" {
-		email = lookupChargeEmail(id)
-	}
+	email := lookupChargeEmail(id)
 	if email == "" {
 		email = lookupChargeEmailDB(id)
 	}
@@ -2113,8 +2354,11 @@ func handlePixStatus(w http.ResponseWriter, r *http.Request) {
 				mailed = true
 			}
 			chargeEmailMu.Unlock()
-			if mailed {
-				if err := sendMagicLink(email, "/protected/"); err != nil {
+			// allowMagicLink rate-limits per address so a third party polling a
+			// known paid charge id can't fan a burst of mails at the buyer
+			// (magicSent already caps per-id; this also caps per-email).
+			if mailed && allowMagicLink(email) {
+				if err := sendMagicLink(email, "/community"); err != nil {
 					log.Printf("sendMagicLink (post-pix): %v", err)
 				}
 			}
@@ -2132,13 +2376,22 @@ func handlePixStatus(w http.ResponseWriter, r *http.Request) {
 // (now()) sets it; on renewal merge-duplicates would otherwise overwrite the
 // original purchase date, so we leave it untouched.
 func grantAccess(email, name, chargeID string) error {
+	// Extend from whichever is later — the existing expiry or now — so an early
+	// renewal stacks the new year on top of the remaining time instead of
+	// discarding it. A lapsed/absent membership just gets now()+1y.
+	base := time.Now().UTC()
+	if until, found, err := memberUntil(email); err != nil {
+		log.Printf("grantAccess memberUntil(%s): %v — extending from now", email, err)
+	} else if found && until.After(base) {
+		base = until.UTC()
+	}
 	return upsertMember(map[string]any{
 		"email":             strings.ToLower(email),
 		"name":              name,
 		"status":            "active",
 		"abacate_charge_id": chargeID,
 		"source":            "abacatepay",
-		"expires_at":        time.Now().UTC().AddDate(1, 0, 0).Format(time.RFC3339),
+		"expires_at":        base.AddDate(1, 0, 0).Format(time.RFC3339),
 		"updated_at":        time.Now().UTC().Format(time.RFC3339),
 	})
 }
@@ -2293,10 +2546,20 @@ func handleAbacateWebhook(w http.ResponseWriter, r *http.Request) {
 
 	var rawJSON any
 	json.Unmarshal(raw, &rawJSON)
-	logPaymentEvent(map[string]any{
-		"charge_id": chargeID, "event_type": p.Event,
-		"charge_status": status, "email": email, "payload": rawJSON,
-	})
+	// logEvent records this webhook in payment_events. It doubles as the
+	// idempotency marker (eventAlreadyProcessed reads it back), so we call it only
+	// once the event is actually HANDLED — after a successful membership action, or
+	// in the "unverified" forgery branch. Logging before acting would let a
+	// transient failure get deduped away on AbacatePay's retry and silently lose a
+	// paid sale (card has no /pix/status poll fallback). Same reasoning as the
+	// email == "" guard above: don't record what we haven't handled, so it stays
+	// replayable.
+	logEvent := func() {
+		logPaymentEvent(map[string]any{
+			"charge_id": chargeID, "event_type": p.Event,
+			"charge_status": status, "email": email, "payload": rawJSON,
+		})
+	}
 
 	// Decide the membership action from the event name first (a refund event can
 	// still carry status PAID), falling back to the status field.
@@ -2304,17 +2567,43 @@ func handleAbacateWebhook(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case strings.Contains(ev, "refund") || strings.Contains(ev, "disput") ||
 		status == "REFUNDED" || status == "UNDER_DISPUTE" || status == "DISPUTED":
+		// Never claw back access a member still has paid time for, and never revoke
+		// on a read error: memberShielded fails closed (the hard never-revoke rule).
+		// A refund/chargeback only lands once the paid-through date has already
+		// lapsed — by then the active_members view hides the row anyway, so the
+		// status write below is cosmetic.
+		if memberShielded(email) {
+			log.Printf("abacate: %s for charge %s — not revoking %s (paid time remains or lookup failed)",
+				ev, chargeID, email)
+			break
+		}
+		// Still skip a refund aimed at an OLD, superseded charge rather than the one
+		// on file (e.g. the buyer re-bought with a different, paid charge).
+		if cur, exists := memberChargeID(email); exists && chargeID != "" && cur != "" && cur != chargeID {
+			log.Printf("abacate: ignoring %s for charge %s — member %s held by charge %s",
+				ev, chargeID, email, cur)
+			break
+		}
 		err = upsertMember(map[string]any{
 			"email": email, "status": "refunded",
 			"updated_at": time.Now().UTC().Format(time.RFC3339),
 		})
 	case strings.Contains(ev, "cancel") || strings.Contains(ev, "expire") ||
 		status == "CANCELLED" || status == "EXPIRED" || status == "FAILED":
-		// Only downgrade if this is the charge that granted access. An abandoned
-		// duplicate PIX, or a fresh renewal attempt the buyer never paid,
-		// eventually fires EXPIRED — that must NOT revoke a membership granted by
-		// a different, paid charge. If there's no member row, or its charge id
-		// matches this one, proceed; otherwise leave the membership untouched.
+		// A cancellation/expiry must not claw back access the buyer already paid
+		// for: a cancelled card subscription simply stops auto-renewing, and access
+		// runs out the paid-through date (expires_at). memberShielded fails closed —
+		// it also protects on a read error, so a transient PostgREST failure during
+		// an EXPIRED event can never revoke a paying member (the never-revoke rule).
+		// The active_members view already hides expired rows, so leaving a still-paid
+		// row active to lapse naturally is the correct behaviour.
+		if memberShielded(email) {
+			log.Printf("abacate: %s for charge %s — keeping %s (paid time remains or lookup failed)",
+				ev, chargeID, email)
+			break
+		}
+		// Past here the row is confirmed expired/absent. Still skip an expiry from
+		// an abandoned duplicate or unpaid renewal charge that isn't the one on file.
 		if cur, exists := memberChargeID(email); exists && chargeID != "" && cur != "" && cur != chargeID {
 			log.Printf("abacate: ignoring %s for charge %s — member %s held by charge %s",
 				ev, chargeID, email, cur)
@@ -2326,15 +2615,42 @@ func handleAbacateWebhook(w http.ResponseWriter, r *http.Request) {
 		})
 	case strings.Contains(ev, "complet") || strings.Contains(ev, "paid") ||
 		strings.Contains(ev, "renew") || status == "PAID" || status == "APPROVED":
+		// Defense in depth against a forged/replayed "paid" webhook (the URL
+		// secret is the only mandatory auth — the HMAC header is optional): for an
+		// inline PIX charge, re-fetch the authoritative status from AbacatePay and
+		// refuse to grant when it positively reports the charge is NOT paid. We
+		// only block on a confirmed contradiction — if the lookup errors or the id
+		// isn't a transparent charge (card subscriptions/hosted checkouts don't
+		// answer /transparents/check), we fall through and trust the verified
+		// webhook, so legitimate card/coupon grants are never dropped.
+		if chargeID != "" {
+			if live, lerr := checkPixStatus(chargeID); lerr == nil &&
+				live != "PAID" && live != "APPROVED" {
+				// Ack (don't 4xx/5xx) and record it: logging this contradicted/forged
+				// attempt makes a retry of the same (charge,event,status) triple
+				// self-dedupe so it never re-reaches this grant. If the charge is
+				// genuinely paid later, the /pix/status poll grants access out of band.
+				log.Printf("abacate: refusing grant for charge %s — webhook said %s but live status is %s",
+					chargeID, status, live)
+				logEvent()
+				w.WriteHeader(http.StatusOK)
+				io.WriteString(w, "unverified")
+				return
+			}
+		}
 		err = grantAccess(email, name, chargeID)
 	default:
 		// Unknown/irrelevant: acknowledged + logged, no action.
 	}
 	if err != nil {
+		// Do NOT log the event on failure: leaving it unrecorded means AbacatePay's
+		// retry isn't seen as a duplicate, so the action gets another chance instead
+		// of the paid sale being lost.
 		log.Printf("abacate membership update: %v", err)
 		http.Error(w, "internal", http.StatusInternalServerError)
 		return
 	}
+	logEvent()
 	w.WriteHeader(http.StatusOK)
 	io.WriteString(w, "ok")
 }
@@ -2355,13 +2671,11 @@ const (
 	maxCommentChars = 1000 // comment length cap, in characters
 	postImageMax    = 1280 // longest side, in px, of a stored post image
 	feedPageSize    = 30   // posts per feed request ("load more" pages backward)
+	dailyPostLimit  = 30   // posts allowed per author per Brazil-day (light spam cap)
 )
 
-// Sentinel errors from canPost, mapped to user-facing messages by writeCanPostErr.
-var (
-	errNotMember  = fmt.Errorf("assine a Navy para participar da comunidade")
-	errNoUsername = fmt.Errorf("escolha um nome de usuário no seu perfil antes de postar")
-)
+// Sentinel error from canPost, mapped to a user-facing message by writeCanPostErr.
+var errNoUsername = fmt.Errorf("escolha um nome de usuário no seu perfil antes de postar")
 
 // forumPost is a row of the public forum_feed view: the author's handle + avatar
 // info and a comment count, never the author's e-mail.
@@ -2375,17 +2689,22 @@ type forumPost struct {
 	AuthorAvatar bool       `json:"author_has_avatar"`
 	AuthorAvAt   *time.Time `json:"author_avatar_updated_at"`
 	CommentCount int        `json:"comment_count"`
+	LikeCount    int        `json:"like_count"`
+	AuthorMember bool       `json:"author_is_member"` // author is a paying Navy member (badge + owner queue)
 }
 
 // forumComment is a row of the public forum_comments_view.
 type forumComment struct {
-	ID           int64      `json:"id"`
-	PostID       int64      `json:"post_id"`
-	Body         string     `json:"body"`
-	CreatedAt    time.Time  `json:"created_at"`
-	AuthorUser   string     `json:"author_username"`
-	AuthorAvatar bool       `json:"author_has_avatar"`
-	AuthorAvAt   *time.Time `json:"author_avatar_updated_at"`
+	ID              int64      `json:"id"`
+	PostID          int64      `json:"post_id"`
+	Body            string     `json:"body"`
+	CreatedAt       time.Time  `json:"created_at"`
+	AuthorUser      string     `json:"author_username"`
+	AuthorAvatar    bool       `json:"author_has_avatar"`
+	AuthorAvAt      *time.Time `json:"author_avatar_updated_at"`
+	LikeCount       int        `json:"like_count"`
+	ParentCommentID *int64     `json:"parent_comment_id"`
+	ReplyToUsername string     `json:"reply_to_username"`
 }
 
 // isOwner reports whether email is the configured forum owner (OWNER_EMAIL), who
@@ -2432,24 +2751,15 @@ func fitWithin(src image.Image, max int) image.Image {
 }
 
 // canPost reports whether email may create posts/comments and returns the
-// account's profile (for the author handle). Posting needs an active membership
-// (or being the owner) AND a chosen username — every post carries a handle, like
-// Twitter. Returns errNotMember / errNoUsername so the UI can explain why.
+// account's profile (for the author handle). Posting is FREE — anyone with an
+// account needs only a chosen username, since every post carries a handle like
+// Twitter (a paid membership buys guaranteed critique, not the right to post).
+// The one-post-per-day limit (enforced in insertPost) is the only throttle.
+// Returns errNoUsername so the UI can explain why.
 func canPost(email string) (profile, error) {
 	p, err := getProfile(email)
 	if err != nil {
 		return profile{}, err
-	}
-	member := isOwner(email)
-	if !member {
-		ok, err := isActiveMember(email)
-		if err != nil {
-			return profile{}, err
-		}
-		member = ok
-	}
-	if !member {
-		return p, errNotMember
 	}
 	if p.Username == "" {
 		return p, errNoUsername
@@ -2460,7 +2770,7 @@ func canPost(email string) (profile, error) {
 // writeCanPostErr maps a canPost sentinel to an HTTP status + message.
 func writeCanPostErr(w http.ResponseWriter, err error) {
 	switch err {
-	case errNotMember, errNoUsername:
+	case errNoUsername:
 		http.Error(w, err.Error(), http.StatusForbidden)
 	default:
 		log.Printf("canPost: %v", err)
@@ -2487,33 +2797,43 @@ func postJSON(p forumPost) map[string]any {
 		"has_image":     p.HasImage,
 		"created_at":    p.CreatedAt.UTC().Format(time.RFC3339),
 		"comment_count": p.CommentCount,
+		"like_count":    p.LikeCount,
+		"liked":         false, // overwritten per caller by markLiked
 		"author": map[string]any{
 			"username":   p.AuthorUser,
 			"has_avatar": p.AuthorAvatar,
 			"avatar_ver": avatarVer(p.AuthorAvAt),
+			"member":     p.AuthorMember,
 		},
 	}
 }
 
 // commentJSON shapes a comment row like postJSON.
 func commentJSON(c forumComment) map[string]any {
-	return map[string]any{
+	m := map[string]any{
 		"id":         c.ID,
 		"post_id":    c.PostID,
 		"body":       c.Body,
 		"created_at": c.CreatedAt.UTC().Format(time.RFC3339),
+		"like_count": c.LikeCount,
+		"liked":      false, // overwritten per caller by markLiked
 		"author": map[string]any{
 			"username":   c.AuthorUser,
 			"has_avatar": c.AuthorAvatar,
 			"avatar_ver": avatarVer(c.AuthorAvAt),
 		},
 	}
+	if c.ParentCommentID != nil {
+		m["parent_comment_id"] = *c.ParentCommentID
+		m["reply_to_username"] = c.ReplyToUsername
+	}
+	return m
 }
 
-// forumBoards is the set of boards posts may live in — one for now, with the
-// data model already carrying the board so more can open later. validBoard keeps
-// a posted value inside the set, defaulting to "feedback".
-var forumBoards = map[string]bool{"feedback": true}
+// forumBoards is the set of boards posts may live in: "feedback" (share work for
+// critique) and "sketchbooks" (sketchbook pages). validBoard keeps a posted value
+// inside the set, defaulting to "feedback".
+var forumBoards = map[string]bool{"feedback": true, "sketchbooks": true}
 
 func validBoard(b string) string {
 	b = strings.ToLower(strings.TrimSpace(b))
@@ -2597,13 +2917,22 @@ func handleSearchAPI(w http.ResponseWriter, r *http.Request) {
 
 // getFeed returns up to limit posts newest-first from the public forum_feed view.
 // When before > 0 only posts older than that id are returned (keyset paging).
-func getFeed(board string, before int64, limit int) ([]forumPost, error) {
-	q := "/rest/v1/forum_feed?select=*&order=id.desc&limit=" + strconv.Itoa(limit)
+//
+// membersOnly is the owner's review queue: only posts by paying members, oldest
+// first (the longest-waiting work to critique comes up first), and unpaginated —
+// the queue is small, so before is ignored and limit caps the whole list.
+func getFeed(board string, before int64, limit int, membersOnly bool) ([]forumPost, error) {
+	q := "/rest/v1/forum_feed?select=*&limit=" + strconv.Itoa(limit)
 	if board != "" {
 		q += "&board=eq." + url.QueryEscape(board)
 	}
-	if before > 0 {
-		q += "&id=lt." + strconv.FormatInt(before, 10)
+	if membersOnly {
+		q += "&author_is_member=is.true&order=id.asc"
+	} else {
+		q += "&order=id.desc"
+		if before > 0 {
+			q += "&id=lt." + strconv.FormatInt(before, 10)
+		}
 	}
 	return restSelect[forumPost]("get feed", q)
 }
@@ -2625,52 +2954,57 @@ func getComments(postID int64) ([]forumComment, error) {
 			strconv.FormatInt(postID, 10)+"&order=id.asc")
 }
 
-// errPostedToday signals that the member already has a post today. It's returned
-// by insertPost when the one-post-per-day unique index (uq_forum_posts_author_day)
-// rejects the insert; deleting the day's post frees the slot so they can post again.
-var errPostedToday = fmt.Errorf("você já publicou hoje; apague sua publicação ou volte amanhã para postar outra")
+// errPostedToday signals that the member has hit the daily post limit
+// (dailyPostLimit). Returned by insertPost; deleting one of today's posts frees a
+// slot so they can post again.
+var errPostedToday = fmt.Errorf("você atingiu o limite de %d publicações por dia; apague uma publicação de hoje ou volte amanhã", dailyPostLimit)
 
-// brazilZone is the calendar the one-post-per-day limit lives in. Brazil dropped
-// daylight saving in 2019, so a fixed -03:00 is exact — and it matches the
-// uq_forum_posts_author_day index expression, which uses the same offset.
+// brazilZone is the calendar the daily post limit lives in. Brazil dropped
+// daylight saving in 2019, so a fixed -03:00 is exact.
 var brazilZone = time.FixedZone("BRT", -3*60*60)
 
-// postedToday reports whether email already has a live post today (Brazil time).
-// It mirrors the unique index that enforces the limit, so the community page can
-// say so before the member types a post instead of after they submit it.
-func postedToday(email string) (bool, error) {
+// postsToday counts email's live posts today (Brazil time) — the daily limit is
+// now a count (dailyPostLimit), so the page can show whether a slot is left
+// before the member types instead of after they submit.
+func postsToday(email string) (int, error) {
 	now := time.Now().In(brazilZone)
 	start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, brazilZone)
 	rows, err := restSelect[struct {
 		ID int64 `json:"id"`
-	}]("posted today", "/rest/v1/forum_posts?select=id&author_email=eq."+
+	}]("posts today", "/rest/v1/forum_posts?select=id&author_email=eq."+
 		url.QueryEscape(strings.ToLower(email))+"&created_at=gte."+
-		url.QueryEscape(start.UTC().Format(time.RFC3339))+"&limit=1")
-	return len(rows) > 0, err
+		url.QueryEscape(start.UTC().Format(time.RFC3339)))
+	return len(rows), err
 }
 
-// handlePostedToday answers {"posted_today": bool} for the logged-in account, so
-// the compose box can swap itself for an explanation up front.
+// handlePostedToday answers {"posted_today": bool} — true once the account is at
+// the daily limit — so the compose box can swap itself for an explanation up front.
 func handlePostedToday(w http.ResponseWriter, r *http.Request) {
 	email := currentEmail(r)
 	if email == "" {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-	posted, err := postedToday(email)
+	n, err := postsToday(email)
 	if err != nil {
-		log.Printf("postedToday: %v", err)
+		log.Printf("postsToday: %v", err)
 		http.Error(w, "erro ao verificar", http.StatusBadGateway)
 		return
 	}
-	writeJSON(w, map[string]any{"posted_today": posted})
+	writeJSON(w, map[string]any{"posted_today": n >= dailyPostLimit})
 }
 
 // insertPost creates a post and returns its new id. has_image starts false; the
 // caller flips it once the image file is written (so the filename can use the id).
-// A unique-index violation on the author's day means they already posted today,
-// surfaced as errPostedToday.
+// The daily limit (dailyPostLimit) is enforced here by counting today's posts;
+// the old uq_forum_posts_author_day index (1/day) is dropped by migration, but
+// its violation is still mapped to errPostedToday in case it lingers.
 func insertPost(authorEmail, board, body string) (int64, error) {
+	if n, err := postsToday(authorEmail); err != nil {
+		return 0, err
+	} else if n >= dailyPostLimit {
+		return 0, errPostedToday
+	}
 	b, err := restWrite("insert post", "POST", "/rest/v1/forum_posts",
 		map[string]any{"author_email": strings.ToLower(authorEmail), "board": board, "body": body},
 		"return=representation")
@@ -2700,11 +3034,15 @@ func setPostHasImage(id int64) error {
 	return err
 }
 
-// insertComment adds a comment to a post. A foreign-key violation (the post was
+// insertComment adds a comment to a post. parentCommentID, when non-nil, makes it
+// a reply to an existing comment. A foreign-key violation (the post or parent was
 // deleted) surfaces as a normal error the handler reports.
-func insertComment(postID int64, authorEmail, body string) error {
-	_, err := restWrite("insert comment", "POST", "/rest/v1/forum_comments",
-		map[string]any{"post_id": postID, "author_email": strings.ToLower(authorEmail), "body": body}, "")
+func insertComment(postID int64, authorEmail, body string, parentCommentID *int64) error {
+	row := map[string]any{"post_id": postID, "author_email": strings.ToLower(authorEmail), "body": body}
+	if parentCommentID != nil {
+		row["parent_comment_id"] = *parentCommentID
+	}
+	_, err := restWrite("insert comment", "POST", "/rest/v1/forum_comments", row, "")
 	return err
 }
 
@@ -2766,6 +3104,95 @@ func deleteComment(id int64) error {
 	return err
 }
 
+// likedSet returns which of ids the account already liked, as a set. table/col
+// name one of the two like tables. Errors are non-fatal by design — the page
+// still renders, the hearts just come up empty — so they're logged here and a
+// nil set is returned.
+func likedSet(table, col, email string, ids []int64) map[int64]bool {
+	if email == "" || len(ids) == 0 {
+		return nil
+	}
+	parts := make([]string, len(ids))
+	for i, id := range ids {
+		parts[i] = strconv.FormatInt(id, 10)
+	}
+	rows, err := restSelect[map[string]int64]("liked set",
+		"/rest/v1/"+table+"?select="+col+"&user_email=eq."+url.QueryEscape(strings.ToLower(email))+
+			"&"+col+"=in.("+strings.Join(parts, ",")+")")
+	if err != nil {
+		log.Printf("likedSet %s: %v", table, err)
+		return nil
+	}
+	set := make(map[int64]bool, len(rows))
+	for _, r := range rows {
+		set[r[col]] = true
+	}
+	return set
+}
+
+// markLiked flips the "liked" flag on already-shaped post/comment JSON rows
+// whose id is in the caller's liked set.
+func markLiked(rows []map[string]any, liked map[int64]bool) {
+	for _, m := range rows {
+		if id, ok := m["id"].(int64); ok && liked[id] {
+			m["liked"] = true
+		}
+	}
+}
+
+// handleLikeAPI sets or clears the caller's like on a post or a comment (POST;
+// form: post_id XOR comment_id, plus on=1|0 — explicit, so a retried request
+// can't accidentally toggle back). Any logged-in account may like — applause is
+// free and needs no membership — but a session is required, so counts can't be
+// inflated anonymously.
+func handleLikeAPI(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	email := currentEmail(r)
+	if email == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	postID, _ := strconv.ParseInt(r.FormValue("post_id"), 10, 64)
+	commentID, _ := strconv.ParseInt(r.FormValue("comment_id"), 10, 64)
+	var table, col string
+	var id int64
+	switch {
+	case postID > 0 && commentID == 0:
+		table, col, id = "forum_post_likes", "post_id", postID
+	case commentID > 0 && postID == 0:
+		table, col, id = "forum_comment_likes", "comment_id", commentID
+	default:
+		http.Error(w, "id inválido", http.StatusBadRequest)
+		return
+	}
+	if r.FormValue("on") == "1" {
+		_, err := restWrite("like", "POST", "/rest/v1/"+table+"?on_conflict="+col+",user_email",
+			map[string]any{col: id, "user_email": strings.ToLower(email)},
+			"resolution=ignore-duplicates")
+		if err != nil {
+			if strings.Contains(err.Error(), "23503") { // FK violation: target was deleted
+				http.Error(w, "a publicação não existe mais", http.StatusNotFound)
+				return
+			}
+			log.Printf("like: %v", err)
+			http.Error(w, "não foi possível curtir", http.StatusBadGateway)
+			return
+		}
+	} else {
+		if _, err := restWrite("unlike", "DELETE",
+			"/rest/v1/"+table+"?"+col+"=eq."+strconv.FormatInt(id, 10)+
+				"&user_email=eq."+url.QueryEscape(strings.ToLower(email)), nil, ""); err != nil {
+			log.Printf("unlike: %v", err)
+			http.Error(w, "não foi possível remover a curtida", http.StatusBadGateway)
+			return
+		}
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 // handlePostsAPI lists the feed (GET, public) or creates a post (POST, members).
 func handlePostsAPI(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -2789,20 +3216,30 @@ func handleFeedList(w http.ResponseWriter, r *http.Request) {
 		before, _ = strconv.ParseInt(v, 10, 64)
 	}
 	board := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("board")))
-	posts, err := getFeed(board, before, feedPageSize+1)
+	// The owner's "members first" review queue: only the owner can request it,
+	// and it's a single unpaginated page (oldest member posts first).
+	membersOnly := r.URL.Query().Get("members") == "1" && isOwner(currentEmail(r))
+	limit := feedPageSize + 1
+	if membersOnly {
+		limit = 100
+	}
+	posts, err := getFeed(board, before, limit, membersOnly)
 	if err != nil {
 		log.Printf("getFeed: %v", err)
 		http.Error(w, "erro ao carregar", http.StatusBadGateway)
 		return
 	}
-	hasMore := len(posts) > feedPageSize
+	hasMore := !membersOnly && len(posts) > feedPageSize
 	if hasMore {
 		posts = posts[:feedPageSize]
 	}
 	out := make([]map[string]any, 0, len(posts))
+	ids := make([]int64, 0, len(posts))
 	for _, p := range posts {
 		out = append(out, postJSON(p))
+		ids = append(ids, p.ID)
 	}
+	markLiked(out, likedSet("forum_post_likes", "post_id", currentEmail(r), ids))
 	writeJSON(w, map[string]any{"posts": out, "has_more": hasMore})
 }
 
@@ -2900,10 +3337,17 @@ func handlePostAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cs := make([]map[string]any, 0, len(comments))
+	cids := make([]int64, 0, len(comments))
 	for _, c := range comments {
 		cs = append(cs, commentJSON(c))
+		cids = append(cids, c.ID)
 	}
-	writeJSON(w, map[string]any{"post": postJSON(post), "comments": cs})
+	pj := postJSON(post)
+	if email := currentEmail(r); email != "" {
+		markLiked([]map[string]any{pj}, likedSet("forum_post_likes", "post_id", email, []int64{post.ID}))
+		markLiked(cs, likedSet("forum_comment_likes", "comment_id", email, cids))
+	}
+	writeJSON(w, map[string]any{"post": pj, "comments": cs})
 }
 
 // handleCommentsAPI lists a post's comments (GET, public) or adds one (POST,
@@ -2934,14 +3378,17 @@ func handleCommentsList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cs := make([]map[string]any, 0, len(comments))
+	cids := make([]int64, 0, len(comments))
 	for _, c := range comments {
 		cs = append(cs, commentJSON(c))
+		cids = append(cids, c.ID)
 	}
+	markLiked(cs, likedSet("forum_comment_likes", "comment_id", currentEmail(r), cids))
 	writeJSON(w, map[string]any{"comments": cs})
 }
 
 // handleCommentCreate adds a comment to a post (members only; reached via
-// handleCommentsAPI on POST).
+// handleCommentsAPI on POST). Optional parent_comment_id makes it a reply.
 func handleCommentCreate(w http.ResponseWriter, r *http.Request) {
 	email := currentEmail(r)
 	if email == "" {
@@ -2966,7 +3413,25 @@ func handleCommentCreate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "comentário muito longo", http.StatusBadRequest)
 		return
 	}
-	if err := insertComment(postID, email, body); err != nil {
+	var parentCommentID *int64
+	if pidStr := r.FormValue("parent_comment_id"); pidStr != "" {
+		pid, err := strconv.ParseInt(pidStr, 10, 64)
+		if err != nil || pid <= 0 {
+			http.Error(w, "comentário pai inválido", http.StatusBadRequest)
+			return
+		}
+		// verify the parent belongs to the same post
+		rows, err := restSelect[struct {
+			PostID int64 `json:"post_id"`
+		}]("check parent comment", "/rest/v1/forum_comments?select=post_id&id=eq."+
+			strconv.FormatInt(pid, 10)+"&limit=1")
+		if err != nil || len(rows) == 0 || rows[0].PostID != postID {
+			http.Error(w, "comentário pai inválido", http.StatusBadRequest)
+			return
+		}
+		parentCommentID = &pid
+	}
+	if err := insertComment(postID, email, body, parentCommentID); err != nil {
 		log.Printf("insertComment: %v", err)
 		http.Error(w, "não foi possível comentar", http.StatusBadGateway)
 		return
@@ -3184,13 +3649,17 @@ func main() {
 	mux.HandleFunc("/", handleStatic)
 	mux.HandleFunc("/lessons.html", handleLessons)
 	mux.HandleFunc("/sitemap.xml", handleSitemap)
-	mux.HandleFunc("/login", page("web/login.html"))
+	mux.HandleFunc("/robots.txt", handleRobots)
+	mux.HandleFunc("/login", handleLoginPage)
 	mux.HandleFunc("/profile", page("web/profile.html"))
-	mux.HandleFunc("/signup", page("web/signup.html"))
+	mux.HandleFunc("/signup", handleSignupPage)
 	mux.HandleFunc("/forgot", page("web/forgot.html"))
 	mux.HandleFunc("/reset", page("web/reset.html"))
+	mux.HandleFunc("/check-email", page("web/check-email.html"))
+	mux.HandleFunc("/after-login", handleAfterLogin)
 	mux.HandleFunc("/auth/login", handleSignin)
 	mux.HandleFunc("/auth/signup", handleSignup)
+	mux.HandleFunc("/auth/resend", handleResend)
 	mux.HandleFunc("/auth/recover", handleRecover)
 	mux.HandleFunc("/auth/reset", handleResetPassword)
 	// Link-based flows (email confirmation, the anon buyer's one-time login
@@ -3215,6 +3684,10 @@ func main() {
 	// The community feed shell is public; its compose/reply/delete controls
 	// gate themselves off /me and the write endpoints re-check membership.
 	mux.HandleFunc("/community", page("web/community.html"))
+	// A single post on its own page (/post/<id>), Twitter-style. Same shell as
+	// the community feed; the page reads the id from the path and shows just the
+	// post + its comments. (Distinct from /post-img/<id>, the image route.)
+	mux.HandleFunc("/post/", page("web/community.html"))
 	mux.HandleFunc("/api/posts", handlePostsAPI)
 	mux.HandleFunc("/api/posts/delete", handlePostDelete)
 	mux.HandleFunc("/api/posts/edit", handlePostEdit)
@@ -3223,6 +3696,7 @@ func main() {
 	mux.HandleFunc("/api/comments", handleCommentsAPI)
 	mux.HandleFunc("/api/comments/delete", handleCommentDelete)
 	mux.HandleFunc("/api/comments/edit", handleCommentEdit)
+	mux.HandleFunc("/api/like", handleLikeAPI)
 	mux.HandleFunc("/post-img/", handlePostImage)
 	mux.HandleFunc("/api/search", handleSearchAPI)
 	mux.HandleFunc("/header.js", script("web/header.js"))

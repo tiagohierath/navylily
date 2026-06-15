@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Processo Lento — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/processo-lento.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="processo-lento">Processo Lento</h1>
+    <h3 id="definição">Definição</h3>
+    <p>Meu modo de trabalho preferido: desenhar <strong>devagar,
+    pensando muito</strong>, em vez do processo “normal” de desenhar
+    rápido.</p>
+    <blockquote>
+    <p>“Já passou 3 minutos do vídeo e eu ainda tô no rosto. Se eu
+    tivesse desenhando com lápis, eu já teria feito o formato todo da
+    personagem.”</p>
+    </blockquote>
+    <h3 id="por-que-ser-lento">Por que ser lento</h3>
+    <ul>
+    <li>Com tinta e caneta pincel não há margem para erro — não dá para
+    apagar. A lentidão é o que dá controle.</li>
+    <li>Permite selecionar cada linha com cuidado.</li>
+    <li>Induz um estado mental específico, mais concentrado.</li>
+    </ul>
+    <h3 id="quando-o-rápido-serve">Quando o rápido serve</h3>
+    <p>O processo rápido é útil para algumas coisas (estudos de gesto,
+    volume), mas para o desenho finalizado eu prefiro o ritmo lento e
+    deliberado.</p>
+    <h3 id="duas-fases-de-trabalho">Duas fases de trabalho</h3>
+    <ol type="1">
+    <li><strong>Fase de estudo</strong>: lápis ou digital, rápido,
+    vários esboços para testar ideias. Estudar anatomia de livros,
+    gestual, etc.</li>
+    <li><strong>Fase de desenho</strong>: material mais lento (brush
+    pen, tinta, caneta Bic, sketchbook). Usar o conhecimento da fase de
+    estudo. Máximo de devagar possível.</li>
+    </ol>
+    <h3 id="táticas-para-sustentar-a-lentidão">Táticas para sustentar a
+    lentidão</h3>
+    <ul>
+    <li><strong>Tire as distrações</strong>: trocar de tarefa custa 15
+    pontos de QI. Prepare referências <em>antes</em> de começar a
+    desenhar.</li>
+    <li><strong>Timer de 20–30 minutos</strong>: ajuda a manter o
+    foco.</li>
+    <li><strong>Podcast/audiolivro</strong>: ocupa o lado verbal do
+    cérebro e libera o visual para o desenho (ver <a
+    href="/wiki/pensar-sem-palavras.html">Pensar sem Palavras</a>).</li>
+    <li><strong>Nível de dificuldade certo</strong>: ~50% acima do que
+    você já faz. Fácil demais = tédio e descuido. Difícil demais = só
+    falha.</li>
+    </ul>
+    <h3 id="caligrafia-como-treino-de-linha">Caligrafia como treino de
+    linha</h3>
+    <p>Exercícios de traço puros são entediantes e pouco eficazes. Uma
+    alternativa mais divertida: <strong>caligrafia</strong> (ex.:
+    copperplate script). Ensina as mesmas habilidades com mais
+    engajamento:</p>
+    <ul>
+    <li>Commit em cada traço (não levanta a caneta, não faz vários
+    testes).</li>
+    <li>Treina consistência e controle sem a sensação de fazer algo
+    inútil.</li>
+    </ul>
+    <blockquote>
+    <p>“Você pode fazer só o que é divertido. Exercício de traço não é
+    divertido para mim, mas caligrafia é divertido.”</p>
+    </blockquote>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>Velocidade não é qualidade. Desenhar devagar é uma escolha de
+    controle — e uma habilidade que se treina com os materiais certos e
+    as condições certas.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Separe duas fases: estudo (lápis/digital, rápido, vários
+    esboços) e desenho (material lento, deliberado).</li>
+    <li>Na fase de desenho, use brush pen, tinta ou caneta Bic em
+    sketchbook: o que não apaga te obriga ao controle.</li>
+    <li>Selecione cada linha antes de traçar; pergunte se ela precisa
+    existir antes de encostar a caneta.</li>
+    <li>Prepare todas as referências antes de começar, para não
+    interromper o fluxo no meio.</li>
+    <li>Tire as distrações: troca de tarefa custa caro; silencie
+    notificações e feche abas.</li>
+    <li>Use um timer de 20–30 minutos para manter o foco sem
+    cansar.</li>
+    <li>Ouça podcast ou audiolivro: ocupa o lado verbal e libera o
+    visual (ver <a href="/wiki/pensar-sem-palavras.html">Pensar sem
+    Palavras</a>).</li>
+    <li>Ajuste a dificuldade para ~50% acima do seu nível: fácil demais
+    dá descuido, difícil demais só frustra.</li>
+    <li>Quando errar com caneta, não tente apagar: incorpore ou siga em
+    frente, aprendendo o controle.</li>
+    <li>Treine linha com caligrafia (copperplate) em vez de exercícios
+    de traço entediantes.</li>
+    <li>Faça commit em cada traço: não levante a caneta nem faça vários
+    testes hesitantes.</li>
+    <li>Use o rápido só para gesto e volume; reserve o lento para o
+    desenho finalizado.</li>
+    <li>Crie um ritual de início (mesa limpa, materiais prontos, música)
+    que sinalize “agora vou devagar”.</li>
+    </ul>
+    <!-- tags: processo lento, slow process, desenhar devagar, desenho deliberado, deliberate drawing, controle de linha, line control, brush pen, caneta pincel, tinta, ink, caneta bic, sketchbook, sem apagar, no eraser, commitment, commit no traço, fase de estudo, fase de desenho, esboço, gesto, gesture, volume, timer, pomodoro, foco, flow, fluxo, distração, deep work, cal newport, referências, audiolivro, podcast, pensar sem palavras, dificuldade certa, nível de dificuldade, caligrafia, copperplate, lettering, exercício de traço, line exercise, controle, qualidade vs velocidade, paciência, mishima, materiais de desenho, minimalismo, selecionar linha, concentração, projeto hierath, drawing slowly, intencionalidade -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

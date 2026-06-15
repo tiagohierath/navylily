@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Começar do zero &gt; consertar — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/011.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="começar-do-zero-consertar">Começar do zero &gt;
+    consertar</h1>
+    <blockquote>
+    <p>Então lhes contou esta parábola: “Ninguém tira um remendo de
+    roupa nova e o costura em roupa velha; se o fizer, estragará a roupa
+    nova, além do que o remendo da nova não se ajustará à velha. -Lucas
+    5:36</p>
+    </blockquote>
+    <p>Começar do zero é muitas vezes melhor do que aperfeiçoar ou
+    consertar algo, isso vale pra desenhos. Condições iniciais definem
+    tudo, elas são determinísticas, até no desenho.</p>
+    <p>Condições iniciais definem tudo, por exemplo, as referências que
+    você usa pra desenhar, qual modelo de pensamento você usa e etc.
+    Existe uma frase do Gilles Deleuze que é tipo, leia livros como se
+    eles fossem obras em sí próprias, e não em contexto de outros
+    livros:</p>
+    <blockquote>
+    <p>Veja bem, existem duas maneiras de ler um livro: ou você o vê
+    como uma caixa com algo dentro e começa a procurar o que aquilo
+    significa, e então, se você for ainda mais perverso ou depravado,
+    parte em busca de significantes. E trata o próximo livro como uma
+    caixa contida no primeiro, ou que o contém. E você anota,
+    interpreta, questiona e escreve um livro sobre o livro, e assim por
+    diante. Ou existe a outra maneira: você vê o livro como uma pequena
+    máquina sem significado, e a única questão é: “Funciona? E como
+    funciona?”. Como funciona para você? Se não funcionar, se nada lhe
+    for transmitido, você tenta outro livro. Essa segunda maneira de ler
+    é intensiva: ou algo lhe é transmitido, ou não. Não há nada para
+    explicar, nada para entender, nada para interpretar. -Gilles
+    Deleuze</p>
+    </blockquote>
+    <p>É bem melhor que você faça um desenho de imaginação, sem esboço,
+    no papel, com tinta, e faça várias versões, do que fazer a lápis no
+    digital e fique consertando pra sempre. Você precisa aprender a
+    consertar através de versões, não através de borracha. Começar do
+    zero é divino, aperfeiçoar causa resultados cada vez menores. A
+    ideia é tipo, “O primeiro filme é sempre melhor que o filme de
+    sequência.” Basicamente tudo tem essa função inevitável de
+    apodrecer/decair, entropia.</p>
+    <p>Eu acho que essa é a ideia de músicos que fazem uma música boa
+    apenas, talvez eles acertem algo e fiquem tentando reproduzir o
+    acerto. Enquanto outros músicos conseguem fazer com que cada música
+    seja algo novo.</p>
+    <p>Em empresas, é famosa a ideia de “Dia 1”, onde boas empresas
+    sempre tentam inovar, e não só funcionar pelos sistemas de ontem,
+    sem inovação empresas sempre decaem. Em economia, isso é a questão
+    de impressão de dinheiro, fazer várias cópias do mesmo item reduz o
+    seu valor (pesquise sobre 1971, quantitative easing, nixon).</p>
+    <details class="more">
+    <summary>
+    Aulas relacionadas
+    </summary>
+    <ul>
+    <li><a href="/010.html">Como fazer perguntas</a></li>
+    </ul>
+    </details>
+    <details class="more">
+    <summary>
+    Navy Wiki: Artigos avançados &amp; opcionais:
+    </summary>
+    <ul>
+    <li><a href="/wiki/condicoes-iniciais.html">Condições
+    Iniciais</a></li>
+    </ul>
+    </details>
+    <!--COMPLETE-->
+    <nav class="lesson-nav">
+      <a class="nav-prev" href="/010.html">← aula anterior</a>
+
+
+    </nav>
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+  <script src="/lesson.js?v=1" defer></script>
+</body>
+</html>

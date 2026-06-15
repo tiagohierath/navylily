@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ferramentas Moldam Você — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/ferramentas-moldam-voce.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="ferramentas-moldam-você">Ferramentas Moldam Você</h1>
+    <h3 id="definição">Definição</h3>
+    <p>O par de <a href="/wiki/voce-e-o-que-consome.html">Você é o que
+    Consome</a>: se o que você <strong>consome</strong> são as condições
+    iniciais, as <strong>ferramentas</strong> (processos) são a
+    antítese. E a regra é dura: <strong>os processos nunca superam as
+    condições iniciais</strong> — entregam sempre algo <em>menor</em>
+    que a base.</p>
+    <blockquote>
+    <p>“O processo nunca é maior do que as condições iniciais. Se a
+    condição inicial é ruim, o processo nunca resolve.”</p>
+    </blockquote>
+    <p>Mas as ferramentas que você escolhe <strong>moldam você de
+    volta</strong>.</p>
+    <h3 id="ferramentas-são-armas-livro-de-enoque">Ferramentas são armas
+    (Livro de Enoque)</h3>
+    <p>No capítulo 5 do Livro de Enoque, o demônio
+    <strong>Azazel</strong> ensina os homens a fazer espadas, facas e
+    armaduras, e as mulheres a fazer maquiagem — <em>depois</em> da
+    Queda, quando as condições iniciais (o Éden) já estavam arruinadas.
+    A minha leitura: ferramentas são <strong>armas</strong> para
+    remediar uma base estragada. “Maquiagem é transformar a beleza em
+    arma.”</p>
+    <h3 id="a-língua-molda-o-pensamento-sapir-whorf">A língua molda o
+    pensamento (Sapir-Whorf)</h3>
+    <p>A <strong>hipótese de Sapir-Whorf</strong> (relativismo
+    linguístico): o idioma molda o que você consegue pensar. Gênero
+    gramatical muda como você descreve uma ponte; operários fumavam
+    perto de tanques “vazios” de gasolina porque a <em>palavra</em>
+    dizia vazio; o Newspeak de <em>1984</em> simplifica a língua para
+    reduzir o pensamento; e a Tokipona, com ~120 palavras, força a
+    descrever tudo de forma ontológica. A ferramenta (a língua) é o
+    limite do pensamento.</p>
+    <h3 id="o-dinheiro-molda-sua-preferência-temporal">O dinheiro molda
+    sua preferência temporal</h3>
+    <p>Uma moeda que infla ~20% ao ano te ensina a <strong>gastar
+    rápido</strong> (preferência temporal baixa); uma de oferta fixa
+    (Bitcoin) te ensina a <strong>poupar</strong>. Do mesmo modo,
+    TikToks te treinam a não ter paciência para um livro. A ferramenta
+    molda o hábito (ver <a href="/wiki/arte-que-dura.html">Arte que
+    Dura</a> sobre dinheiro como bússola, e <a
+    href="/wiki/inversao.html">Inversão</a>).</p>
+    <h3 id="artefatos">Artefatos</h3>
+    <p>Toda ferramenta deixa <strong>artefatos</strong> — pinceladas,
+    textura de giz, a marca do brush — que provam que ela foi usada. A
+    arte de IA <strong>não tem artefatos</strong>; é uma forma de
+    distingui-la (ver <a href="/wiki/arte-de-ia.html">Arte de
+    IA</a>).</p>
+    <h3 id="preferência-temporal-e-produção-artística">Preferência
+    temporal e produção artística</h3>
+    <p>A mesma lógica de moeda/tempo se aplica ao material de
+    desenho:</p>
+    <blockquote>
+    <p>“A ferramenta muda a sua percepção do tempo — ela faz você
+    desenhar mais devagar. E desenhando mais devagar você pensa
+    mais.”</p>
+    </blockquote>
+    <p>Trocar de pincel ou caneta muda comportamentos e resultados,
+    mesmo que o desenhista seja o mesmo. Ver <a
+    href="/wiki/foco.html">Foco</a> sobre como tinta força foco
+    prolongado.</p>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>Escolha condições iniciais boas primeiro; depois saiba que cada
+    ferramenta que você adota vai, em silêncio, moldar como você pensa e
+    trabalha.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Antes de trocar de método, melhore a entrada (condições
+    iniciais): processo nunca supera matéria-prima ruim.</li>
+    <li>Escolha conscientemente sua ferramenta principal sabendo que ela
+    vai moldar seu jeito de pensar e desenhar.</li>
+    <li>Use tinta ou caneta sem apagador de propósito quando quiser se
+    forçar a desenhar mais devagar e pensar mais.</li>
+    <li>Troque de pincel ou caneta quando quiser mudar comportamento: a
+    ferramenta muda sua percepção do tempo.</li>
+    <li>Repare nos artefatos que sua ferramenta deixa (textura,
+    pincelada, marca do brush) e use-os como assinatura.</li>
+    <li>Para distinguir arte de IA, procure a ausência de artefatos — o
+    feito à mão sempre deixa rastro.</li>
+    <li>Cuide das ferramentas digitais que te treinam à pressa (feeds,
+    shorts): elas reduzem sua paciência para desenhar.</li>
+    <li>Faça um “detox” de ferramentas de gratificação rápida antes de
+    sessões longas de estudo.</li>
+    <li>Limite seu vocabulário de materiais no começo; dominar poucas
+    ferramentas molda você melhor do que pular entre muitas.</li>
+    <li>Encare a língua que você usa como ferramenta: aprender termos
+    técnicos de desenho expande o que você consegue pensar e ver.</li>
+    <li>Observe como o dinheiro/tempo molda seus hábitos e aplique a
+    mesma lógica à escolha de material.</li>
+    <li>Reavalie a cada projeto se a ferramenta atual ainda serve ao
+    resultado que você quer.</li>
+    </ul>
+    <!-- tags: ferramentas, ferramenta molda voce, processo, condicoes iniciais, voce e o que consome, entrada, matéria-prima, tinta, caneta, brush pen, pincel, sem apagador, artefatos, textura, pincelada, marca do brush, arte de IA, distinguir IA, Sapir-Whorf, relativismo linguistico, lingua molda pensamento, Newspeak, 1984, Toki Pona, Livro de Enoque, Azazel, queda, Eden, preferencia temporal, dinheiro, inflacao, Bitcoin, TikTok, shorts, paciencia, percepcao do tempo, processo lento, foco, habito, material de desenho, escolha de material, tools shape you, medium, the medium is the message, mindset, vocabulario, termos tecnicos, como escolher ferramenta, detox digital, gratificacao rapida -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dualidade — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/dualidade.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="dualidade">Dualidade</h1>
+    <h3 id="definição">Definição</h3>
+    <p>A minha “visão de mundo” mais geral — explicitamente <strong>não
+    um método</strong>: a ideia de que quase tudo é a <strong>união de
+    duas coisas</strong> que geram uma terceira. Começo–meio–fim;
+    tese–antítese–síntese; céu + terra = montanha; o casamento.</p>
+    <blockquote>
+    <p>“Você provavelmente já entende isso 100% — eu só estou colocando
+    em palavras.”</p>
+    </blockquote>
+    <p>A origem que cito é o <strong>Gênesis</strong> (a criação aos
+    pares: águas superiores e inferiores, e assim por diante).</p>
+    <h3 id="os-pares">Os pares</h3>
+    <p>O mesmo padrão reaparece em tudo:</p>
+    <ul>
+    <li><strong>unidade / multiplicidade</strong>, <strong>qualidade /
+    quantidade</strong>, <strong>masculino / feminino</strong>;</li>
+    <li><strong>teoria / prática</strong> (céu / terra),
+    <strong>conhecimento formal / conhecimento específico</strong>;</li>
+    <li><strong>mapa / território</strong>, <strong>símbolo /
+    realidade</strong> (ver <a
+    href="/wiki/desenho-de-observacao.html">Desenho de Observação</a> e
+    <a href="/wiki/perspectiva-e-distorcao.html">Perspectiva é
+    Distorção</a>), <strong>palavra / imagem</strong>;</li>
+    <li><strong>oferta / demanda</strong> → preço; <strong>pergunta /
+    resposta</strong> (escrever histórias = fazer perguntas e
+    respondê-las — e desenhar também);</li>
+    <li><strong>ação / planejamento</strong>, <strong>corpo /
+    mente</strong> (Mishima, <em>Sol e Aço</em>: as palavras corroem;
+    ver <a href="/wiki/cadernos-e-diarios.html">Cadernos e
+    Diários</a>).</li>
+    </ul>
+    <h3 id="verdade-como-correspondência">Verdade como
+    correspondência</h3>
+    <p>Liga-se à <strong>teoria correspondentista da verdade</strong>:
+    um pensamento é verdadeiro quando corresponde à realidade. Por isso
+    o dinheiro pós-1971 é um “mapa que não corresponde ao território” (o
+    divórcio do ouro) — e por isso Magritte: <em>isto não é um
+    cachimbo</em> (ver <a
+    href="/wiki/perspectiva-e-distorcao.html">Perspectiva é
+    Distorção</a> e <a href="/wiki/arte-que-dura.html">Arte que
+    Dura</a>).</p>
+    <h3 id="aplicação-ao-desenho">Aplicação ao desenho</h3>
+    <p>A dualidade mais prática: em preto e branco, uso só duas “cores”
+    — ~20% escuro e 80% branco (ou 50/50), uma proporção agradável (ver
+    <a href="/wiki/contraste.html">Contraste</a>). E, citando
+    Dostoiévski (“a arte salvará o mundo”), conclui que <strong>a
+    informação / o <em>logos</em> salva o território</strong>.</p>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>Procure os dois lados em tudo — referência e técnica, teoria e
+    prática, claro e escuro — e a síntese aparece da união deles.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Antes de cada desenho, pense no par “referência (entrada) +
+    técnica (processo)” e garanta que os dois estão presentes.</li>
+    <li>Em preto e branco, decida uma proporção fixa de massas: ~20%
+    escuro e 80% branco, ou 50/50, em vez de espalhar cinza por
+    tudo.</li>
+    <li>Para cada estudo, una teoria e prática: leia um conceito (céu) e
+    logo aplique desenhando (terra).</li>
+    <li>Ao escrever ou planejar uma cena, transforme-a em par
+    pergunta/resposta: faça uma pergunta visual e responda no
+    desenho.</li>
+    <li>Procure a síntese: junte dois elementos opostos (orgânico +
+    mecânico, suave + duro) e veja a terceira coisa que nasce.</li>
+    <li>Equilibre ação e planejamento: alterne dias de produzir muito
+    com dias de só pensar e estudar.</li>
+    <li>Cuide do par corpo/mente — exercício físico melhora seu desenho
+    tanto quanto estudo (Mishima, Sol e Aço).</li>
+    <li>Teste se sua representação corresponde à realidade: o desenho é
+    um mapa, confira se ele bate com o território.</li>
+    <li>Use a dualidade como checklist de composição: cheio/vazio,
+    grande/pequeno, detalhado/limpo.</li>
+    <li>Quando um desenho parecer “morto”, veja qual dos dois lados está
+    faltando (geralmente contraste ou entrada).</li>
+    <li>Estude pares clássicos de design (figura/fundo, luz/sombra)
+    copiando mestres que os dominam.</li>
+    <li>Anote no caderno os pares que você descobrir no mundo — vira
+    repertório para compor.</li>
+    </ul>
+    <!-- tags: dualidade, dualismo, par, pares, opostos, tese antitese sintese, sintese, dialetica, comeco meio fim, ceu e terra, masculino feminino, qualidade quantidade, teoria e pratica, mapa e territorio, simbolo e realidade, palavra e imagem, oferta e demanda, pergunta e resposta, corpo e mente, Genesis, criacao, Mishima, Sol e Aco, teoria correspondentista da verdade, verdade, correspondencia, Magritte, isto nao e um cachimbo, Dostoievski, logos, contraste, preto e branco, massas, claro e escuro, composicao, equilibrio, figura e fundo, luz e sombra, filosofia, cosmovisao, visao de mundo, duality, opposites, thesis antithesis synthesis, contrast, balance, referencia e tecnica, entrada e processo, como compor, como pensar desenho -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

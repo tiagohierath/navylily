@@ -5,47 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Criar conta — Navy Lily</title>
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
-  <style>
-    body { font-family: serif; margin: 0; }
-    header.site {
-      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-      padding: .75rem 1rem; border-bottom: 1px solid #ddd;
-    }
-    header.site .brand {
-      font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
-    }
-    header.site .btn {
-      font: inherit; text-decoration: none; color: inherit;
-      border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
-    }
-    main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
-  </style>
+  <link rel="stylesheet" href="/site.css?v=1">
 </head>
-<body>
+<body bgcolor="white">
   <header class="site">
-    <a class="brand" href="/"><img src="/logo.png?v=2" alt="Navy Lily Works" style="height:28px;width:auto;display:block"></a>
-    <a class="btn" href="/community">Comunidade</a>
-    <a class="btn" href="/comprar">Navy</a>
-    <a class="btn" href="/login">Perfil</a>
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
   </header>
   <main>
-  <form method="POST" action="/auth/signup">
-    <h1>Criar conta na Navy Lily</h1>
-    <p id="erro" style="color:#b00;" hidden></p>
+  <form id="form" method="POST" action="/auth/signup">
+    <h1>Crie uma conta gratuita</h1>
+    <p style="font-size:.85em; color:#3D5A80;">O curso é gratuito. Crie uma conta para registrar seu progresso de estudo.</p>
+    <!--ERRO-->
     <p>
       <label for="email">E-mail</label><br>
-      <input id="email" name="email" type="email" required placeholder="voce@email.com" autofocus>
+      <input id="email" name="email" type="email" required placeholder="voce@email.com" autocomplete="email" autofocus>
     </p>
     <p>
       <label for="password">Senha</label><br>
-      <input id="password" name="password" type="password" required minlength="8" maxlength="72" placeholder="8 a 72 caracteres">
+      <input id="password" name="password" type="password" required minlength="8" maxlength="72" placeholder="8 a 72 caracteres" autocomplete="new-password">
+      <button id="toggle" type="button" aria-pressed="false" hidden>Mostrar</button>
     </p>
     <p>
       <label for="confirm">Confirmar senha</label><br>
-      <input id="confirm" name="confirm" type="password" required minlength="8" maxlength="72" placeholder="repita a senha">
+      <input id="confirm" name="confirm" type="password" required minlength="8" maxlength="72" placeholder="repita a senha" autocomplete="new-password">
     </p>
     <input id="next" name="next" type="hidden">
-    <button type="submit">Criar conta</button>
+    <button id="submit" type="submit">Criar conta</button>
     <p>Enviaremos um e-mail para confirmar seu endereço antes do primeiro acesso.</p>
     <p>Já tem conta? <a id="login" href="/login">Entrar</a>.</p>
   </form>
@@ -53,22 +42,70 @@
   <script>
     (function () {
       const params = new URLSearchParams(location.search);
-      const erro = params.get('erro');
-      if (erro) {
-        const el = document.getElementById('erro');
-        el.textContent =
-          erro === 'email' ? 'Digite um e-mail válido.' :
-          erro === 'senha' ? 'As senhas devem ter entre 8 e 72 caracteres e ser iguais.' :
-          'Não foi possível criar a conta. O e-mail pode já estar em uso.';
-        el.hidden = false;
-      }
       const next = params.get('next') || '';
       if (next.startsWith('/') && !next.startsWith('//')) {
         document.getElementById('next').value = next;
         document.getElementById('login').href = '/login?next=' + encodeURIComponent(next);
       }
+      // Error redirects carry ?email= back so only the password needs retyping.
+      const email = params.get('email') || '';
+      if (email.includes('@')) {
+        document.getElementById('email').value = email;
+        document.getElementById('password').focus();
+      }
+      // The error block is rendered into the page server-side from ?erro=...;
+      // if it's missing (server/HTML version skew), surface it client-side so
+      // a failed signup is never silent.
+      const erro = params.get('erro');
+      if (erro && !document.getElementById('erro')) {
+        const p = document.createElement('p');
+        p.id = 'erro';
+        p.setAttribute('role', 'alert');
+        p.style.color = '#b00';
+        if (erro === 'email') {
+          p.textContent = 'Digite um e-mail válido.';
+        } else if (erro === 'senha') {
+          p.textContent = 'As senhas devem ter entre 8 e 72 caracteres e ser iguais.';
+        } else {
+          // Usually the e-mail already has an account (e.g. a gifted legacy
+          // member). Offer login / reset instead of a dead-end message.
+          const q = email.includes('@') ? '?email=' + encodeURIComponent(email) : '';
+          p.innerHTML = 'Não foi possível criar a conta. Se você já tem cadastro com este e-mail, '
+            + '<a href="/login' + q + '">entre</a> ou '
+            + '<a href="/forgot' + q + '">redefina sua senha</a>.';
+        }
+        const form = document.getElementById('form');
+        form.insertBefore(p, form.children[1]);
+      }
+      // Drop the param so a refresh shows a clean form again.
+      if (params.get('erro')) {
+        params.delete('erro');
+        const qs = params.toString();
+        history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
+      }
+
+      // Show/hide both password fields — seeing the typo beats typing it twice
+      // blind. The button starts hidden so it only appears when JS is running.
+      const pw = document.getElementById('password');
+      const confirm = document.getElementById('confirm');
+      const toggle = document.getElementById('toggle');
+      toggle.hidden = false;
+      toggle.addEventListener('click', function () {
+        const show = pw.type === 'password';
+        pw.type = confirm.type = show ? 'text' : 'password';
+        toggle.textContent = show ? 'Ocultar' : 'Mostrar';
+        toggle.setAttribute('aria-pressed', String(show));
+        pw.focus();
+      });
+      // One submission at a time: a pending label instead of a frozen-looking
+      // page, and no duplicate POST from a second click.
+      document.getElementById('form').addEventListener('submit', function () {
+        const b = document.getElementById('submit');
+        b.disabled = true;
+        b.textContent = 'Criando conta…';
+      });
     })();
   </script>
-  <script src="/header.js" defer></script>
+  <script src="/header.js?v=11" defer></script>
 </body>
 </html>

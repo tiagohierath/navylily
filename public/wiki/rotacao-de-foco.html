@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rotação de Foco — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/rotacao-de-foco.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="rotação-de-foco">Rotação de Foco</h1>
+    <h3 id="definição">Definição</h3>
+    <p>Método de aprendizado em que você <strong>foca um único
+    aspecto</strong> do desenho por vez, por uma série de desenhos, em
+    vez de tentar acertar tudo de uma só vez.</p>
+    <h3 id="o-experimento">O experimento</h3>
+    <p>Num jogo de nave, dois grupos: um jogou normalmente; o outro
+    prestava atenção, a cada partida, numa parte diferente (mira,
+    posição da nave, munição). O segundo grupo foi muito melhor.</p>
+    <h3 id="os-dois-extremos-ruins">Os dois extremos ruins</h3>
+    <ol type="1">
+    <li><strong>Não prestar atenção em nada</strong> — só “desenhar no
+    automático”.</li>
+    <li><strong>Prestar atenção em tudo</strong> — linha, anatomia,
+    proporção, valores ao mesmo tempo. Você não fica bom em nada.</li>
+    </ol>
+    <h3 id="como-fazer">Como fazer</h3>
+    <p>Faça 5, 10 ou até 50 desenhos focando <strong>um aspecto bem
+    específico</strong> e esquecendo o resto:</p>
+    <ul>
+    <li>textura, cor, traço, espessura e ritmo do traço;</li>
+    <li>gestual, proporções, design (ex.: gravidade do cabelo);</li>
+    <li>distribuição de valor (quais partes ficam pretas, quais ficam
+    brancas) e a proporção claro/escuro (ver <a
+    href="/wiki/contraste.html">Contraste</a>).</li>
+    </ul>
+    <p>O aspecto não precisa ser um fundamento grande — quanto mais
+    específico, melhor.</p>
+    <h3 id="por-que-funciona-a-teoria-da-intuição">Por que funciona: a
+    teoria da intuição</h3>
+    <p>A memória de trabalho é limitada (“imagine um espaço de 1m por
+    1m”). Quando você domina um fundamento, ele <strong>encolhe</strong>
+    e vai para o fundo da mente — vira intuição e libera espaço.</p>
+    <blockquote>
+    <p>Metáfora: aprender a dirigir. No começo você não consegue
+    conversar; depois fica automático e você dirige conversando.</p>
+    </blockquote>
+    <h3 id="plano-prático-do-zero-ao-fim-do-ano">Plano prático (do zero
+    ao fim do ano)</h3>
+    <p>Exercícios para rodar em sessões de 1h (ou 20 min se sem
+    tempo):</p>
+    <ol type="1">
+    <li><strong>Observação</strong> — 1h desenhando vários objetos do
+    mesmo tema (motos, cabeças) sem sair do assunto.</li>
+    <li><strong>Memória</strong> — desenhar sem referência o que você
+    viu antes (Pinterest, vida real).</li>
+    <li><strong>Biblioteca visual</strong> — pegar um objeto e desenhar
+    de todos os ângulos possíveis (fixar na memória).</li>
+    <li><strong>Desconstrução</strong> — reduzir qualquer objeto a
+    formas básicas (caixas, cilindros). Requer perspectiva.</li>
+    <li><strong>Perspectiva</strong> — sempre na versão mais difícil que
+    você ainda não domina (1 ponto → 3 pontos → anatomia em perspectiva
+    → carros).</li>
+    </ol>
+    <p>Rotacione entre esses cinco. Sempre suba a dificuldade — nunca
+    repita o nível que já ficou fácil.</p>
+    <h3 id="imaginação-vs.-estudo-formal">Imaginação vs. estudo
+    formal</h3>
+    <blockquote>
+    <p>“99% dos meus desenhos não são estudos.”</p>
+    </blockquote>
+    <p>Desenhar de imaginação (sem esboço, sem referência) é a forma
+    mais difícil e a que faz você progredir mais rápido — porque você vê
+    seus erros reais, não os erros que a referência esconde.</p>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>Não tente acertar tudo. Gire seu foco, um fundamento de cada vez,
+    até cada um virar intuição — e só então passe para o próximo nível
+    de dificuldade.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Antes de uma sessão, escolho UM aspecto específico para focar
+    (ex.: só o ritmo do traço).</li>
+    <li>Faço de 5 a 50 desenhos seguidos no mesmo aspecto antes de
+    trocar.</li>
+    <li>Quanto mais específico o foco, melhor: prefiro “gravidade do
+    cabelo” a “design”.</li>
+    <li>Esqueço de propósito todo o resto durante o exercício, mesmo que
+    saia errado.</li>
+    <li>Não desenho “no automático” sem prestar atenção em nada.</li>
+    <li>Não tento prestar atenção em tudo (linha, anatomia, valores) ao
+    mesmo tempo.</li>
+    <li>Rotaciono entre os cinco exercícios: observação, memória,
+    biblioteca visual, desconstrução, perspectiva.</li>
+    <li>Em observação, passo 1h num único tema (motos, cabeças) sem
+    trocar de assunto.</li>
+    <li>Em memória, desenho sem referência o que vi antes e só depois
+    confiro.</li>
+    <li>Na biblioteca visual, pego um objeto e desenho de todos os
+    ângulos possíveis.</li>
+    <li>Na desconstrução, reduzo tudo a caixas e cilindros.</li>
+    <li>Subo sempre a perspectiva: 1 ponto, depois 2, depois 3, depois
+    anatomia em perspectiva.</li>
+    <li>Nunca repito um nível que já ficou fácil; subo a
+    dificuldade.</li>
+    <li>Desenho de imaginação para enxergar meus erros reais, não os que
+    a referência esconde.</li>
+    <li>Considero um fundamento “pronto” só quando ele virou intuição e
+    liberou espaço mental.</li>
+    </ul>
+    <!-- tags: rotação de foco, foco único, um aspecto por vez, deliberate practice, prática deliberada, atenção seletiva, memória de trabalho, intuição, automatizar fundamentos, biblioteca visual, desenho de observação, desenho de memória, desconstrução, perspectiva, anatomia, ritmo do traço, espessura do traço, distribuição de valor, contraste, gestual, proporção, design, exercicios de desenho, plano de estudo, dirigir no automático, encolher fundamento, liberar memória, imaginação, desenhar sem referência, subir dificuldade, focus rotation, single focus, working memory, fundamentals, skill stacking, isolar variavel, treino isolado, sessão de 1 hora, 20 minutos, motos, cabeças, caixas, cilindros, um ponto de fuga, tres pontos de fuga, errar de proposito, progresso rapido, evoluir no desenho, sketchbook, repetição, especificidade -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

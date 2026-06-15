@@ -1,5 +1,5 @@
 -- Navy Lily — server-side login sessions (pilcrowonpaper-style opaque tokens).
--- Opaque server-side sessions, applied as a Supabase CLI migration.
+-- (Same content as auth/migrations/005_auth_sessions.sql, as a CLI migration.)
 --
 -- Authentication credentials (email + password, confirmation/reset emails) stay
 -- in Supabase Auth (GoTrue / auth.users). This table holds OUR OWN sessions on

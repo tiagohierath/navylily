@@ -10,89 +10,89 @@ $else$
   <meta name="description" content="Aulas da Navy Lily.">
 $endif$
   <meta name="robots" content="index, follow">
+$if(canonical)$
+  <link rel="canonical" href="$canonical$">
+$endif$
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <style>
-    body { font-family: serif; margin: 0; }
-    header.site {
-      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-      padding: .75rem 1rem; border-bottom: 1px solid #ddd;
-    }
-    header.site .brand {
-      font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
-    }
-    header.site form { display: flex; gap: .25rem; }
-    header.site input[name=q] { font: inherit; padding: .25rem .5rem; }
-    header.site .btn {
-      font: inherit; text-decoration: none; color: inherit;
-      border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
-    }
-    main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
-    /* Optional lesson thumbnail, shown under the heading; always 16:9. */
-    img.lesson-image {
-      display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
-      border-radius: 8px; margin: 1rem 0 1.5rem;
-    }
-$if(articles)$
-    /* Landing page + lessons index: each lesson is an article row — square
-       thumbnail on the left (gray placeholder until the lesson gets an image),
-       title and a 3-line preview on the right. */
-    ul.articles {
-      list-style: none; padding: 0;
-      display: flex; flex-direction: column; gap: 1.75rem;
-    }
-    .article a {
-      display: flex; gap: 1rem; align-items: flex-start;
-      text-decoration: none; color: inherit;
-    }
-    .article a:hover .title { text-decoration: underline; }
-    .article .thumb {
-      flex: 0 0 120px; width: 120px; height: 120px;
-      object-fit: cover; object-position: center;
-      display: block; background: #eee; border-radius: 8px;
-    }
-    .article .text { flex: 1; min-width: 0; }
-    .article .title { margin: 0; font-weight: 700; line-height: 1.4; }
-    .article .preview {
-      margin: .25rem 0 0; color: #555; font-size: .9em;
-      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-$endif$
-    nav.lesson-nav {
-      display: flex; justify-content: space-between; gap: 1rem; margin: 2.5rem 0 1.5rem;
-    }
-    nav.lesson-nav a {
-      font: inherit; text-decoration: none; color: inherit;
-      border: 1px solid #ccc; border-radius: 6px; padding: .4rem .8rem;
-    }
-    nav.lesson-nav .nav-next { margin-left: auto; }
-    .lesson-complete { margin: 2rem 0 0; }
-    .lesson-complete-btn {
-      font: inherit; cursor: pointer; color: #fff;
-      border: 1px solid; border-radius: 6px; padding: .4rem .9rem;
-    }
-    .lesson-complete-btn.is-todo { background: #1A3F7A; border-color: #1A3F7A; }
-    .lesson-complete-btn.is-done { background: #2E7D32; border-color: #2E7D32; }
-    .lesson-complete-btn:disabled { opacity: .6; cursor: default; }
-    /* Phone: keep the two header actions side by side instead of each wrapping
-       to its own line — the search box drops to a full-width row of its own. */
-    @media (max-width: 480px) {
-      header.site { gap: .5rem; }
-      header.site form { order: 3; flex-basis: 100%; }
-      header.site input[name=q] { flex: 1; min-width: 0; }
-    }
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
   </style>
 </head>
-<body>
+<body bgcolor="white">
   <header class="site">
-    <a class="brand" href="/"><img src="/logo.png?v=2" alt="Navy Lily Works" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
     <form action="/lessons.html" method="get" role="search">
       <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
-      <button class="btn" type="submit">Buscar</button>
-    </form>
-    <a class="btn" href="/community">Comunidade</a>
-    <a class="btn" href="/comprar">Navy</a>
-    <a class="btn" href="/login">Perfil</a>
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
   </header>
   <main>
     $body$
@@ -115,159 +115,18 @@ $endif$
 $endif$
 $if(banner)$
     <div id="navy-join"></div>
-    <script src="/join.js"></script>
+    <script src="/join.js" defer></script>
 $endif$
   </main>
-  <script src="/header.js" defer></script>
+  <script src="/header.js?v=11" defer></script>
+$if(order)$
+  <script src="/lesson.js?v=1" defer></script>
+$endif$
 $if(articles)$
-  <script>
-    // Logged-in students: tick the lessons already completed and offer a link to
-    // continue from the first one still open. Logged-out visitors keep the plain
-    // list (the /api/completed call just 401s and nothing is drawn).
-    (function () {
-      var links = [].slice.call(document.querySelectorAll('ul.articles .article > a'));
-      if (!links.length) return;
-      // The list is static HTML, so the paid 🔒 is printed for everyone; a
-      // member has access to all of it, so drop the locks for them here.
-      fetch('/me', { headers: { Accept: 'application/json' } })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (d) {
-          if (!d || !d.member) return;
-          links.forEach(function (a) {
-            var t = a.querySelector('.title');
-            if (t) t.textContent = t.textContent.replace(' 🔒', '');
-          });
-        })
-        .catch(function () {});
-      fetch('/api/completed', { headers: { Accept: 'application/json' } })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (d) {
-          if (!d) return;
-          var done = {};
-          (d.slugs || []).forEach(function (s) { done[s] = true; });
-          var doneCount = 0, next = null;
-          links.forEach(function (a) {
-            var slug = a.getAttribute('href').replace('.html', '').replace(/^\//, '');
-            if (done[slug]) {
-              doneCount++;
-              var t = a.querySelector('.title');
-              if (t) t.textContent = '✓ ' + t.textContent;
-            } else if (!next) {
-              next = a;
-            }
-          });
-          if (!doneCount) return; // nothing started yet: keep the page as-is
-          var p = document.createElement('p');
-          p.appendChild(document.createTextNode('✓ ' + doneCount + ' de ' + links.length + ' aulas concluídas'));
-          if (next) {
-            p.appendChild(document.createTextNode(' — '));
-            var a = document.createElement('a');
-            a.href = next.getAttribute('href');
-            var t = next.querySelector('.title');
-            a.textContent = 'continuar: ' + (t ? t.textContent : 'próxima aula') + ' →';
-            p.appendChild(a);
-          }
-          var first = links[0].closest('ul.articles');
-          var anchor = first.previousElementSibling;
-          while (anchor && anchor.tagName !== 'H2') anchor = anchor.previousElementSibling;
-          first.parentNode.insertBefore(p, anchor || first);
-        })
-        .catch(function () {});
-    })();
-  </script>
+  <script src="/articles.js?v=4" defer></script>
 $endif$
 $if(search)$
-  <script>
-    // Lessons index: prefill the header search box from ?q=, filter the lesson
-    // list live, and search forum posts too — results below, lessons first.
-    (function () {
-      var box = document.querySelector('header.site input[name=q]');
-      var items = [].slice.call(document.querySelectorAll('main li')).filter(function (li) {
-        return !li.closest('#forum-results'); // don't hide forum results with the lesson filter
-      });
-      var wrap = document.getElementById('forum-results');
-      var list = document.getElementById('forum-list');
-
-      var noneMsg = null; // "Nenhuma aula encontrada." line, created on first use
-      function applyLessons(q) {
-        q = q.trim().toLowerCase();
-        var any = false;
-        items.forEach(function (li) {
-          var show = !q || li.textContent.toLowerCase().indexOf(q) >= 0;
-          li.style.display = show ? '' : 'none';
-          if (show) any = true;
-        });
-        // Don't leave "Aulas gratuitas/pagas" headings floating over emptied
-        // lists; when nothing matches at all, say so plainly instead.
-        [].slice.call(document.querySelectorAll('main ul.articles')).forEach(function (ul) {
-          var has = [].slice.call(ul.children).some(function (li) { return li.style.display !== 'none'; });
-          ul.style.display = has ? '' : 'none';
-          var h = ul.previousElementSibling;
-          while (h && h.tagName !== 'H2') h = h.previousElementSibling;
-          if (h) h.style.display = has ? '' : 'none';
-        });
-        if (!noneMsg) {
-          var firstUl = document.querySelector('main ul.articles');
-          if (!firstUl) return;
-          noneMsg = document.createElement('p');
-          noneMsg.textContent = 'Nenhuma aula encontrada.';
-          noneMsg.hidden = true;
-          firstUl.parentNode.insertBefore(noneMsg, firstUl);
-        }
-        noneMsg.hidden = any;
-      }
-
-      var timer, lastQ = '';
-      function applyForum(q) {
-        q = q.trim();
-        if (!wrap) return;
-        if (q.length < 2) { wrap.hidden = true; list.textContent = ''; lastQ = ''; return; }
-        if (q === lastQ) return;
-        lastQ = q;
-        clearTimeout(timer);
-        timer = setTimeout(function () {
-          fetch('/api/search?q=' + encodeURIComponent(q), { headers: { Accept: 'application/json' } })
-            .then(function (r) { return r.ok ? r.json() : { posts: [] }; })
-            .then(function (d) { renderForum(d.posts || []); })
-            .catch(function () {});
-        }, 250);
-      }
-
-      function renderForum(posts) {
-        list.textContent = '';
-        if (!posts.length) { wrap.hidden = true; return; }
-        posts.forEach(function (p) {
-          var li = document.createElement('li');
-          var a = document.createElement('a');
-          a.href = '/community?post=' + p.id;
-          a.textContent = p.title || '(sem título)';
-          li.appendChild(a);
-          if (p.author && p.author.username) {
-            var by = document.createElement('span');
-            by.style.color = '#888'; by.textContent = ' · @' + p.author.username;
-            li.appendChild(by);
-          }
-          if (p.snippet) {
-            var s = document.createElement('div');
-            s.style.color = '#555'; s.style.fontSize = '.9rem'; s.textContent = p.snippet;
-            li.appendChild(s);
-          }
-          list.appendChild(li);
-        });
-        wrap.hidden = false;
-      }
-
-      function apply(q) { applyLessons(q); applyForum(q); }
-
-      var q0 = new URLSearchParams(location.search).get('q') || '';
-      if (box) box.value = q0;
-      apply(q0);
-      if (box) {
-        box.addEventListener('input', function () { apply(box.value); });
-        if (box.form) box.form.addEventListener('submit', function (e) { e.preventDefault(); apply(box.value); });
-      }
-    })();
-  </script>
+  <script src="/search.js?v=1" defer></script>
 $endif$
 </body>
 </html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrada de Informação Visual — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/entrada-de-informacao-visual.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="entrada-de-informação-visual">Entrada de Informação
+    Visual</h1>
+    <h3 id="definição">Definição</h3>
+    <p>A quantidade e qualidade de imagens que entram na sua cabeça. É a
+    matéria-prima do desenho: você não desenha o que imagina, desenha o
+    que já viu.</p>
+    <blockquote>
+    <p>“Você só consegue desenhar o que você já viu. Então a coisa mais
+    inteligente a se fazer é desenhar um montão de coisas e ver um
+    montão de coisas.”</p>
+    </blockquote>
+    <h3 id="na-prática">Na prática</h3>
+    <ul>
+    <li><strong>Pinterest</strong> é a ferramenta principal: rápido,
+    fácil, e dá para <em>manipular o algoritmo</em> para mostrar
+    exatamente o tipo de imagem que você quer estudar.</li>
+    <li>Vale a pena rolar pins de objetos, anatomia, máquinas —
+    <strong>mesmo sem estar desenhando</strong>. A informação “vai
+    entrando na cabeça” e depois aparece no traço.</li>
+    <li>Para um único projeto (ex.: capa de livro), cheguei a ver ~500
+    imagens de pôsteres japoneses em 4 horas, selecionando os
+    melhores.</li>
+    </ul>
+    <h3 id="por-que-importa">Por que importa</h3>
+    <p>É o primeiro passo do <a
+    href="/wiki/metodo-de-estudo.html">Método de Estudo</a> e a razão
+    pela qual a <a href="/wiki/zona-de-conforto.html">Zona de
+    Conforto</a> funciona: quanto mais você viu de um objeto, mais fácil
+    desenhá-lo de memória.</p>
+    <h3 id="filtrar-por-tempo">Filtrar por tempo</h3>
+    <p>Uma curadoria poderosa: <strong>evitar obras recentes</strong> de
+    propósito. Evito redes sociais, livros e filmes lançados nos últimos
+    anos e consumo obras antigas — animes clássicos, literatura
+    japonesa, livros de Leonardo da Vinci.</p>
+    <p>A lógica: obras recentes ainda não foram filtradas pelo tempo. O
+    que sobreviveu décadas sobreviveu por uma razão. Consumir muito
+    conteúdo recente polui a entrada de informação com o que é lixo
+    descartável.</p>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>Encha os olhos antes de encher o papel. Prefira fontes antigas e
+    filtradas pelo tempo.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Role pins de objetos, anatomia e máquinas todos os dias, mesmo
+    nos dias em que não vai desenhar.</li>
+    <li>Treine o algoritmo do Pinterest curtindo e salvando só o tipo de
+    imagem que você quer estudar.</li>
+    <li>Para um projeto novo, reserve algumas horas para ver centenas de
+    referências e selecionar as melhores antes de começar.</li>
+    <li>Aplique o teste do tempo: evite obras lançadas nos últimos anos
+    e priorize o que sobreviveu décadas.</li>
+    <li>Faça um “jejum dos olhos” de redes sociais por uns dias e troque
+    por animes clássicos, livros antigos e fotos.</li>
+    <li>Antes de desenhar de memória, veja muitas imagens do objeto —
+    você só desenha bem o que já viu bastante.</li>
+    <li>Construa um banco de referência por tema (rostos, mãos, panos,
+    máquinas) para puxar quando precisar.</li>
+    <li>Estude um único objeto por vez: passe um dia só vendo e
+    copiando, por exemplo, dobras de tecido.</li>
+    <li>Misture fontes: fotografia, ilustração, pintura clássica e
+    cinema — não fique preso a um só estilo.</li>
+    <li>Consuma Leonardo da Vinci, literatura japonesa e cinema clássico
+    para elevar a qualidade da sua entrada.</li>
+    <li>Corte conteúdo descartável que polui a entrada e baixa seu
+    padrão.</li>
+    <li>Encha os olhos primeiro, papel depois: nunca comece um desenho
+    com a cabeça “vazia” de referência.</li>
+    </ul>
+    <!-- tags: entrada de informacao visual, input visual, referencia visual, banco de referencia, Pinterest, algoritmo, manipular algoritmo, teste do tempo, obras antigas, jejum dos olhos, desenhar o que viu, memoria visual, desenho de memoria, anatomia, maquinas, objetos, fotografia, ilustracao, pintura classica, cinema, animes classicos, Evangelion, literatura japonesa, Leonardo da Vinci, curadoria, qualidade, quantidade, consumir arte, repertorio, zona de conforto, metodo de estudo, evitar redes sociais, conteudo recente, encher os olhos, visual input, art reference, image study, reference board, study reference, como usar referencia, capa de livro, projeto, posters japoneses, dobras de tecido, rostos, maos, paladar, gosto, alimentar a cabeca -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

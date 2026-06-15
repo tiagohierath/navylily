@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arte que Dura — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/arte-que-dura.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="arte-que-dura">Arte que Dura</h1>
+    <h3 id="definição">Definição</h3>
+    <p>Como a arte que <strong>atravessa eras</strong> é construída: por
+    uma estrutura feita para a memória e por carregar valores. Uma
+    reflexão que conecta poesia, memória e até dinheiro.</p>
+    <h3 id="estrutura-existe-para-memorizar">Estrutura existe para
+    memorizar</h3>
+    <p>A <em>Odisseia</em> de Homero segue o <strong>hexâmetro
+    datílico</strong> — um ritmo rígido. A razão é prática: seria
+    impossível memorizar o poema inteiro sem ritmo.</p>
+    <blockquote>
+    <p>“A memória humana tem um formato de significado. A gente só
+    memoriza aquilo que faz sentido ou que tem algum ritmo.”</p>
+    </blockquote>
+    <p>(Por isso você canta o alfabeto para lembrar a ordem.) Isso
+    ilumina a <a href="/wiki/biblioteca-visual.html">Biblioteca
+    Visual</a>: você memoriza imagens que <strong>fazem
+    sentido</strong>, não dados aleatórios — e ajuda a entender por que
+    entender a <em>função</em> de um objeto faz você decorá-lo em um dia
+    (ver <a href="/wiki/anatomia.html">Anatomia</a>).</p>
+    <h3 id="histórias-são-provérbios-gigantes">Histórias são provérbios
+    gigantes</h3>
+    <p>Poemas e histórias funcionam como uma <strong>bússola</strong> de
+    moralidade, valores e da estrutura do mundo — “provérbios gigantes”.
+    A escrita, aliás, foi inventada na Mesopotâmia para
+    <strong>contabilidade</strong> (registrar dinheiro). Antigamente não
+    havia distinção clara entre arte e artesanato, nem entre
+    escrita-para-economia e histórias — tudo era a mesma categoria.</p>
+    <h3 id="dinheiro-como-informação-durável">Dinheiro como informação
+    durável</h3>
+    <p>No prolongamento econômico (um tema recorrente do canal — ver <a
+    href="/wiki/ferramentas-moldam-voce.html">Ferramentas Moldam
+    Você</a> e <a href="/wiki/inversao.html">Inversão</a>): o dinheiro
+    registra valor de duas formas — <strong>moedas</strong> (diretas) e
+    <strong>listas/ledgers</strong> (indiretas, que exigem confiança).
+    Como a informação é sempre copiável (o “gasto duplo”), no meio
+    digital só funcionam listas. O <strong>Bitcoin</strong> é exatamente
+    isso: uma grande lista (blockchain) descentralizada — as listas da
+    Mesopotâmia, agora digitais e sem necessidade de confiança.</p>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>O que dura tem estrutura para ser lembrado e conteúdo que vale
+    ser lembrado. Ritmo e significado vencem o tempo — no verso, na
+    memória visual e até no registro do dinheiro.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Dê estrutura ao que você quer que seja lembrado: ritmo,
+    repetição, padrão claro.</li>
+    <li>Memorize imagens que fazem sentido (entenda a função do objeto)
+    em vez de decorar dados soltos.</li>
+    <li>Ao desenhar um objeto, estude para que ele serve — entender a
+    função fixa a forma em um dia.</li>
+    <li>Construa suas obras em torno de valores e significados, não só
+    de técnica.</li>
+    <li>Pense nas suas histórias como “provérbios gigantes”: que valor
+    elas transmitem?</li>
+    <li>Estude poesia e mnemônicos para entender como a memória humana
+    guarda informação.</li>
+    <li>Crie sequências fixas (uma ordem sempre igual) para memorizar
+    processos de desenho.</li>
+    <li>Prefira obras com mensagem durável a efeitos vazios que datam
+    rápido.</li>
+    <li>Use ritmo visual na composição (repetição, cadência) para tornar
+    a imagem memorável.</li>
+    <li>Antes de finalizar, pergunte: “isso vale ser lembrado daqui a
+    100 anos?”.</li>
+    <li>Construa um repertório que faça sentido para você, não uma pilha
+    aleatória de referências.</li>
+    <li>Conecte o que aprende a histórias e funções reais, não a
+    fragmentos isolados.</li>
+    </ul>
+    <!-- tags: arte que dura, arte atemporal, memória, mnemônica, ritmo, Odisseia, Homero, hexâmetro datílico, poesia, provérbios, valores na arte, significado, estrutura, contar histórias, storytelling, alfabeto, memorizar, biblioteca visual, função do objeto, anatomia, escrita, Mesopotâmia, contabilidade, dinheiro, Bitcoin, blockchain, ledger, informação durável, gasto duplo, arte e artesanato, legado artístico, obra duradoura, mensagem, composição, cadência visual, repetição, repertório, memória visual, timeless art, memory, rhythm, meaning, durable information, valores, moralidade, bússola moral, criar para durar, profundidade, propósito, registro -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

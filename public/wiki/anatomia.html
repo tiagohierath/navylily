@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anatomia — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/anatomia.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="anatomia">Anatomia</h1>
+    <h3 id="definição">Definição</h3>
+    <p>O estudo da estrutura do corpo humano — ossos e músculos — que
+    sustenta o desenho de figura e <a
+    href="/wiki/como-desenhar-poses.html">Como Desenhar Poses</a>.</p>
+    <h3 id="por-onde-começar">Por onde começar</h3>
+    <p>Para quem começa do zero, o conselho é <strong>retratos a
+    lápis</strong>:</p>
+    <blockquote>
+    <p>“Começa com retratos a lápis, porque você vai aprender sobre
+    proporções… quando você desenha um rosto, você meio que é obrigado a
+    colocar tudo no lugar certo, senão vai ficar bem estranho.”</p>
+    </blockquote>
+    <p>Um rosto não perdoa erro de proporção — diferente de um parque,
+    onde as árvores não precisam estar 100% alinhadas. Por isso o rosto
+    é um bom professor de precisão. Ver <a
+    href="/wiki/materiais-de-desenho.html">Materiais de Desenho</a>
+    (grafite permite apagar).</p>
+    <h3 id="ossos-primeiro">Ossos primeiro</h3>
+    <p>Saber desenhar os ossos é o que permite posicionar os músculos
+    corretamente. A partir do esqueleto, cada músculo “se conecta” num
+    lugar previsível (ver <a href="/wiki/como-desenhar-poses.html">Como
+    Desenhar Poses</a>).</p>
+    <p>Exemplo de leitura de osso: o da perna sai para fora, tem uma
+    bolinha, desce e tem a patela.</p>
+    <h3 id="anatomia-é-cálculo-não-mágica">Anatomia é cálculo, não
+    mágica</h3>
+    <blockquote>
+    <p>“É mais sobre cálculo do que sobre visualizar. Você não precisa
+    imaginar, você pode só ir medindo as coisas relativamente.”</p>
+    </blockquote>
+    <p>Você mede proporções relativas e encaixa. Anatomia é um
+    <strong>quebra-cabeça</strong>: basta saber o formato das peças e
+    conectá-las na malha da <a
+    href="/wiki/perspectiva.html">Perspectiva</a>.</p>
+    <h3 id="linhas-convexas-e-assimétricas">Linhas convexas e
+    assimétricas</h3>
+    <p>Seguindo o estilo dos desenhistas antigos, o corpo é desenhado
+    com <strong>linhas convexas, nunca simétricas</strong> — uma sobe, a
+    outra desce, como uma onda. Lados simétricos deixam o corpo
+    rígido.</p>
+    <h3 id="mapa-do-corpo-de-memória">Mapa do corpo (de memória)</h3>
+    <p>Memorize o corpo em <strong>ângulos fixos</strong>: aprenda de
+    lado e depois de frente, com as mesmas medidas, montando de baixo
+    para cima. Algumas referências:</p>
+    <ul>
+    <li><strong>Tronco</strong>: caixa torácica (tórax), barriga,
+    pélvis/bacia (uma caixa).</li>
+    <li><strong>Proporção dos braços</strong>: a primeira parte termina
+    no umbigo; a segunda, no meio da coxa.</li>
+    <li><strong>Costas/ombros</strong>: trapézio (prende na escápula e
+    na frente da clavícula), latíssimo do dorso, sacro (triângulo no fim
+    da coluna), esternocleidomastoideo (gira o pescoço), deltoide com
+    três partes (incl. <em>rear delts</em>).</li>
+    <li><strong>Quadril</strong> levemente inclinado para a frente; o
+    “bumbum” tem formato de borboleta.</li>
+    <li><strong>Pernas</strong>: cilindros. A canela aponta para fora e
+    para trás (divida a perna em 4); o ossinho do tornozelo aponta para
+    <strong>dentro</strong>; o pé é mais alto no lado do dedão.</li>
+    </ul>
+    <h3 id="o-modelo-de-caixas-por-onde-começar">O modelo de caixas (por
+    onde começar)</h3>
+    <p>O modelo mais simples — e, para mim, o melhor — é montar o corpo
+    em <strong>caixas e cilindros</strong>, sem exigir proporções
+    matematicamente perfeitas:</p>
+    <ul>
+    <li>As <strong>pernas</strong> começam mais ou menos no
+    <strong>meio</strong> do corpo.</li>
+    <li>O <strong>braço</strong> se divide na <strong>linha do
+    umbigo</strong>; as <strong>mãos</strong> ficam no meio da
+    coxa.</li>
+    <li><strong>Cabeça</strong> = caixa; <strong>pescoço</strong> =
+    cilindro; <strong>tórax</strong> = caixa;
+    <strong>barriga/core</strong> = cilindro; <strong>quadril</strong>;
+    <strong>pernas e braços</strong> = cilindros; mãos simplificadas
+    (com o dedão).</li>
+    <li>Treine o <strong>turn-around</strong>: o mesmo corpo de frente e
+    de lado, mantendo as medidas. Você precisa saber desenhar isso em
+    qualquer ângulo — mas não estagne nessa fase; avance rápido.</li>
+    </ul>
+    <h3 id="formas-orgânicas-sobre-as-caixas">Formas orgânicas sobre as
+    caixas</h3>
+    <p>Depois, troque as caixas por formas reais:</p>
+    <ul>
+    <li><strong>Caixa torácica</strong> — não precisa desenhar todas as
+    costelas; basta o formato. Esterno na frente,
+    <strong>clavícula</strong> como um “guidão de bicicleta”,
+    <strong>escápula</strong> atrás (dois triângulos).</li>
+    <li><strong>Bacia/pélvis</strong> — um “balde” com dois encaixes e
+    um furo embaixo. Mais complexa, mas aprendível.</li>
+    <li>Sobre os ossos, conecte os músculos (peitoral, ombro, abdômen,
+    quadríceps; dois ossos no antebraço).</li>
+    </ul>
+    <h3 id="anatomia-como-espectro-taco-1704">Anatomia como espectro
+    (Taco 1704)</h3>
+    <p>O artista coreano Taco 1704 ensina anatomia de forma dinâmica em
+    vez de estática: em vez de uma imagem fixa a copiar, ele mostra
+    <strong>variações entre extremos</strong> — como frames de uma
+    animação.</p>
+    <p>Exemplo: sobrancelha alta vs. baixa é um espectro com infinitos
+    valores entre os dois extremos. Cada ponto do espectro produz um
+    efeito diferente (gênero percebido, idade, personalidade,
+    perspectiva).</p>
+    <p>Isso difere do método tradicional de copiar imagens estáticas. O
+    Tom Fox Draws faz algo similar no livro <em>Anatomy in Form</em>. A
+    utilidade: você aprende não só o que existe, mas <strong>o que varia
+    e por quê</strong>.</p>
+    <h3 id="não-pule-a-finalização">Não pule a finalização</h3>
+    <p>Ao contrário de quem diz que finalizar não importa, eu
+    insisto:</p>
+    <blockquote>
+    <p>“A finalização mostra o volume das coisas. Não adianta só
+    sinalizar o volume com algumas linhas.”</p>
+    </blockquote>
+    <p>Use a finalização de <em>academic drawing</em>: escolha
+    <strong>um lado para a sombra</strong> e sombreie. Inspire-se em
+    estátuas gregas.</p>
+    <h3 id="referências-e-prática">Referências e prática</h3>
+    <p><strong>Charles Bargue</strong> (estudos clássicos),
+    <strong>Michael Hampton</strong> (<em>Design and Invention</em>,
+    fácil de achar de graça), <strong>Morpho</strong>, <strong>George
+    Bridgman</strong>, <strong>Tom Fox</strong>. Ver <a
+    href="/wiki/usar-livros.html">Usar Livros</a>. O método de estudo (o
+    “rodízio de anatomia”): copiar um livro inteiro, <strong>todas as
+    imagens</strong> — e fazer desenhos <strong>maiores</strong>
+    (iniciante: o dobro do tamanho). Depois, desenhar <strong>de
+    memória</strong>, conferir erros e repetir (ver <a
+    href="/wiki/metodo-de-estudo.html">Método de Estudo</a>). É brutal e
+    simples:</p>
+    <blockquote>
+    <p>“Você vai pegar livro de anatomia e fotos de pessoas e vai
+    desenhar incansavelmente até a sua alma ser destruída.”</p>
+    </blockquote>
+    <h3 id="o-erro-de-fora-para-dentro">O erro de fora para dentro</h3>
+    <p>O erro mais comum do iniciante é desenhar <strong>de fora para
+    dentro</strong>: faz o contorno do braço ou da perna sem pensar no
+    que há dentro.</p>
+    <p>A forma correta é o contrário — construir <strong>de dentro para
+    fora</strong>:</p>
+    <ol type="1">
+    <li>Esqueleto primeiro (úmero, rádio, ulna; tórax, coluna,
+    pélvis).</li>
+    <li>Músculos grandes sobre os ossos.</li>
+    <li>Detalhes por cima.</li>
+    </ol>
+    <h3 id="ordem-de-estudo-fotos-livros-arte-de-outros">Ordem de
+    estudo: fotos &gt; livros &gt; arte de outros</h3>
+    <p>Para construir intuição de poses e volumes:</p>
+    <ol type="1">
+    <li><strong>Fotos</strong> primeiro — você precisa de um milhão de
+    variações; sem elas não tem intuição.</li>
+    <li><strong>Livros</strong> — para entender a estrutura interna (não
+    dá para adivinhar anatomia olhando só para a pele).</li>
+    <li><strong>Arte de outros</strong> — referência mais estilizada;
+    útil depois que você tem base real.</li>
+    </ol>
+    <h3 id="fases-de-estudo">Fases de estudo</h3>
+    <ul>
+    <li><strong>Fase intensiva</strong> (~6 meses): copie vários livros
+    inteiros, todas as imagens. Faça desenhos maiores (iniciante: dobro
+    do tamanho).</li>
+    <li><strong>Depois</strong>: estudo esporádico e específico (ex.: um
+    livro só sobre mãos).</li>
+    <li><strong>Final</strong>: abandone os livros. Você não precisa
+    estudar anatomia para sempre.</li>
+    </ul>
+    <blockquote>
+    <p>“No começo fiz uma quantidade absurda — uns 500 páginas, 1 milhão
+    de desenhos. Agora quase não preciso, já tá internalizado.”</p>
+    </blockquote>
+    <h3 id="anatomia-não-precisa-ser-hiper-realista">Anatomia não
+    precisa ser hiper-realista</h3>
+    <p>Se seu estilo é simplificado, você não precisa saber todos os
+    músculos em detalhe. O objetivo mínimo: saber suficiente para que o
+    corpo <strong>pareça correto</strong> ao leitor, mesmo simplificado.
+    Depois das fundações, a anatomia vira elo secundário.</p>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>Estrutura interna explica a forma externa. Aprenda de dentro para
+    fora, use fotos antes de livros, faça uma fase intensiva e depois
+    abandone. O resto vem com repetição.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Comece pelos ossos: desenhe o esqueleto antes de qualquer
+    músculo.</li>
+    <li>Construa o corpo de dentro para fora (esqueleto → músculos
+    grandes → detalhes), nunca contornando de fora.</li>
+    <li>Monte cada figura com caixas e cilindros antes de buscar formas
+    reais.</li>
+    <li>Treine o turn-around: o mesmo corpo de frente e de lado mantendo
+    as medidas.</li>
+    <li>Memorize as proporções-chave: braço se divide no umbigo, mãos no
+    meio da coxa, pernas começam no meio do corpo.</li>
+    <li>Desenhe o corpo com linhas convexas e assimétricas (uma sobe, a
+    outra desce), nunca espelhadas.</li>
+    <li>Para começar do zero, faça retratos a lápis para treinar
+    precisão de proporção.</li>
+    <li>Estude um músculo como espectro (ex.: sobrancelha alta
+    vs. baixa), variando entre extremos como frames de animação.</li>
+    <li>Não pule a finalização: escolha um lado para a sombra e
+    renderize o volume, inspirado em estátuas gregas.</li>
+    <li>Faça uma fase intensiva (~6 meses) copiando livros inteiros,
+    todas as imagens, em tamanho dobrado.</li>
+    <li>Use fotos primeiro, depois livros, e só então arte de outros
+    artistas.</li>
+    <li>Aplique active recall: copie com referência, cubra, refaça de
+    memória, compare.</li>
+    <li>Depois de internalizar, abandone os livros e estude só pontos
+    específicos (ex.: um livro só de mãos).</li>
+    </ul>
+    <!-- tags: anatomia, anatomia para artistas, desenho de figura, ossos, músculos, esqueleto, proporções, caixa torácica, pélvis, clavícula, escápula, deltoide, trapézio, latíssimo, retrato a lápis, construção de dentro para fora, caixas e cilindros, turn-around, finalização, sombreamento, estátuas gregas, Charles Bargue, Michael Hampton, George Bridgman, Morpho, Tom Fox, Taco 1704, anatomia como espectro, active recall, repetição espaçada, foto antes de livro, fase intensiva, copiar livros, desenho de memória, quebra-cabeça anatômico, perspectiva, corpo humano, figura humana, antebraço, rádio ulna, úmero, bacia, tórax, mão, pé, canela, tornozelo, anatomy, figure drawing, human body, construction, drawing humans, leitura de osso -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

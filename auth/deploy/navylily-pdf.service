@@ -1,0 +1,25 @@
+# Navy Lily monthly course-PDF build (systemd oneshot, fired by the timer).
+#
+# Runs pdf.sh, which rebuilds public/downloads/curso-gratuito.pdf in place
+# (each build atomically replaces — i.e. deletes — the previous month's file).
+#
+# Install (together with navylily-pdf.timer):
+#   sudo cp auth/deploy/navylily-pdf.service auth/deploy/navylily-pdf.timer /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now navylily-pdf.timer
+#   systemctl list-timers navylily-pdf.timer   # next run
+#   sudo systemctl start navylily-pdf.service  # build right now
+#
+# Needs typst on tiago's PATH (~/.local/bin/typst) and pandoc.
+
+[Unit]
+Description=Navy Lily monthly course PDF build
+
+[Service]
+Type=oneshot
+User=tiago
+WorkingDirectory=/home/tiago/navylily
+Environment=PATH=/home/tiago/.local/bin:/usr/local/bin:/usr/bin
+ExecStart=/home/tiago/navylily/pdf.sh
+NoNewPrivileges=true
+PrivateTmp=true

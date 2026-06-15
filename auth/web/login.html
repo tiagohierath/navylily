@@ -5,43 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Entrar — Navy Lily</title>
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
-  <style>
-    body { font-family: serif; margin: 0; }
-    header.site {
-      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-      padding: .75rem 1rem; border-bottom: 1px solid #ddd;
-    }
-    header.site .brand {
-      font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
-    }
-    header.site .btn {
-      font: inherit; text-decoration: none; color: inherit;
-      border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
-    }
-    main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
-  </style>
+  <link rel="stylesheet" href="/site.css?v=1">
 </head>
-<body>
+<body bgcolor="white">
   <header class="site">
-    <a class="brand" href="/"><img src="/logo.png?v=2" alt="Navy Lily Works" style="height:28px;width:auto;display:block"></a>
-    <a class="btn" href="/community">Comunidade</a>
-    <a class="btn" href="/comprar">Navy</a>
-    <a class="btn" href="/login">Perfil</a>
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
   </header>
   <main>
-  <form method="POST" action="/auth/login">
+  <form id="form" method="POST" action="/auth/login">
     <h1>Entrar na Navy Lily</h1>
-    <p id="erro" style="color:#b00;" hidden>E-mail ou senha incorretos.</p>
+    <!--ERRO-->
     <p>
       <label for="email">E-mail</label><br>
-      <input id="email" name="email" type="email" required placeholder="voce@email.com" autofocus>
+      <input id="email" name="email" type="email" required placeholder="voce@email.com" autocomplete="email" autofocus>
     </p>
     <p>
       <label for="password">Senha</label><br>
-      <input id="password" name="password" type="password" required placeholder="sua senha">
+      <input id="password" name="password" type="password" required placeholder="sua senha" autocomplete="current-password">
+      <button id="toggle" type="button" aria-pressed="false" hidden>Mostrar</button>
     </p>
+    <p id="caps" role="status" style="color:#b00; font-size:.85em;" hidden>Caps Lock está ativado.</p>
     <input id="next" name="next" type="hidden">
-    <button type="submit">Entrar</button>
+    <button id="submit" type="submit">Entrar</button>
     <p><a id="forgot" href="/forgot">Esqueci minha senha</a></p>
     <p>Ainda não tem conta? <a id="signup" href="/signup">Criar conta</a>.</p>
   </form>
@@ -51,9 +40,6 @@
     // so they land back on it. Only same-origin relative paths.
     (function () {
       const params = new URLSearchParams(location.search);
-      if (params.get('erro')) {
-        document.getElementById('erro').hidden = false;
-      }
       const next = params.get('next') || '';
       if (next.startsWith('/') && !next.startsWith('//')) {
         document.getElementById('next').value = next;
@@ -62,15 +48,63 @@
         document.getElementById('signup').href = '/signup' + qs;
         document.getElementById('forgot').href = '/forgot' + qs;
       }
-      // Welcome / gift links arrive with ?email= so members don't have to
-      // retype it — prefill the field.
+      // Welcome / gift links (and error redirects) arrive with ?email= so the
+      // address doesn't have to be retyped — prefill and jump to the password.
       const email = params.get('email') || '';
       if (email.includes('@')) {
         document.getElementById('email').value = email;
         document.getElementById('password').focus();
+        const forgot = document.getElementById('forgot');
+        forgot.href += (forgot.href.includes('?') ? '&' : '?') + 'email=' + encodeURIComponent(email);
       }
+      // The error block is rendered into the page server-side from ?erro=...;
+      // if it's missing (server/HTML version skew), surface it client-side so
+      // a failed login is never silent.
+      if (params.get('erro') && !document.getElementById('erro')) {
+        const p = document.createElement('p');
+        p.id = 'erro';
+        p.setAttribute('role', 'alert');
+        p.style.color = '#b00';
+        p.textContent = params.get('erro') === 'confirma'
+          ? 'Sua conta ainda não foi confirmada. Abra o link que enviamos por e-mail (confira também o spam).'
+          : 'E-mail ou senha incorretos.';
+        const form = document.getElementById('form');
+        form.insertBefore(p, form.children[1]);
+      }
+      // Drop the param so a refresh or bookmark shows a clean form again.
+      if (params.get('erro')) {
+        params.delete('erro');
+        const qs = params.toString();
+        history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
+      }
+
+      const pw = document.getElementById('password');
+      // Show/hide password — catches the typo before the generic error does.
+      // The button starts hidden so it only appears when JS is running.
+      const toggle = document.getElementById('toggle');
+      toggle.hidden = false;
+      toggle.addEventListener('click', function () {
+        const show = pw.type === 'password';
+        pw.type = show ? 'text' : 'password';
+        toggle.textContent = show ? 'Ocultar' : 'Mostrar';
+        toggle.setAttribute('aria-pressed', String(show));
+        pw.focus();
+      });
+      // Warn about Caps Lock while typing the password.
+      pw.addEventListener('keyup', function (e) {
+        if (e.getModifierState) {
+          document.getElementById('caps').hidden = !e.getModifierState('CapsLock');
+        }
+      });
+      // One submission at a time: a pending label instead of a frozen-looking
+      // page, and no duplicate POST from a second click.
+      document.getElementById('form').addEventListener('submit', function () {
+        const b = document.getElementById('submit');
+        b.disabled = true;
+        b.textContent = 'Entrando…';
+      });
     })();
   </script>
-  <script src="/header.js" defer></script>
+  <script src="/header.js?v=11" defer></script>
 </body>
 </html>

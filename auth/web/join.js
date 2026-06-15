@@ -1,10 +1,11 @@
 // Navy Lily — inline Join / checkout widget.
 //
-// Injected at the end of every free lesson via <div id="navy-join"></div> +
-// <script src="/join.js"></script>. No login required: the visitor types their
-// e-mail here, picks PIX (transparent, on this page) or credit card (AbacatePay
-// hosted checkout). On a confirmed PIX payment we grant access and e-mail a
-// login link so they can open the paid lessons.
+// Injected at the end of every lesson via <div id="navy-join"></div> +
+// <script src="/join.js"></script>. The whole course is free; the Navy
+// subscription only unlocks posting and commenting in the Community. No login
+// required: the visitor types their e-mail here, picks PIX (transparent, on
+// this page) or credit card (AbacatePay hosted checkout). On a confirmed PIX
+// payment we grant access and e-mail a login link so they can post.
 (function () {
   var root = document.getElementById("navy-join");
 
@@ -38,23 +39,23 @@
   ];
 
   // Step 0: a clickable 16:9 banner image (the "Join" call to action).
-  // Clicking it opens the checkout (e-mail + PIX/card) inline, on this page.
+  // Clicking it goes to the community feedback board.
   function showIntro() {
     var src = ADS[Math.floor(Math.random() * ADS.length)];
     h(
-      '<a id="nj-join" href="#" style="display:block;margin-top:2.5rem;text-decoration:none;">' +
-        '<img src="' + esc(src) + '" alt="Navy Assinatura — adquirir o curso" ' +
+      '<a id="nj-join" href="/community?board=feedback" style="display:block;margin-top:2.5rem;text-decoration:none;">' +
+        '<img src="' + esc(src) + '" alt="Navy Assinatura — feedback na comunidade" loading="lazy" ' +
           'style="display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border:1px solid #ddd;border-radius:8px;">' +
       "</a>"
     );
-    $("nj-join").addEventListener("click", function (e) { e.preventDefault(); showMethods(); });
   }
 
   // Step 1: e-mail + payment method.
   function showMethods() {
     h(
       '<aside style="border:1px solid #ddd;border-radius:8px;padding:1rem 1.25rem;margin-top:2.5rem;font-family:system-ui,sans-serif;">' +
-        '<strong style="font-size:1.1rem;">Navy Assinatura — R$ 197/ano</strong>' +
+        '<strong style="font-size:1.1rem;">Navy Assinatura — R$ 497/ano</strong>' +
+        '<p style="margin:.4rem 0 .2rem;">O curso é gratuito. A assinatura libera postar e receber feedback na Comunidade.</p>' +
         '<p style="margin:.6rem 0 .2rem;"><label for="nj-email">Seu e-mail</label></p>' +
         '<p style="margin:.2rem 0;"><input id="nj-email" type="email" placeholder="voce@email.com" value="' + esc(email) + '" style="width:100%;max-width:20rem;"></p>' +
         '<p id="nj-err" style="margin:.2rem 0;color:#b00;" hidden></p>' +
@@ -88,8 +89,15 @@
     var v = readEmail();
     if (!v) return;
     email = v;
+    createPix();
+  }
+
+  // createPix opens a charge for the already-validated `email`. Split from
+  // startPix so the "Gerar novo PIX" button on an expired charge can reuse it
+  // without a page reload (which would lose the typed e-mail).
+  function createPix() {
     h('<aside style="border:1px solid #ddd;border-radius:8px;padding:1rem 1.25rem;margin-top:2.5rem;font-family:system-ui,sans-serif;"><p>Gerando seu PIX…</p></aside>');
-    var body = new URLSearchParams({ email: v });
+    var body = new URLSearchParams({ email: email });
     fetch("/pix/new", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body })
       .then(function (r) { if (!r.ok) throw new Error("pix/new " + r.status); return r.json(); })
       .then(function (d) { chargeId = d.id; showPix(d); poll(); })
@@ -100,7 +108,7 @@
     h(
       '<aside style="border:1px solid #ddd;border-radius:8px;padding:1rem 1.25rem;margin-top:2.5rem;font-family:system-ui,sans-serif;">' +
         "<p>Escaneie o QR Code com o app do seu banco:</p>" +
-        '<img alt="QR Code PIX" width="240" height="240" style="display:block;margin:1rem 0;" src="' + esc(d.brCodeBase64) + '">' +
+        '<img alt="QR Code PIX" width="240" height="240" loading="lazy" style="display:block;margin:1rem 0;" src="' + esc(d.brCodeBase64) + '">' +
         "<p>Ou use o PIX copia e cola:</p>" +
         '<textarea id="nj-brcode" rows="3" readonly style="width:100%;font-family:monospace;">' + esc(d.brCode) + "</textarea>" +
         '<p><button id="nj-copy" type="button">Copiar código</button></p>' +
@@ -109,8 +117,20 @@
     );
     $("nj-copy").addEventListener("click", function () {
       var t = $("nj-brcode");
+      var btn = $("nj-copy");
       t.select();
-      if (navigator.clipboard) navigator.clipboard.writeText(t.value);
+      // Confirm on the button itself, then put the label back (same feedback
+      // as the /comprar page); execCommand covers clipboard-less WebViews.
+      var done = function () {
+        btn.textContent = "Copiado ✓";
+        setTimeout(function () { btn.textContent = "Copiar código"; }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(t.value).then(done, function () { document.execCommand("copy"); done(); });
+      } else {
+        document.execCommand("copy");
+        done();
+      }
     });
   }
 
@@ -120,8 +140,16 @@
       .then(function (d) {
         if (d.status === "PAID" || d.status === "APPROVED") { showPaid(d); return; }
         if (d.status === "EXPIRED" || d.status === "CANCELLED" || d.status === "FAILED") {
+          // A fresh charge is one click away — never "reload the page" at the
+          // moment someone is trying to pay.
           var s = $("nj-status");
-          if (s) s.textContent = "PIX expirado. Recarregue a página para gerar outro.";
+          if (!s) return;
+          s.textContent = "PIX expirado. ";
+          var b = document.createElement("button");
+          b.type = "button";
+          b.textContent = "Gerar novo PIX";
+          b.addEventListener("click", createPix);
+          s.appendChild(b);
           return;
         }
         setTimeout(poll, 4000);
@@ -131,9 +159,9 @@
 
   function showPaid(d) {
     var next = d.logged_in
-      ? '<p>Seu acesso foi liberado. <a href="/protected/">Ir para as aulas →</a></p>'
+      ? '<p>Seu acesso foi liberado. <a href="/community">Ir para a comunidade →</a></p>'
       : "<p>Seu acesso foi liberado. Enviamos um <strong>link de acesso</strong> para <strong>" + esc(email) +
-        "</strong> — abra-o para entrar nas aulas pagas.</p>";
+        "</strong> — abra-o para entrar e postar na comunidade.</p>";
     h(
       '<aside style="border:1px solid #ddd;border-radius:8px;padding:1rem 1.25rem;margin-top:2.5rem;font-family:system-ui,sans-serif;">' +
         "<strong style=\"font-size:1.1rem;\">✅ Pagamento confirmado!</strong>" + next +

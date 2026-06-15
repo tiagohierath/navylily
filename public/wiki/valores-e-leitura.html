@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Valores e Leitura — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/valores-e-leitura.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="valores-e-leitura">Valores e Leitura</h1>
+    <h3 id="definição">Definição</h3>
+    <p><strong>Valores</strong> = tom/luminosidade de uma cor (quão
+    claro ou escuro ela é).<br />
+    <strong>Leitura</strong> = quão fácil é entender o desenho à
+    primeira vista.</p>
+    <p>São dois conceitos separados mas ligados: bons valores produzem
+    boa leitura.</p>
+    <h3 id="como-checar-a-leitura">Como checar a leitura</h3>
+    <p>Três técnicas práticas:</p>
+    <ol type="1">
+    <li><strong>Olho de chinês (squint)</strong>: semicerre os olhos até
+    o desenho borrar. Se você ainda entende, a leitura é boa.</li>
+    <li><strong>Afaste-se</strong>: dê alguns passos para trás. O
+    desenho deve segurar o sentido mesmo de longe.</li>
+    <li><strong>Tons de cinza</strong>: converta ou visualize em preto e
+    branco para checar os valores separadamente da cor.</li>
+    </ol>
+    <h3 id="proporção-pretobranco">Proporção preto/branco</h3>
+    <p>Eu penso em proporção: de todos os pixels do desenho, quantos são
+    brancos? Cinzas? Pretos?</p>
+    <p>Duas proporções úteis em P&amp;B:</p>
+    <ul>
+    <li><strong>50/50</strong>: metade do desenho escuro, metade branco.
+    O erro mais comum do iniciante é ter apenas a line art (1-10%
+    escuro) — o resultado parece amador e vazio.</li>
+    <li><strong>80/20 (Pareto)</strong>: 80% de uma cor dominante
+    (escuro ou branco), 20% da outra. Exemplos: cena noturna quase toda
+    preta com rosto claro; ou cena diurna branca com detalhes em
+    preto.</li>
+    </ul>
+    <blockquote>
+    <p>“Se o desenho não ficou bom, tenta colocar mais tinta. 99% das
+    vezes resolve.”</p>
+    </blockquote>
+    <p>Ao desenhar com tinta em P&amp;B, cubra pelo menos
+    <strong>10-50%</strong> da área com escuro. Ver <a
+    href="/wiki/contraste.html">Contraste</a>.</p>
+    <h3 id="preto-absoluto-guarde-para-o-mais-importante">Preto
+    absoluto: guarde para o mais importante</h3>
+    <p>Se você não for usar preto absoluto em todo o desenho,
+    <strong>guarde-o para olhos, boca e nariz</strong>. É o que os
+    pintores antigos faziam — o preto mais escuro vai no rosto porque é
+    o foco da atenção.</p>
+    <h3 id="alto-contraste-no-foco-baixo-no-resto">Alto contraste no
+    foco, baixo no resto</h3>
+    <p>Coloque o maior contraste (branco absoluto vs preto absoluto) na
+    área mais importante, geralmente o rosto. No resto do corpo, use
+    cinzas ou menos contraste. Isso direciona o olhar sem que o resto
+    briga pela atenção.</p>
+    <h3 id="relação-com-outros-conceitos">Relação com outros
+    conceitos</h3>
+    <ul>
+    <li>Leitura é a aplicação prática de <a
+    href="/wiki/contraste.html">Contraste</a> e <a
+    href="/wiki/composicao.html">Composição</a>.</li>
+    <li>Valores surgem naturalmente de quem sempre desenhou em preto e
+    branco.</li>
+    <li><a href="/wiki/desenho-de-observacao.html">Desenho de
+    Observação</a>: o squint é a mesma técnica de conferir o todo de
+    longe.</li>
+    </ul>
+    <h3 id="conclusão">Conclusão</h3>
+    <p>Cheque sempre se o seu desenho é legível — de longe, com os olhos
+    semicerrados, em tons de cinza. Mantenha ao menos 10% de área escura
+    para criar contraste.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Semicerro os olhos (squint) até o desenho borrar para testar se
+    a leitura segura.</li>
+    <li>Dou alguns passos para trás e vejo se o desenho ainda faz
+    sentido de longe.</li>
+    <li>Converto o desenho para tons de cinza para checar os valores
+    separados da cor.</li>
+    <li>Calculo mentalmente a proporção de branco, cinza e preto do
+    desenho.</li>
+    <li>Evito o erro de iniciante de deixar só a line art (1-10%
+    escuro).</li>
+    <li>Cubro pelo menos 10 a 50% da área com escuro ao desenhar a tinta
+    em P&amp;B.</li>
+    <li>Uso 50/50 quando quero equilíbrio entre área clara e
+    escura.</li>
+    <li>Uso 80/20 (Pareto) quando quero uma cor dominante com toques da
+    outra.</li>
+    <li>Guardo o preto absoluto para olhos, boca e nariz quando não for
+    usá-lo em tudo.</li>
+    <li>Coloco o maior contraste (branco vs preto absoluto) na área mais
+    importante, o rosto.</li>
+    <li>Uso cinzas e menos contraste no resto do corpo para não competir
+    com o foco.</li>
+    <li>Quando o desenho não fica bom, tento colocar mais tinta antes de
+    qualquer outra coisa.</li>
+    </ul>
+    <!-- tags: valores, valor, tom, luminosidade, leitura, legibilidade, readability, squint, olho semicerrado, afastar, tons de cinza, preto e branco, P&B, proporção preto branco, 50/50, 80/20, pareto, contraste, preto absoluto, branco absoluto, foco, ponto focal, rosto, olhos boca nariz, line art, área escura, mais tinta, cobertura, composição, hierarquia visual, direcionar o olhar, value, lightness, grayscale, black and white, focal point, contrast, value study, estudo de valores, claro escuro, chiaroscuro, mancha, distribuição de valor, tinta, nanquim, cena noturna, cena diurna, dominante, equilíbrio, leitura à distância, amador, profissional, sketchbook -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>

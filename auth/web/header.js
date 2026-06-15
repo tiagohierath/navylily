@@ -51,7 +51,7 @@
     box.style.borderRadius = '4px'; // square, just softened corners
     box.style.overflow = 'hidden';
     box.style.verticalAlign = 'middle';
-    box.style.border = '1px solid #ccc';
+    box.className = 'hdr-ava'; // colors + border via the theme stylesheet below
     box.style.boxSizing = 'border-box';
 
     // A square with the first letter of the name/e-mail. Used when there's no
@@ -60,14 +60,13 @@
     function setInitial() {
       var ch = d.initial || (username || d.email || '?').charAt(0);
       box.textContent = ch.toUpperCase();
-      box.style.background = '#eee';
       box.style.textAlign = 'center';
-      box.style.font = '600 18px/32px serif';
-      box.style.color = '#333';
+      box.style.font = '600 18px/32px "Source Sans 3", sans-serif';
     }
 
     if (d.has_avatar) {
       var img = document.createElement('img');
+      img.loading = 'lazy';
       img.src = '/avatar/me?v=' + (d.avatar_ver || 0);
       img.alt = link.title;
       img.style.width = '100%';
@@ -99,12 +98,131 @@
         username: d.username, has_avatar: d.has_avatar,
         avatar_ver: d.avatar_ver, email: d.email
       });
-      // Members aren't shoppers: their "Navy" button goes to the paid lessons
-      // instead of the checkout (the label is the brand, so it stays).
+      // Members aren't shoppers: drop their "Navy" (checkout) button — it also
+      // frees header room on phones.
       if (d.member) {
         var navy = document.querySelector('header.site a.btn[href="/comprar"]');
-        if (navy) { navy.setAttribute('href', '/protected/'); navy.title = 'Aulas pagas'; }
+        if (navy) navy.parentNode.removeChild(navy);
       }
     })
     .catch(function () { /* offline: leave whatever we painted */ });
 })();
+
+// Dark mode — lives here so every page with the header gets it without each
+// file carrying its own stylesheet. The rules are injected after the page's
+// <style>, so equal-specificity overrides win by order; inputs need !important
+// to outrank the navy form-control rules that also use it.
+(function () {
+  var KEY = 'nl-theme';
+  function saved() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  var dark = saved() ? saved() === 'dark'
+    : !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+
+  var css = document.createElement('style');
+  css.textContent =
+    '@media(max-width:480px){.lbl-rest{display:none}}' +
+    // The header avatar initial keeps its colors here (not inline) so dark
+    // mode can flip them; comprar's palette lives in vars, flipped the same way.
+    '.hdr-ava{background:#eee;color:#333;border:1px solid #ccc}' +
+    'html.dark .hdr-ava{background:#1A2C49;color:#D9E2F0;border-color:#3D5A80}' +
+    'html.dark{color-scheme:dark;--ink:#D9E2F0;--muted:#94A9C9;--line:#2C476E}' +
+    'html.dark body{background:#070D17;color:#D9E2F0}' +
+    'html.dark header.site{background:#0D1A2E}' +
+    'html.dark header.site .btn{border-color:#3D5A80}' +
+    // Prev/next lesson buttons: filled (like the light theme), not border-only,
+    // so the way onward stays as visible on dark as on white.
+    'html.dark nav.lesson-nav a{background:#28456B;border-color:#3D5A80;color:#fff}' +
+    'html.dark main a{color:#9FC2F0}' +
+    'html.dark .article a{color:inherit;background:rgba(255,255,255,.06)}' +
+    'html.dark .article span.thumb{background:linear-gradient(#14233C,#1B2F4F)}' +
+    'html.dark .hint,html.dark .meta .time,html.dark .meta .anon,html.dark .count,' +
+      'html.dark .compose-hint,html.dark .article .preview,html.dark .readtime,' +
+      'html.dark details.more summary{color:#94A9C9}' +
+    'html.dark details.more summary:hover{color:#9FC2F0}' +
+    'html.dark .post,html.dark .comments,html.dark #compose,html.dark details.toc,' +
+      'html.dark #compose-md-preview{border-color:#2C476E}' +
+    'html.dark .md pre{background:#0D1A2E}' +
+    'html.dark .md blockquote{border-color:#3D5A80;color:#ADBFDA}' +
+    'html.dark .md a,html.dark .linkbtn{color:#9FC2F0}' +
+    'html.dark .del,html.dark .confirm .yes,html.dark .err{color:#FF9D9D}' +
+    'html.dark .ok{color:#86D592}' +
+    'html.dark .ava{background:#1A2C49;border-color:#3D5A80;color:#D9E2F0}' +
+    'html.dark .avatar{background:#1A2C49;border-color:#3D5A80;color:#D9E2F0}' +
+    // The wordmark is pure black on transparent; invert it to white on dark.
+    'html.dark header.site .brand img{filter:invert(1)}' +
+    'html.dark .heatmap .num{color:#D9E2F0}' +
+    'html.dark .heatmap .label,html.dark .heatmap .today{color:#94A9C9}' +
+    'html.dark .heatmap .divider{background:#2C476E}' +
+    // Dark heatmap ladder: brighter = more (these out-specify the page's
+    // .heatmap .l1..l4, so each step must be restated).
+    'html.dark .heatmap .month{background:#14233C}' +
+    'html.dark .heatmap .l1{background:#28456B}' +
+    'html.dark .heatmap .l2{background:#3D6CAC}' +
+    'html.dark .heatmap .l3{background:#6E9BD8}' +
+    'html.dark .heatmap .l4{background:#A9C6F0}' +
+    'html.dark a[role=button]{background:#0D1A2E;border-color:#3D5A80}' +
+    'html.dark .post-img,html.dark #compose-img-preview img{border-color:#2C476E}' +
+    'html.dark input,html.dark select,html.dark textarea{background:#0D1A2E !important;' +
+      'color:#D9E2F0 !important;border-color:#3D5A80 !important}' +
+    'html.dark input::placeholder,html.dark textarea::placeholder{color:#7E97BD !important}';
+  document.head.appendChild(css);
+
+  function paint() { document.documentElement.classList.toggle('dark', dark); }
+  paint();
+
+  // Random emoji on the Navy (⛵) nav button — picks a new one each page load.
+  var navyEmojis = ['⛵','🎨','🖌️','✏️','🖊️','🗿','🎭','🦋','🌊','🐚','🏺','🔭','🎬','🪄','🧭','🗺️','⚗️','🦜','🌿','🐉','🪸','🦑','🧿','🪬','🫀','🧠','🦷','👁️','🪤','🎪','🧲','🪝','🫧','🪣','🧯','🪦','⚰️','🧬','🔬','🩻','🪬','🎏','🪭','🫁','🧶','🪡','🎑','🏮','🪔','🕯️','🔮','🪩','🩰','🪆','🎠','🌋','🗼','🏚️','🪨','🌑','🪐','☄️','🌀','🕳️','🫙','🪬','🧿','🐌','🦠','🪲','🦀','🐙','🦭','🐡','🦚','🦩','🦢','🪶','🍄','🌵','🌾','🪸'];
+  var navyBtn = document.querySelector('header.site a.btn[href="/comprar"]');
+  if (navyBtn) navyBtn.textContent = navyEmojis[Math.floor(Math.random() * navyEmojis.length)];
+
+  var hd = document.querySelector('header.site');
+  if (!hd) return;
+  var btn = document.createElement('a');
+  btn.className = 'btn'; btn.href = '#'; btn.setAttribute('role', 'button');
+  function label() {
+    btn.textContent = dark ? '☀️' : '🌙';
+    btn.title = btn.ariaLabel = dark ? 'Tema claro' : 'Tema escuro';
+  }
+  label();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    dark = !dark;
+    try { localStorage.setItem(KEY, dark ? 'dark' : 'light'); } catch (e2) {}
+    paint(); label();
+  });
+  hd.appendChild(btn);
+})();
+
+// Keyboard shortcuts, site-wide: "/" focuses the search box, J/K follow the
+// lesson prev/next links, Ctrl+Enter (or Cmd+Enter) submits the form of the
+// textarea being typed in (community posts/comments, profile bio).
+(function () {
+  document.addEventListener('keydown', function (e) {
+    if (e.defaultPrevented) return;
+    var t = e.target;
+    var typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+    if (typing && t.tagName === 'TEXTAREA' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      if (t.form) {
+        e.preventDefault();
+        if (t.form.requestSubmit) t.form.requestSubmit(); else t.form.submit();
+      }
+      return;
+    }
+    if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === '/') {
+      var s = document.querySelector('input[name=q], input[type=search]');
+      if (s) { e.preventDefault(); s.focus(); s.select(); }
+    } else if (e.key === 'j' || e.key === 'J') {
+      var n = document.querySelector('.lesson-nav .nav-next');
+      if (n) location.href = n.href;
+    } else if (e.key === 'k' || e.key === 'K') {
+      var p = document.querySelector('.lesson-nav .nav-prev');
+      if (p) location.href = p.href;
+    }
+  });
+})();
+
+// Offline cache: visited lessons keep working without internet (sw.js).
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(function () {});
+}

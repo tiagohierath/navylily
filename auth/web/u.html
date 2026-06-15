@@ -9,19 +9,19 @@
     body { font-family: serif; margin: 0; }
     header.site {
       display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-      padding: .75rem 1rem; border-bottom: 1px solid #ddd;
+      padding: .75rem 1rem; 
     }
     header.site .brand {
       font-weight: 600; text-decoration: none; color: inherit; margin-right: auto;
     }
     header.site .btn {
       font: inherit; text-decoration: none; color: inherit;
-      border: 1px solid #ccc; border-radius: 6px; padding: .25rem .6rem;
+      padding: .25rem .6rem;
     }
     main { max-width: 40rem; margin: 0 auto; padding: 1rem; }
     .avatar {
-      width: 128px; height: 128px; border-radius: 8px; overflow: hidden;
-      border: 1px solid #ccc; box-sizing: border-box; background: #eee;
+      width: 128px; height: 128px; overflow: hidden;
+      box-sizing: border-box; background: #eee;
       display: inline-flex; align-items: center; justify-content: center;
       font: 600 56px serif; color: #333;
     }
@@ -41,7 +41,7 @@
     /* 12 rolling months, one chunky vertical block each (~3:7 tall rectangle).
        The rightmost block is the current month and always sits at the edge. */
     .heatmap .months { display: flex; gap: 5px; align-items: flex-end; }
-    .heatmap .month { width: 18px; height: 42px; border-radius: 5px; background: #EBEBEB; flex-shrink: 0; }
+    .heatmap .month { width: 18px; height: 42px; background: #EBEBEB; flex-shrink: 0; }
     .heatmap .l1 { background: #B8C9E8; }
     .heatmap .l2 { background: #7A9FD4; }
     .heatmap .l3 { background: #3A6EB5; }
@@ -51,14 +51,46 @@
       main { padding: 1rem .75rem; }
       .avatar { width: 96px; height: 96px; font-size: 42px; }
     }
+      /* navy form controls */
+    header.site { background: #ADB6C6; }
+    button { background: #0B1F3A !important; color: #FFFFFF !important; }
+    button[type=button] { background: #28456B !important; }
+    input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+    input::placeholder, textarea::placeholder { color: #51719A !important; }
+    .lesson-complete-btn.is-done { background: #3D5A80 !important; }
+    /* Phone: compact header — smaller logo + tighter buttons share one row. */
+    @media (max-width: 480px) {
+      header.site { gap: .4rem; padding: .5rem .6rem; }
+      header.site .brand img { height: 16px !important; width: auto !important; }
+      header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+    }
+  @media(max-width:640px){.lbl-rest{display:none}}
   </style>
 </head>
-<body>
+<body bgcolor="white">
+  <!-- Splash: black + white logo while the data loads (Discord-style).
+       splashDone() drops it; the timeout is a failsafe so a slow request or a
+       JS error never leaves the screen black. -->
+  <div id="splash"><img src="/logo.png?v=3" alt=""></div>
+  <style>
+    #splash { position: fixed; inset: 0; z-index: 999; background: #000;
+              display: flex; align-items: center; justify-content: center; }
+    #splash img { width: min(80vw, 420px); filter: brightness(0) invert(1);
+                  animation: splash-pulse 1.6s ease-in-out infinite; }
+    @keyframes splash-pulse { 50% { opacity: .35; } }
+    /* Desktop: nearly edge to edge; phones keep it readable, not absurd. */
+    @media (min-width: 768px) { #splash img { width: 88vw; } }
+  </style>
+  <script>
+    function splashDone() { var s = document.getElementById('splash'); if (s) s.remove(); }
+    setTimeout(splashDone, 4000);
+  </script>
   <header class="site">
-    <a class="brand" href="/"><img src="/logo.png?v=2" alt="Navy Lily Works" style="height:28px;width:auto;display:block"></a>
-    <a class="btn" href="/community">Comunidade</a>
-    <a class="btn" href="/comprar">Navy</a>
-    <a class="btn" href="/login">Perfil</a>
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
   </header>
   <main>
     <p id="loading">Carregando…</p>
@@ -67,6 +99,7 @@
       <div class="avatar" id="avatar"></div>
       <h1 id="display-name"></h1>
       <p id="member" class="hint" hidden>Membro Navy</p>
+      <p id="streak-badge" class="hint" hidden></p>
       <p class="bio" id="bio"></p>
 
       <!-- Heatmap of completed lessons. Lazy-loaded: the data is only fetched
@@ -89,7 +122,7 @@
     <p id="notfound" hidden>Usuário não encontrado.</p>
   </main>
 
-  <script src="/header.js" defer></script>
+  <script src="/header.js?v=11" defer></script>
   <script>
   (function () {
     function el(id) { return document.getElementById(id); }
@@ -114,29 +147,40 @@
       }
     }
 
+    var STREAK_TIERS = [
+      [  0, '🌱'], [  1, '🌿'], [  2, '🌸'], [  4, '✨'],
+      [  8, '🔥'], [ 16, '⭐'], [ 32, '🌙'], [ 63, '💎'],
+      [126, '👑'], [251, '🐱🪷'], [500, '🌻'],
+    ];
+    function streakEmoji(n) {
+      var e = STREAK_TIERS[0][1];
+      for (var i = 0; i < STREAK_TIERS.length; i++) { if (n >= STREAK_TIERS[i][0]) e = STREAK_TIERS[i][1]; }
+      return e;
+    }
+
     function show(d) {
       el('display-name').textContent = '@' + d.username;
       document.title = '@' + d.username + ' — Navy Lily';
       renderAvatar(d);
       el('member').hidden = !d.member;
+      var s = d.streak || 0;
+      var sb = el('streak-badge');
+      if (s >= 1) {
+        sb.textContent = streakEmoji(s) + ' ' + s + ' dia' + (s === 1 ? '' : 's') + ' seguidos';
+        sb.hidden = false;
+      }
       el('bio').textContent = d.bio || '';
       el('loading').hidden = true;
       el('profile').hidden = false;
+      splashDone();
       lazyHeatmap(d.username);
-      // Show an edit link only to the owner (compare against /me).
-      fetch('/me', { headers: { Accept: 'application/json' } })
-        .then(function (r) { return r.json(); })
-        .then(function (m) {
-          if (m && m.logged_in && (m.username || '').toLowerCase() === d.username.toLowerCase()) {
-            el('owner-edit').hidden = false;
-          }
-        })
-        .catch(function () {});
+      if (d.is_owner) el('owner-edit').hidden = false;
     }
 
     function notFound() {
       el('loading').hidden = true;
       el('notfound').hidden = false;
+      splashDone();
     }
 
     var MONTH_NAMES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun',
@@ -223,6 +267,7 @@
       })
       .then(function (d) { if (d) show(d); })
       .catch(function () {
+        splashDone();
         el('loading').textContent = 'Não foi possível carregar este perfil.';
       });
   })();

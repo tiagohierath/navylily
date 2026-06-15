@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Minha Rotina Suprema de Desenho — Navy Lily</title>
+  <meta name="description" content="Aulas da Navy Lily.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tiagohierath.com/wiki/minha-rotina-suprema-de-desenho.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <style>
+body { font-family: serif; margin: 0; }
+header.site { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .75rem 1rem; background: #ADB6C6; }
+header.site .brand { font-weight: 600; text-decoration: none; color: inherit; margin-right: auto; }
+header.site form { display: flex; gap: .25rem; }
+header.site input[name=q] { display: none; font: inherit; padding: .25rem .5rem; }
+@media (min-width: 640px) { header.site input[name=q] { display: block; } }
+header.site .btn { font: inherit; text-decoration: none; color: inherit; padding: .25rem .6rem; }
+main { max-width: 40rem; margin: 0 auto; padding: 1rem; line-height: 1.6; }
+main h1 { line-height: 1.25; margin-bottom: .5rem; }
+main h2 { line-height: 1.3; margin: 1.8rem 0 .6rem; }
+main p { margin: .85rem 0; }
+main li { margin: .3rem 0; }
+.readtime { color: #666; font-size: .9rem; margin: .25rem 0 1rem; }
+details.toc { padding: .5rem .75rem; margin: 1rem 0; }
+details.toc summary { cursor: pointer; }
+details.toc ul { margin: .5rem 0 .25rem; }
+details.more { margin: 1.25rem 0 0; }
+details.more summary { cursor: pointer; color: #555; font-weight: 600; }
+details.more summary:hover { color: #1A3F7A; text-decoration: underline; }
+details.more ul { margin: .5rem 0 .25rem; }
+.lesson-complete, .nl-extras { display: flex; gap: .75rem; flex-wrap: wrap; margin: 2rem 0 0; }
+.lesson-complete button, .nl-extras button { font: inherit; cursor: pointer; padding: .4rem .9rem; flex: 1 1 0; min-width: 0; }
+img.lesson-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin: 1rem 0 1.5rem; }
+ul.articles { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1.75rem; }
+.article a { display: flex; gap: 1rem; align-items: flex-start; text-decoration: none; color: inherit; }
+.article a:hover .title { text-decoration: underline; }
+.article .thumb { flex: 0 0 120px; width: 120px; height: 120px; object-fit: cover; object-position: center; display: block; background: #eee; filter: grayscale(1); }
+.article a.is-done .thumb { filter: none; }
+.article span.thumb { background: #D7DEE9; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.article span.thumb::after { content: '⛵'; opacity: .08; }
+.article .text { flex: 1; min-width: 0; }
+.article .title { margin: 0; font-weight: 700; line-height: 1.4; }
+.article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+ul.wiki { margin: 1.5rem 0; }
+ul.wiki li { margin: .5rem 0; }
+nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
+nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
+nav.lesson-nav .nav-next { margin-left: auto; }
+.lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
+.lesson-complete-btn.is-todo { background: #1A3F7A; }
+.lesson-complete-btn.is-done { background: #2E7D32; }
+.lesson-complete-btn:disabled { opacity: .6; cursor: default; }
+button { background: #0B1F3A !important; color: #FFFFFF !important; }
+button[type=button] { background: #28456B !important; }
+input, select, textarea { background: #D7E0EC !important; color: #0B1F3A !important; accent-color: #0B1F3A; }
+input::placeholder, textarea::placeholder { color: #51719A !important; }
+.lesson-complete-btn.is-done { background: #3D5A80 !important; }
+#mobile-search-block { display: none; }
+@media (max-width: 640px) {
+  header.site { gap: .4rem; padding: .5rem .6rem; }
+  header.site .brand img { height: 16px !important; }
+  header.site .btn { padding: .2rem .4rem; font-size: .85em; }
+  header.site form button { background: none !important; border: none; padding: .2rem .4rem; }
+  .lbl-rest { display: none; }
+  #mobile-search-block {
+    display: block;
+    padding: 28vh 1.25rem 2rem;
+    text-align: center;
+  }
+  #mobile-search-block p { margin: 0 0 1.25rem; color: #555; font-size: .95rem; }
+  #mobile-search-block input {
+    width: 100%; font: inherit; font-size: 1.05rem;
+    padding: .65rem .75rem; box-sizing: border-box;
+  }
+}
+  </style>
+</head>
+<body bgcolor="white">
+  <header class="site">
+    <a class="btn" href="/login" aria-label="Perfil" title="Perfil">👤</a>
+    <a class="brand" href="/"><img src="/logo.png?v=3" alt="Navy Lily" loading="lazy" style="height:28px;width:auto;display:block"></a>
+    <a class="btn" href="/community" aria-label="Comunidade" title="Comunidade">💬<span class="lbl-rest"> Comunidade</span></a><span class="nav-sep"> · </span>
+    <a class="btn" href="/wiki" aria-label="Wiki" title="Wiki">📖<span class="lbl-rest"> Wiki</span></a><span class="nav-sep"> · </span>
+    <form action="/lessons.html" method="get" role="search">
+      <input type="search" name="q" placeholder="Buscar aulas" aria-label="Buscar aulas">
+      <button class="btn" type="submit" aria-label="Buscar" title="Buscar">🔍</button>
+    </form><span class="nav-sep"> · </span>
+    <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
+  </header>
+  <main>
+    <h1 id="minha-rotina-suprema-de-desenho">Minha Rotina Suprema de
+    Desenho</h1>
+    <p>Eu comecei a produzir conteúdo no youtube a mais ou menos 1 ano,
+    procurando explorar o desenvolvimento pessoal do ponto de vista de
+    um desenhista, o resumo da história é que eu acabei focando por um
+    tempo em ensinar só desenho (fundamentos e técnicas), e fiquei com
+    saudade de falar sobre o resto das coisas.</p>
+    <p>Nesse post eu vou tentar voltar com os ensinamentos de Self
+    Improvement e o tema vai ser: Rotinas de estudo de desenho.</p>
+    <p>Como eu sinto saudade desses temas eu vou experimentar falar mais
+    deles no youtube e criar mais aulas disso no meu <a
+    href="https://tiagohierath.carrd.co/">curso de desenho</a>.</p>
+    <h1 id="a-minha-rotina-ideal-de-desenho">A minha rotina ideal de
+    desenho</h1>
+    <h1 id="formato-e-foco">1. Formato e foco:</h1>
+    <p>Avisos dados, eu vou te ajudar a montar a rotina perfeita:</p>
+    <p>Quando eu penso em rotinas de desenho, eu penso em no máximo um
+    ou dois blocos de tempo, e uma duração máxima de umas três
+    horas.</p>
+    <p>Ontem eu abri meu sketchbook com um timer de uma hora e desenhei
+    algumas Asukas de evangelion, e foi só isso, uma seção de uma hora
+    sem pausas e sem distrações desenhando com algumas referências. Mas
+    nem sempre é isso que eu faço.</p>
+    <p>As vezes eu desenho só para estudo, e isso geralmente é feito com
+    muitas fotos ou um livro de anatomia ou perspectiva. Mas é
+    exatamente a mesma coisa, uma hora de foco sem distrações e sem
+    fazer várias coisas ao mesmo tempo (ex: ver o celular).</p>
+    <p>É MUITO importante que você nem pense no seu celular enquanto
+    estiver desenhando , no máximo coloque algum vídeo longo pra ouvir
+    de fundo. Olhar uma notificação que seja vai drenar seu foco por
+    horas e eu nem to exagerando. Não existe “fazer duas coisas ao mesmo
+    tempo”.</p>
+    <h1 id="o-que-desenhar">2. O que desenhar?</h1>
+    <p>Não importa, você pode decidir entre duas opções: Estudar ou
+    apenas desenhar. Qual é melhor? Nenhuma, as duas vão te fazer
+    aprender e você não pode jogar nenhuma outra fora. Desenhar de
+    imaginação é tão importante quanto estudar com livros.</p>
+    <p>Se você só vai desenhar de imaginação, desenhe qualquer coisa mas
+    tente sempre fazer algo mais e mais difícil, e pra estudar com
+    livros é só copiar todas as imagens e prestar atenção nelas [(já fiz
+    artigo</p>
+    <h1 id="motivação">3. Motivação</h1>
+    <p>O importante é manter a regra de desenhar todo dia, por trinta
+    minutos ou três horas (consistência bro). Todo dia desenhe um pouco,
+    e quando sentir que está afim faça uma coisa chamada “<em>seção
+    heroica”</em> que é tipo desenhar por 4-8 horas seguidas ou desenhar
+    algo muito difícil.</p>
+    <p>Esse equilíbrio entre seções normais e as heroicas vão te ajudar
+    bastante.</p>
+    <p>Uma coisa que eu percebo, é que desenhar vai sempre ser difícil
+    pois obviamente a gente sempre quer estar fazendo algo mais complexo
+    pra evoluir, então aceite que você vai precisar se forçar a ficar
+    sentado desenhando. Não saia do desenho só por que deu vontade de
+    levantar ou algo assim. Essas seções heroicas vão construir a sua
+    paciência com o tempo.</p>
+    <h1 id="finale">4. Finale</h1>
+    <p>A rotina perfeita pra mim é unir estudos sérios, onde eu ganho
+    conhecimento formal sobre o desenho a partir de livros e fotos, com
+    estudos menos sérios (de imaginação) onde eu deixo a minha intuição
+    me fazer aprender conhecimentos específicos sobre desenho.</p>
+    <p>Eu ainda preciso fazer outro post (talvez amanhã) para explicar a
+    diferença entre conhecimento formal e específico, mas resumindo,
+    você ganha o primeiro estudando e o segundo apenas praticando. Então
+    você precisa do casamento dessas duas coisas: estudo e desenho de
+    imaginação.</p>
+    <p>Eu estou ensinando essas coisas com mais profundidade <a
+    href="https://tiagohierath.carrd.co/">bem aqui</a>. É um curso com
+    mais de 50 aulas em vídeo sobre desenho e desenvolvimento pessoal.
+    Eu só queria avisar também que <strong>não</strong> haverão mais
+    descontos como costumava acontecer.</p>
+    <h2 id="como-aplicar">Como aplicar</h2>
+    <ul>
+    <li>Reserve um ou dois blocos de tempo por dia, no máximo umas três
+    horas no total.</li>
+    <li>Coloque um timer de uma hora e desenhe sem pausas e sem
+    distrações.</li>
+    <li>Deixe o celular longe; no máximo um vídeo longo de fundo, nunca
+    notificações.</li>
+    <li>Escolha a cada sessão: estudar (livros, fotos) ou desenhar de
+    imaginação. As duas valem.</li>
+    <li>Se for de imaginação, tente sempre algo um pouco mais difícil
+    que da última vez.</li>
+    <li>Se for estudo, copie todas as imagens do livro prestando atenção
+    real em cada uma.</li>
+    <li>Desenhe todo dia, nem que seja por trinta minutos; a
+    consistência é a regra inegociável.</li>
+    <li>Quando estiver animado, faça uma “seção heroica” de 4 a 8 horas
+    ou algo muito difícil.</li>
+    <li>Não levante só porque deu vontade; force-se a ficar mais tempo
+    olhando o papel.</li>
+    <li>Una estudo formal (livros e fotos) com desenho de imaginação na
+    mesma rotina.</li>
+    <li>Use a vontade de fugir como sinal de que está crescendo; resista
+    a ela.</li>
+    <li>Trate a frustração como parte do processo, igual à dor do
+    exercício físico.</li>
+    </ul>
+    <!-- tags: rotina de desenho, rotina de estudo, rotina ideal, bloco de tempo, timer, foco, sem distrações, sem distracoes, celular, deep work, consistência, consistencia, desenhar todo dia, seção heroica, secao heroica, sessão heroica, estudo de desenho, desenho de imaginação, desenho de imaginacao, copiar livros, anatomia, perspectiva, autodisciplina, hábito, habito, conhecimento formal, conhecimento específico, conhecimento especifico, prática, pratica, forçar a desenhar, forcar a desenhar, evangelion, asuka, sketchbook, drawing routine, study routine, focus, daily drawing, deliberate practice, motivação, motivacao, desenvolvimento pessoal, self improvement, paciência, paciencia, duas horas, três horas, tres horas, marcação de hábitos -->
+    <div id="navy-join"></div>
+    <script src="/join.js" defer></script>
+  </main>
+  <script src="/header.js?v=11" defer></script>
+</body>
+</html>
