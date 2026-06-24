@@ -50,6 +50,23 @@ ul.articles { list-style: none; padding: 0; display: flex; flex-direction: colum
 .article .preview { margin: .25rem 0 0; color: #555; font-size: .9em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 ul.wiki { margin: 1.5rem 0; }
 ul.wiki li { margin: .5rem 0; }
+/* Landing: Netflix-style course covers (A4, the name baked into the art). */
+ul.courses { list-style: none; padding: 0; margin: 1.5rem auto; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.courses .course { display: block; }
+.courses .course-cover { display: block; width: 100%; aspect-ratio: 1131 / 1599; object-fit: cover; background: #0B1F3A; box-shadow: 0 2px 10px rgba(11,31,58,.25); transition: transform .15s ease, box-shadow .15s ease; }
+.courses .course:hover .course-cover, .courses .course:focus-visible .course-cover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 22px rgba(11,31,58,.35); }
+/* Course page: the cover as a hero above the lesson list. */
+.course-hero { margin: 1rem 0 1.75rem; text-align: center; }
+.course-hero img { display: inline-block; width: 100%; max-width: 17rem; aspect-ratio: 1131 / 1599; object-fit: cover; box-shadow: 0 2px 12px rgba(11,31,58,.25); }
+/* Numbered, clickable lesson list (wiki-style, but numbered). */
+ul.lessons { list-style: none; padding: 0; margin: 1.5rem 0; }
+ul.lessons li { margin: 0; }
+ul.lessons a { display: flex; align-items: baseline; gap: .9rem; text-decoration: none; color: inherit; padding: .65rem .4rem; border-bottom: 1px solid #e6e9ef; }
+ul.lessons a:hover { background: #f2f5fa; }
+ul.lessons a:hover .t { text-decoration: underline; }
+ul.lessons .n { flex: 0 0 1.8rem; text-align: right; font-weight: 700; color: #51719A; font-variant-numeric: tabular-nums; }
+ul.lessons .t { flex: 1; min-width: 0; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
 nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
 nav.lesson-nav .nav-next { margin-left: auto; }

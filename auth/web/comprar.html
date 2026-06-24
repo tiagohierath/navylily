@@ -47,6 +47,12 @@
     .muted { color: var(--muted); font-size: .9rem; }
     .err { color: #b00; font-size: .9rem; }
     #buyEmail { font: inherit; padding: .5rem .6rem; width: 100%; max-width: 20rem; }
+    /* "Cursos que você recebe": A4 course covers (name baked into the art). */
+    #paidCourses { margin: 2.5rem 0 0; }
+    #paidCourses h2 { font-size: 1.2rem; margin: 0 0 1rem; }
+    .course-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 1rem; }
+    .course-grid a { display: block; }
+    .course-grid img { display: block; width: 100%; aspect-ratio: 1131 / 1599; object-fit: cover; box-shadow: 0 2px 10px rgba(11,31,58,.25); }
     [hidden] { display: none; }
       /* navy form controls */
     header.site { background: #ADB6C6; }
@@ -105,9 +111,8 @@
   <div id="buyView" hidden>
     <p class="price">R$ 497 <small>/ ano</small></p>
     <ul class="perks">
-      <li><strong>Prioridade na fila</strong>: seu trabalho vai para a frente, revisado antes das publicações gratuitas.</li>
-      <li>Conselhos e feedback do Tiago no seu trabalho.</li>
-      <li>Respostas mais consistentes e rápidas.</li>
+      <li>Todos os cursos de desenho</li>
+      <li>Comunidade exclusiva</li>
     </ul>
 
     <!-- Anonymous buyers: the e-mail access is granted to (same no-login flow
@@ -159,6 +164,16 @@
   <div id="error" class="card" hidden>
     <p>Não foi possível gerar o PIX agora. <button id="retryPix" type="button">Tentar de novo</button></p>
   </div>
+
+  <!-- The paid courses this subscription unlocks, shown to everyone (a buyer
+       sees what they get; a member sees what they have). Covers link to the
+       course page; its lessons sit behind the /protected/ gate. -->
+  <section id="paidCourses">
+    <h2>Cursos que você recebe</h2>
+    <ul class="course-grid">
+      <li><a href="/art-sovereignty.html"><img src="/covers/art-sovereignty.jpg" alt="Art Sovereignty" width="1131" height="1599" loading="lazy"></a></li>
+    </ul>
+  </section>
   </main>
 
   <script>

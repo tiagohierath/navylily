@@ -58,6 +58,7 @@ type Config struct {
 	ProductID        string // AbacatePay product id (prod_...) for the hosted card subscription
 	OneTimeProductID string // one-time product (prod_...) for coupon/discounted hosted checkouts
 	SiteURL          string // public URL of the site, for magic-link redirect
+	ProtectedDir     string // filesystem dir with paid lessons (gated; served only to active members at /protected/)
 	PublicDir        string // filesystem dir with free lessons (served openly at /)
 	AvatarDir        string // filesystem dir where uploaded profile pictures are stored
 	PostImageDir     string // filesystem dir where forum post images are stored
@@ -113,6 +114,7 @@ func loadConfig() Config {
 		ProductID:        env("ABACATE_PRODUCT_ID", ""),         // empty -> card button disabled
 		OneTimeProductID: env("ABACATE_ONETIME_PRODUCT_ID", ""), // empty -> coupon flow disabled
 		SiteURL:          strings.TrimRight(env("SITE_URL", "http://localhost:8090"), "/"),
+		ProtectedDir:     env("PROTECTED_DIR", "../protected"),
 		PublicDir:        env("PUBLIC_DIR", "../public"),
 		AvatarDir:        env("AVATAR_DIR", "data/avatars"),
 		PostImageDir:     env("POST_IMAGE_DIR", "data/posts"),
@@ -2202,20 +2204,51 @@ func handlePublicAvatar(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, path)
 }
 
-// handleProtected redirects the retired paid-lesson URLs to the now-free site.
-// The whole course moved into the free lessons, so /protected/ no longer gates
-// anything; old bookmarks land on the lesson index, and the old "curso
-// completo" PDF link lands on the single free course PDF.
+// handleProtected gates the paid lessons (the "Art Sovereignty" course): only a
+// logged-in, active member may read /protected/*. Anonymous visitors and
+// lapsed/never-paid accounts are sent to checkout. Members get the file from
+// cfg.ProtectedDir; lesson pages go through serveLessonHTML so the "completar
+// aula" widget renders, exactly like the free lessons. Paid content is never
+// cached at the edge.
 func handleProtected(w http.ResponseWriter, r *http.Request) {
-	if strings.HasSuffix(r.URL.Path, ".pdf") {
-		ptMonths := []string{"", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-			"Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"}
-		now := time.Now()
-		pdfName := fmt.Sprintf("Navylily_%s_%d.pdf", ptMonths[now.Month()], now.Year())
-		http.Redirect(w, r, "/downloads/"+pdfName, http.StatusFound)
+	email := currentEmail(r)
+	if email == "" {
+		// Not logged in -> straight to checkout.
+		http.Redirect(w, r, "/comprar", http.StatusSeeOther)
 		return
 	}
-	http.Redirect(w, r, "/lessons.html", http.StatusMovedPermanently)
+	member, err := isActiveMember(email)
+	if err != nil {
+		log.Printf("isActiveMember: %v", err)
+		http.Error(w, "erro ao verificar acesso", http.StatusBadGateway)
+		return
+	}
+	if !member {
+		// Logged in but hasn't bought (or it lapsed) -> checkout.
+		http.Redirect(w, r, "/comprar", http.StatusSeeOther)
+		return
+	}
+	// Serve the requested file from the protected dir, safely (filepath.Clean on
+	// a rooted path collapses any ../ so requests can't escape ProtectedDir).
+	rel := strings.TrimPrefix(r.URL.Path, "/protected/")
+	if rel == "" {
+		rel = "index.html"
+	}
+	clean := filepath.Clean("/" + rel)
+	full := filepath.Join(cfg.ProtectedDir, clean)
+	if info, err := os.Stat(full); err != nil || info.IsDir() {
+		http.NotFound(w, r)
+		return
+	}
+	// Lesson pages carry the per-viewer completion control; serve them like the
+	// free lessons (no-store, <!--COMPLETE--> swapped). Slug keys match the
+	// "protected/NNN" form recordCompletion writes.
+	if slug := lessonSlug("/protected" + clean); slug != "" {
+		serveLessonHTML(w, r, full, slug, email)
+		return
+	}
+	w.Header().Set("Cache-Control", "private, no-store")
+	http.ServeFile(w, r, full)
 }
 
 // handleBuy serves the checkout page, logged in or not. Anonymous buyers type

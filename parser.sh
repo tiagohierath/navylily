@@ -32,16 +32,17 @@ SITE="${SITE_URL:-https://tiagohierath.com}"
 # filenames.)
 ref_re='^[[:space:]]*(free/)?[0-9][0-9]?[0-9]?[[:space:]]*$'
 
-# related_bullet SRCDIR REF -> prints "- [Title](/href)" for lesson REF, or
-# returns 1 if no such lesson exists. There's a single free course now, so the
-# ref always resolves inside content/free (an optional "free/" prefix is fine).
+# related_bullet SRCDIR PREFIX REF -> prints "- [Title](PREFIX/href)" for lesson
+# REF resolved inside SRCDIR, or returns 1 if no such lesson exists. PREFIX is
+# the course's URL prefix ("/" for the free course, "/protected/" for the paid
+# one). A leading "free/"/"protected/" on the ref is tolerated for back-compat.
 related_bullet() {
-  local srcdir="$1" ref="$2" padded title
-  ref="${ref#free/}"
+  local srcdir="$1" prefix="$2" ref="$3" padded title
+  ref="${ref#free/}"; ref="${ref#protected/}"
   padded=$(printf '%03d' "$((10#$ref))")
-  [ -f "content/free/$padded.md" ] || return 1
-  title=$(grep -m1 '^# ' "content/free/$padded.md" | sed 's/^# *//; s/[[:space:]]*$//')
-  printf -- '- [%s](/%s.html)\n' "$title" "$padded"
+  [ -f "$srcdir/$padded.md" ] || return 1
+  title=$(grep -m1 '^# ' "$srcdir/$padded.md" | sed 's/^# *//; s/[[:space:]]*$//')
+  printf -- '- [%s](%s%s.html)\n' "$title" "$prefix" "$padded"
 }
 
 # lesson_image SRCDIR NAME -> prints the path to the lesson's thumbnail source
@@ -187,8 +188,8 @@ lesson_preview_raw() {
 lesson_preview() { lesson_preview_raw "$1" | html_escape; }
 
 build() {
-  local srcdir="$1" outdir="$2"
-  shift 2
+  local srcdir="$1" outdir="$2" href_prefix="$3"
+  shift 3
   mkdir -p "$outdir"
   for f in "$srcdir"/*.md; do
     [ -e "$f" ] || continue
@@ -209,7 +210,6 @@ build() {
     if [[ "$name" =~ ^[0-9]+$ ]]; then
       num=$((10#$name)); prevpad=$(printf '%03d' $((num-1))); nextpad=$(printf '%03d' $((num+1)))
     fi
-    href_prefix='/'
 
     # Optional 16:9 thumbnail: copy IMAGES/<name>.<ext> into the served tree and
     # build the <img> shown under the heading. The URL is /images/<name>.<ext>,
@@ -251,7 +251,7 @@ build() {
     bullets=""
     while IFS= read -r ref; do
       [ -n "$ref" ] || continue
-      b=$(related_bullet "$srcdir" "$ref") \
+      b=$(related_bullet "$srcdir" "$href_prefix" "$ref") \
         || { echo "warn: lesson '$ref' referenced in $f not found" >&2; continue; }
       bullets+="$b"$'\n'
     done <<< "$refs"
@@ -337,15 +337,91 @@ build_index() {
   echo "built: public/lessons.html"
 }
 
-# build_root writes public/root.html: the site landing page (served at "/").
-# No headline/tagline — it goes straight into the lessons as article rows —
-# thumbnail left, title + preview right (articles=1 styles them).
-build_root() {
-  { articles "" content/free ""
+# course_cover SLUG -> path to the course's A4 cover (content/covers/SLUG.<ext>,
+# first match wins) or returns 1 if none exists. Covers are committed public
+# marketing art, kept out of content/paid so the paid course's cover ships in
+# the open repo even though its lessons don't.
+course_cover() {
+  local slug="$1" ext
+  for ext in jpg jpeg png webp; do
+    if [ -f "content/covers/$slug.$ext" ]; then
+      printf '%s' "content/covers/$slug.$ext"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# copy_cover SLUG -> copies the course cover into the served tree
+# (public/covers/SLUG.<ext>) and prints its URL, or returns 1 if SLUG has no
+# cover. Same content/ -> public/ copy as the lesson thumbnails.
+copy_cover() {
+  local slug="$1" src ext
+  src=$(course_cover "$slug") || return 1
+  ext="${src##*.}"
+  mkdir -p public/covers
+  cp "$src" "public/covers/$slug.$ext"
+  printf '/covers/%s.%s' "$slug" "$ext"
+}
+
+# course_lessons SRCDIR PREFIX -> a numbered, clickable lesson list (wiki-style,
+# but numbered): one <li> per lesson in SRCDIR, "<n> Title" linking to
+# PREFIX<name>.html. The number is the lesson's position in the course. Raw
+# HTML, one <li> per line so pandoc passes it through untouched.
+course_lessons() {
+  local srcdir="$1" prefix="$2" f name title n=0
+  printf '<ul class="lessons">\n'
+  for f in "$srcdir"/*.md; do
+    [ -e "$f" ] || continue
+    n=$((n+1))
+    name=$(basename "$f" .md)
+    title=$(grep -m1 '^# ' "$f" | sed 's/^# *//; s/[[:space:]]*$//' | html_escape)
+    printf '<li><a href="%s%s.html"><span class="n">%d</span><span class="t">%s</span></a></li>\n' \
+      "$prefix" "$name" "$n" "$title"
+  done
+  printf '</ul>\n'
+}
+
+# build_course SLUG TITLE SRCDIR PREFIX [pandoc args...] -> writes
+# public/SLUG.html: the course page reached from a cover on the landing page. It
+# shows the A4 cover as a hero (the course name lives in the art — no text
+# heading, Netflix-style) above the numbered lesson list. PREFIX is the course's
+# URL prefix ("/" free, "/protected/" paid).
+build_course() {
+  local slug="$1" title="$2" srcdir="$3" prefix="$4"; shift 4
+  local cover hero=''
+  if cover=$(copy_cover "$slug"); then
+    hero='<p class="course-hero"><img src="'"$cover"'" alt="'"$title"'" width="1131" height="1599"></p>'$'\n'
+  fi
+  { printf '%s' "$hero"
+    printf '<h1 class="visually-hidden">%s</h1>\n' "$title"
+    course_lessons "$srcdir" "$prefix"
   } | pandoc \
         -f markdown+lists_without_preceding_blankline-markdown_in_html_blocks-native_divs-native_spans \
         --template=template.html \
-        --metadata "title=Aprenda a desenhar de imaginação" --metadata "articles=1" \
+        --metadata "title=$title" \
+        --metadata "canonical=$SITE/$slug.html" \
+        "$@" \
+        -o "public/$slug.html"
+  echo "built: public/$slug.html"
+}
+
+# build_root writes public/root.html: the site landing page (served at "/").
+# Netflix-style — just the course covers (A4, the name baked into the art, so no
+# text labels). Each cover links to its course page (build_course). Two courses:
+# the free "Desenho do zero" and the paid "Art Sovereignty".
+build_root() {
+  local free_cover paid_cover
+  free_cover=$(copy_cover desenho-do-zero) || free_cover='/covers/desenho-do-zero.jpg'
+  paid_cover=$(copy_cover art-sovereignty) || paid_cover='/covers/art-sovereignty.jpg'
+  { printf '<ul class="courses">\n'
+    printf '<li><a class="course" href="/desenho-do-zero.html" aria-label="Desenho do zero"><img class="course-cover" src="%s" alt="Desenho do zero" width="1131" height="1599"></a></li>\n' "$free_cover"
+    printf '<li><a class="course" href="/art-sovereignty.html" aria-label="Art Sovereignty"><img class="course-cover" src="%s" alt="Art Sovereignty" width="1131" height="1599"></a></li>\n' "$paid_cover"
+    printf '</ul>\n'
+  } | pandoc \
+        -f markdown+lists_without_preceding_blankline-markdown_in_html_blocks-native_divs-native_spans \
+        --template=template.html \
+        --metadata "title=Aprenda a desenhar de imaginação" \
         --metadata "canonical=$SITE/" \
         -o public/root.html
   echo "built: public/root.html"
@@ -376,9 +452,13 @@ build_search() {
   echo "built: public/search.txt"
 }
 
-# Every lesson is free and gets the community banner.
-build content/free public -V banner=1
+# Free course -> public/ (open, served at /, community banner). Paid course ->
+# protected/ (gated by the auth server at /protected/, no banner).
+build content/free public / -V banner=1
+build content/paid protected /protected/
 build_wiki
 build_index
 build_root
+build_course desenho-do-zero "Desenho do zero" content/free / -V banner=1
+build_course art-sovereignty "Art Sovereignty" content/paid /protected/
 build_search
