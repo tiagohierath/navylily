@@ -222,6 +222,8 @@
     document.getElementById('pickCard').addEventListener('click', function (e) {
       const v = readBuyEmail();
       if (v === null) { e.preventDefault(); return; }
+      // checkout-start: going to card checkout
+      new Image().src = 'https://stats.navylily.tv/count?p=checkout-start';
       if (v) {
         e.preventDefault();
         location.href = '/card/new?email=' + encodeURIComponent(v);
@@ -251,6 +253,8 @@
         document.getElementById('status').textContent = 'Aguardando pagamento…';
         hide('loading');
         show('pix');
+        // checkout-start: PIX QR shown
+        new Image().src = 'https://stats.navylily.tv/count?p=checkout-start';
         poll();
       } catch (e) {
         hide('loading');
@@ -289,6 +293,8 @@
         const d = await r.json();
         if (d.status === 'PAID' || d.status === 'APPROVED') {
           hide('pix');
+          // purchase: successful payment
+          new Image().src = 'https://stats.navylily.tv/count?p=purchase';
           if (d.logged_in) {
             show('paid');
             setTimeout(function () { location.href = '/community'; }, 1500);
@@ -316,6 +322,13 @@
     }
   </script>
   <script src="/header.js?v=11" defer></script>
-  <script defer src="https://umami.navylily.tv/script.js" data-website-id="YOUR_WEBSITE_ID"></script>
+  <script>
+    // GoatCounter event tracking
+    function gcEvent(name) { new Image().src = 'https://stats.navylily.tv/count?p=' + name; }
+
+    // cta-pricing: clicked buy button (PIX or Card)
+    document.getElementById('pickPix').addEventListener('click', function() { gcEvent('cta-pricing'); });
+    document.getElementById('pickCard').addEventListener('click', function() { gcEvent('cta-pricing'); });
+  </script>
 </body>
 </html>

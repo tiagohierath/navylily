@@ -112,5 +112,13 @@ input::placeholder, textarea::placeholder { color: #51719A !important; }
     </ul>
   </main>
   <script src="/header.js?v=11" defer></script>
+  <script>
+    document.querySelectorAll('.course').forEach(function(a) {
+      a.addEventListener('click', function() {
+        var img = new Image();
+        img.src = 'https://stats.navylily.tv/count?p=cta-home';
+      });
+    });
+  </script>
 </body>
 </html>

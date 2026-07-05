@@ -79,15 +79,20 @@
     return v;
   }
 
+  function gcEvent(name) { new Image().src = 'https://stats.navylily.tv/count?p=' + name; }
+
   function startCard() {
     var v = readEmail();
     if (!v) return;
+    gcEvent('cta-pricing');
+    gcEvent('checkout-start');
     location.href = "/card/new?email=" + encodeURIComponent(v);
   }
 
   function startPix() {
     var v = readEmail();
     if (!v) return;
+    gcEvent('cta-pricing');
     email = v;
     createPix();
   }
@@ -100,7 +105,7 @@
     var body = new URLSearchParams({ email: email });
     fetch("/pix/new", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body })
       .then(function (r) { if (!r.ok) throw new Error("pix/new " + r.status); return r.json(); })
-      .then(function (d) { chargeId = d.id; showPix(d); poll(); })
+      .then(function (d) { chargeId = d.id; showPix(d); gcEvent('checkout-start'); poll(); })
       .catch(function () { showError(); });
   }
 
@@ -138,7 +143,7 @@
     fetch("/pix/status?id=" + encodeURIComponent(chargeId))
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        if (d.status === "PAID" || d.status === "APPROVED") { showPaid(d); return; }
+        if (d.status === "PAID" || d.status === "APPROVED") { gcEvent('purchase'); showPaid(d); return; }
         if (d.status === "EXPIRED" || d.status === "CANCELLED" || d.status === "FAILED") {
           // A fresh charge is one click away — never "reload the page" at the
           // moment someone is trying to pay.
