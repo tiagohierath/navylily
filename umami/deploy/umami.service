@@ -1,0 +1,34 @@
+# Umami analytics server (systemd unit).
+#
+# Install:
+#   sudo cp umami/deploy/umami.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now umami
+#
+# Logs: journalctl -u umami -f
+
+[Unit]
+Description=Umami Analytics
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=tiago
+Group=tiago
+WorkingDirectory=/opt/umami
+ExecStart=/usr/bin/node /opt/umami/.next/standalone/server.js
+Restart=on-failure
+RestartSec=10
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Environment
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOSTNAME=0.0.0.0
+EnvironmentFile=/opt/umami/.env
+
+[Install]
+WantedBy=multi-user.target
