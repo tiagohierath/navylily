@@ -1,4 +1,4 @@
-# Navy Lily
+# NAVYLILY.TV
 
 Navy Lily is a small self-hosted platform for selling and serving online drawing
 lessons in Portuguese, live at tiagohierath.com. The whole thing is one Go server
