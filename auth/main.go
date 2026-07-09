@@ -1440,6 +1440,21 @@ func handleRobots(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "User-agent: *\nAllow: /\n\nSitemap: %s/sitemap.xml\n", cfg.SiteURL)
 }
 
+// handleOGImage backs the og:image of pages without their own artwork (the
+// landing page, lessons that ship no thumbnail). It 302-redirects to one of the
+// rotating course banners (the same navy-ad-*.png pool web/join.js shows at the
+// end of a lesson), chosen at random, so a shared link still previews with a
+// banner. no-store keeps the choice fresh each time a crawler refetches.
+func handleOGImage(w http.ResponseWriter, r *http.Request) {
+	// Mirror the ADS pool in web/join.js: navy-ad-1.png … navy-ad-7.png.
+	const nBanners = 7
+	var b [1]byte
+	rand.Read(b[:])
+	n := int(b[0])%nBanners + 1
+	w.Header().Set("Cache-Control", "no-store")
+	http.Redirect(w, r, fmt.Sprintf("/navy-ad-%d.png", n), http.StatusFound)
+}
+
 // serveHTMLNoStore serves an HTML page from disk with Cache-Control: no-store.
 // Auth/app pages must never be served stale: a cached reset.html or callback.html
 // keeps running old JS in the browser (and at the Cloudflare edge) even after a
@@ -3683,6 +3698,7 @@ func main() {
 	mux.HandleFunc("/lessons.html", handleLessons)
 	mux.HandleFunc("/sitemap.xml", handleSitemap)
 	mux.HandleFunc("/robots.txt", handleRobots)
+	mux.HandleFunc("/og-image", handleOGImage)
 	mux.HandleFunc("/login", handleLoginPage)
 	mux.HandleFunc("/profile", page("web/profile.html"))
 	mux.HandleFunc("/signup", handleSignupPage)

@@ -13,6 +13,22 @@ $endif$
 $if(canonical)$
   <link rel="canonical" href="$canonical$">
 $endif$
+  <!-- Link-share preview (Open Graph + Twitter). The og:image is the lesson's
+       own artwork when it has one; otherwise the build points it at /og-image,
+       which redirects to a random course banner so the card still shows art. -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="$title$ — Navy Lily">
+$if(canonical)$
+  <meta property="og:url" content="$canonical$">
+$endif$
+$if(description)$
+  <meta property="og:description" content="$description$">
+$endif$
+$if(ogimage)$
+  <meta property="og:image" content="$ogimage$">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="$ogimage$">
+$endif$
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <style>
 body { font-family: serif; margin: 0; }

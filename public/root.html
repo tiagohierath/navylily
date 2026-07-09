@@ -6,7 +6,18 @@
   <title>Aprenda a desenhar de imaginação — Navy Lily</title>
   <meta name="description" content="Aulas da Navy Lily.">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://tiagohierath.com/">
+  <link rel="canonical" href="https://navylily.tv/">
+  <!-- Link-share preview (Open Graph + Twitter). The og:image is the lesson's
+       own artwork when it has one; otherwise the build points it at /og-image,
+       which redirects to a random course banner so the card still shows art. -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Aprenda a desenhar de
+imaginação — Navy Lily">
+  <meta property="og:url" content="https://navylily.tv/">
+  <meta property="og:description" content="Aulas da Navy Lily.">
+  <meta property="og:image" content="https://navylily.tv/og-image">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://navylily.tv/og-image">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <style>
 body { font-family: serif; margin: 0; }
@@ -112,13 +123,5 @@ input::placeholder, textarea::placeholder { color: #51719A !important; }
     </ul>
   </main>
   <script src="/header.js?v=11" defer></script>
-  <script>
-    document.querySelectorAll('.course').forEach(function(a) {
-      a.addEventListener('click', function() {
-        var img = new Image();
-        img.src = 'https://stats.navylily.tv/count?p=cta-home';
-      });
-    });
-  </script>
 </body>
 </html>

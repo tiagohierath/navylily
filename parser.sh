@@ -220,6 +220,11 @@ build() {
       mkdir -p "$outdir/images"
       cp "$src_img" "$outdir/images/$name.$ext"
       img_html=$'\n<img class="lesson-image" src="'"${href_prefix}images/${name}.${ext}"$'" alt="'"$title"$'" loading="lazy">\n'
+      # Share-preview image = the lesson's own artwork (absolute URL so crawlers
+      # can fetch it). Lessons without art fall back to a random course banner.
+      meta+=(--metadata "ogimage=$SITE/images/$name.$ext")
+    else
+      meta+=(--metadata "ogimage=$SITE/og-image")
     fi
 
     nav=()
@@ -389,9 +394,13 @@ course_lessons() {
 # URL prefix ("/" free, "/protected/" paid).
 build_course() {
   local slug="$1" title="$2" srcdir="$3" prefix="$4"; shift 4
-  local cover hero=''
+  local cover hero='' ogmeta=()
   if cover=$(copy_cover "$slug"); then
     hero='<p class="course-hero"><img src="'"$cover"'" alt="'"$title"'" width="1131" height="1599"></p>'$'\n'
+    # Share-preview image = the course cover (absolute URL for crawlers).
+    ogmeta=(--metadata "ogimage=$SITE$cover")
+  else
+    ogmeta=(--metadata "ogimage=$SITE/og-image")
   fi
   { printf '%s' "$hero"
     printf '<h1 class="visually-hidden">%s</h1>\n' "$title"
@@ -401,6 +410,7 @@ build_course() {
         --template=template.html \
         --metadata "title=$title" \
         --metadata "canonical=$SITE/$slug.html" \
+        "${ogmeta[@]}" \
         "$@" \
         -o "public/$slug.html"
   echo "built: public/$slug.html"
@@ -423,6 +433,8 @@ build_root() {
         --template=template.html \
         --metadata "title=Aprenda a desenhar de imaginação" \
         --metadata "canonical=$SITE/" \
+        --metadata "description=Aulas da Navy Lily." \
+        --metadata "ogimage=$SITE/og-image" \
         -o public/root.html
   echo "built: public/root.html"
 }
