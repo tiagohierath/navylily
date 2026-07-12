@@ -71,6 +71,8 @@ ul.lessons .t { flex: 1; min-width: 0; }
 nav.lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 1.25rem 0 1.5rem; }
 nav.lesson-nav a { font: inherit; text-decoration: none; font-weight: 600; background: #0B1F3A; color: #fff; padding: .5rem .9rem; }
 nav.lesson-nav .nav-next { margin-left: auto; }
+/* The join.js ad slot keeps its 16:9 seat while empty, so the banner lands without pushing the page (join.js hides the slot for members). */
+#navy-join:empty { margin-top: 2.5rem; aspect-ratio: 16 / 9; }
 .lesson-complete-btn { font: inherit; cursor: pointer; color: #fff; padding: .4rem .9rem; }
 .lesson-complete-btn.is-todo { background: #1A3F7A; }
 .lesson-complete-btn.is-done { background: #2E7D32; }
@@ -183,8 +185,27 @@ input::placeholder, textarea::placeholder { color: #51719A !important; }
     </ul>
     <!-- tags: perspectiva é distorção, perspective is distortion, distorção, distortion, projeção cartográfica, map projection, mercator, projeção de mapa, magritte, a traição das imagens, ceci n'est pas une pipe, the treachery of images, a imagem não é a coisa, mishima, escrita corrompe a realidade, perspectiva linear, perspectiva bizantina, perspectiva medieval, perspectiva curvilínea, ortocentro, pontos de fuga, distância focal, focal length, lente, câmera, distorção de borda, edge distortion, realismo, simplificação, escolher distorção, intenção, mapa do mundo, groenlândia, peters, azimutal, fisheye, deformação, ilusão, representação, plano 2d, 3d para 2d, história da perspectiva, renascimento, estilo, leitura visual, projeto hierath -->
     <div id="navy-join"></div>
-    <script src="/join.js" defer></script>
+    <script src="/join.js?v=2" defer></script>
   </main>
   <script src="/header.js?v=11" defer></script>
+  <footer>
+    <hr>
+    <nav>
+      <a href="/">📚 Curso</a>
+      <a href="/wiki">📖 Wiki</a>
+      <a href="/images">🖼️ Imagens</a>
+      <a href="/livro">📕 Downloads</a>
+      <a href="/lessons.html">🔍 Buscar</a>
+      <a href="/navy">💬 Comunidade</a>
+      <a href="/equipe">⚓ Equipe</a>
+      <a href="/login">👤 Perfil</a>
+      <a href="/comprar" id="navy-link">🌊 Navy</a>
+      <a href="/termos">📜 Termos</a>
+      <a href="https://tiagohierath.substack.com/" target="_blank" rel="noopener">✉️ Substack</a>
+      <a href="https://github.com/tiagohierath/navylily" target="_blank" rel="noopener">🐙 GitHub</a>
+      <a href="/funil">📊 Funil</a>
+      <a href="/stats">🔢 Stats</a>
+    </nav>
+  </footer>
 </body>
 </html>

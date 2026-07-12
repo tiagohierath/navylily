@@ -14,10 +14,14 @@
 
   // Active members have already paid: hide every buy call-to-action so they
   // never see a landing page again. Covers the "Navy" header button on every
-  // page (a -> /comprar); the inline ad banner is simply not rendered below.
+  // page (a -> /comprar) and the ad slot itself: the page CSS reserves the
+  // slot's 16:9 seat while it sits empty (so the banner never pushes content
+  // when it loads), and without this a member would keep that blank box at
+  // the end of every lesson.
   function hideBuyUI() {
     var links = document.querySelectorAll('a[href="/comprar"]');
     for (var i = 0; i < links.length; i++) links[i].style.display = "none";
+    if (root) root.style.display = "none";
   }
 
   function h(html) { root.innerHTML = html; }
