@@ -164,7 +164,7 @@ emit_front() {
     #v(8pt)
     #text(10pt, fill: gray)[tiagohierath.com — $stamp]
     #v(12pt)
-    #text(12pt)[Por favor compartilhe esse PDF no Discord ou com seus amigos.]
+    #text(12pt)[Por favor compartilhe esse PDF com seus amigos.]
   ]
 EOF
   if [ -n "$cover" ]; then
