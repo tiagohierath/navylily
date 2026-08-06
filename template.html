@@ -130,6 +130,10 @@ input::placeholder, textarea::placeholder { color: #51719A !important; }
     <a class="btn" href="/comprar" aria-label="Navy" title="Navy">⛵</a>
   </header>
   <main>
+$if(banner)$
+    <div id="navy-join"></div>
+    <script src="/join.js?v=2" defer></script>
+$endif$
     $body$
 $if(search)$
     <section id="forum-results" hidden>
@@ -147,10 +151,6 @@ $endif$
 $if(nexthref)$      <a class="nav-next" href="$nexthref$">próxima aula →</a>
 $endif$
     </nav>
-$endif$
-$if(banner)$
-    <div id="navy-join"></div>
-    <script src="/join.js?v=2" defer></script>
 $endif$
   </main>
   <script src="/header.js?v=11" defer></script>
