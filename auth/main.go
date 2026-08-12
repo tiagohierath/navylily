@@ -1241,10 +1241,19 @@ func serveLessonHTML(w http.ResponseWriter, r *http.Request, file, slug, email s
 // lesson slug (so the caller falls back to serving the file unpersonalized).
 func lessonSlug(path string) string {
 	s := strings.TrimSuffix(strings.TrimPrefix(path, "/"), ".html")
-	if s == "" || len(s) > 64 || !validSlug(s) {
+	prefix := ""
+	if strings.HasPrefix(s, "protected/") {
+		prefix = "protected/"
+		s = strings.TrimPrefix(s, prefix)
+	}
+	// Course lessons use the documented NNN.html convention. Keeping this
+	// narrow matters: wiki/foo.html and course landing pages are public static
+	// HTML and must remain eligible for the Cloudflare edge cache.
+	if len(s) != 3 || s[0] < '0' || s[0] > '9' ||
+		s[1] < '0' || s[1] > '9' || s[2] < '0' || s[2] > '9' {
 		return ""
 	}
-	return s
+	return prefix + s
 }
 
 // squareThumb center-crops src to a square and nearest-neighbour scales it down
@@ -1354,7 +1363,7 @@ func handleLessons(w http.ResponseWriter, r *http.Request) {
 	}
 	shell = bytes.Replace(shell, []byte("<!--LESSONS-->"), []byte(lessonList(cfg.PublicDir, "/")), 1)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	setPublicCache(w, 300) // public listing; same for everyone, refreshes in 5 min
+	setEdgeCache(w, 300) // fresh in browsers; cached near readers at Cloudflare
 	w.Write(shell)
 }
 
@@ -1471,6 +1480,23 @@ func serveHTMLNoStore(w http.ResponseWriter, r *http.Request, file string) {
 // /api/*, the private /avatar/me, or any logged-in page.
 func setPublicCache(w http.ResponseWriter, seconds int) {
 	w.Header().Set("Cache-Control", fmt.Sprintf("public, max-age=%d", seconds))
+}
+
+// setEdgeCache keeps a public response at shared CDN edges while making browser
+// caches revalidate it on every use. This is the right policy for editable HTML
+// and indexes: Brazilian readers still get the nearby Cloudflare copy for
+// edgeSeconds, but a browser can never silently pin an old page. s-maxage is
+// only honored by shared caches; browsers use max-age=0 + must-revalidate.
+func setEdgeCache(w http.ResponseWriter, edgeSeconds int) {
+	w.Header().Set("Cache-Control", fmt.Sprintf(
+		"public, max-age=0, must-revalidate, s-maxage=%d", edgeSeconds))
+}
+
+// setImmutableCache is reserved for assets whose URL carries an explicit
+// version (for example, /header.js?v=11). A changed asset must get a changed
+// version, making the long browser lifetime safe.
+func setImmutableCache(w http.ResponseWriter) {
+	w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 }
 
 // page serves one of the auth/app HTML files with no-store (see
@@ -1617,14 +1643,14 @@ func handleStatic(w http.ResponseWriter, r *http.Request) {
 	}
 	if clean == "/" {
 		// Landing page: the headline + lesson menu built by parser.sh.
-		setPublicCache(w, 300)
+		setEdgeCache(w, 300)
 		http.ServeFile(w, r, filepath.Join(cfg.PublicDir, "root.html"))
 		return
 	}
 	if clean == "/wiki" {
 		// Wiki index (parser.sh builds it next to the wiki/ entry pages, which
 		// the directory check below would otherwise 404).
-		setPublicCache(w, 300)
+		setEdgeCache(w, 300)
 		http.ServeFile(w, r, filepath.Join(cfg.PublicDir, "wiki.html"))
 		return
 	}
@@ -1640,25 +1666,27 @@ func handleStatic(w http.ResponseWriter, r *http.Request) {
 		serveLessonHTML(w, r, full, slug, currentEmail(r))
 		return
 	}
-	// The rest of PublicDir is free, public, non-personalized content (the header
-	// is personalized client-side via header.js + /me, neither of which is
-	// cached). Cache assets aggressively; keep HTML short so edits show up fast.
-	// The service worker must revalidate every load — a day-cached sw.js would
-	// pin clients to stale caching logic. The search index follows the lessons.
+	// The rest of PublicDir is free, public, non-personalized content. Editable
+	// documents and unversioned assets revalidate in the browser but stay cached
+	// at Cloudflare's edge. Explicitly versioned assets can live in the browser
+	// for a year. The service worker itself is never cached: stale worker code is
+	// capable of pinning every other response regardless of these headers.
 	switch {
 	case clean == "/sw.js":
-		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate")
 	// PDFs are rebuilt monthly under the same URL, so they can't ride the
 	// day-long asset cache — five minutes keeps the newest edition flowing.
 	// They download under a month-stamped name so each edition saves as a
 	// new file instead of tripping the browser's "download again?" prompt.
 	case strings.HasSuffix(clean, ".pdf"):
-		setPublicCache(w, 300)
+		setEdgeCache(w, 300)
 		setPDFDownloadName(w, clean)
 	case strings.HasSuffix(clean, ".html") || clean == "/search.txt":
-		setPublicCache(w, 300)
+		setEdgeCache(w, 300)
+	case r.URL.Query().Has("v"):
+		setImmutableCache(w)
 	default:
-		setPublicCache(w, 86400)
+		setEdgeCache(w, 86400)
 	}
 	http.ServeFile(w, r, full)
 }

@@ -133,7 +133,8 @@ Pandoc variables toggle per-page features inside it:
 
 Assets referenced from the template carry ?v= version query strings
 (header.js?v=11, logo.png?v=3). Bump the number whenever you change the asset,
-or browsers and the service worker will keep serving the old one.
+so that version can safely stay in the browser cache for a year. Unversioned
+assets always revalidate and do not need a manual cache bust.
 
 ### The client-side JS
 
@@ -146,9 +147,9 @@ All plain vanilla JS, no build step:
   student has completed and offers "continue from where you stopped".
 - public/search.js: live-filters the lesson list from the search box and also
   searches forum posts via /api/search.
-- public/sw.js: the offline service worker. HTML is network-first (fresh online,
-  cached copy on the train), assets are cache-first, auth and payment endpoints
-  are never cached.
+- public/sw.js: the offline service worker. Editable/unversioned resources are
+  network-first, versioned assets are cache-first, and visited resources remain
+  available offline; auth and payment endpoints are never cached.
 - auth/web/header.js: swaps the header's profile link for the user's avatar when
   logged in, painted optimistically from the nl_hint cookie to avoid flashing.
 - auth/web/join.js: the inline ad and checkout widget at the end of free lessons.
@@ -181,9 +182,11 @@ handleStatic serves public/ at / with a few special cases:
 - / serves root.html; /root.html and /wiki.html 301 to their canonical paths.
 - Lesson pages are personalized: the <!--COMPLETE--> marker is replaced with the
   viewer's own completion button, so they are served with no-store.
-- Everything else is cached: HTML and search.txt for 5 minutes, PDFs for 5
-  minutes (with a month-stamped download name), other assets for a day, sw.js
-  never (a stale service worker would pin clients to old caching logic).
+- Editable HTML, search.txt, PDFs, and unversioned assets revalidate on every
+  browser use, while shared caches such as Cloudflare keep them at the edge for
+  5 minutes (documents) or a day (assets). Explicitly versioned assets stay in
+  browsers for a year. sw.js is never cached because a stale service worker can
+  pin clients to old caching logic.
 
 A filepath.Clean guard on every file lookup means requests cannot escape the
 content directories with ../ tricks.
@@ -354,11 +357,16 @@ Branches:
   git push origin sophie:main.
 - flower-ui preserves the retired 2026 flower theme.
 
-Deploying is intentionally dumb: push sophie, then on the server git reset to
-the new commit, go build -o navylily-auth . inside auth/, and
-systemctl restart navylily. Content-only changes do not even need the rebuild:
-the server rereads files from disk, and parser.sh is rerun on the box to
-regenerate the HTML.
+After pushing sophie, deploy on the server with `./deploy-vps.sh`. It refuses to
+overwrite tracked VPS edits, fast-forwards to origin/sophie, regenerates public
+and paid HTML, runs the Go tests, builds and restarts the service, checks local
+health, and finally purges Cloudflare. That last step is what permits long-lived,
+fast edge caching without showing yesterday's wiki after a deploy.
+
+The purge script reads `CF_API_TOKEN` and `CF_ZONE_TAG` from the git-ignored
+`auth/.env`. The token only needs Cloudflare's `Zone > Cache Purge > Purge`
+permission for the navylily.tv zone. `./auth/purge-cloudflare.sh` can also be run
+by itself after an emergency content-only edit.
 
 The production setup is documented step by step in auth/deploy/DEPLOY.md: the
 Go server as a systemd unit (navylily.service; WorkingDirectory matters, the
