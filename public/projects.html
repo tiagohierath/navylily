@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Projects — Navy Lily</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101a2a; --card:#18263b; --text:#edf4ff; --muted:#9eb1ca; --line:#2b4160; }
+    * { box-sizing:border-box; } body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); font:16px/1.55 system-ui,sans-serif; }
+    main { width:min(900px,calc(100% - 32px)); margin:0 auto; padding:64px 0; } a { color:inherit; }
+    .back { color:var(--muted); text-decoration:none; } h1 { margin:36px 0 8px; font-size:clamp(34px,7vw,64px); letter-spacing:-.05em; } .intro { color:var(--muted); max-width:600px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-top:36px; }
+    article { padding:22px; border:1px solid var(--line); border-radius:18px; background:var(--card); } article h2 { margin:0 0 8px; } article p { color:var(--muted); min-height:52px; }
+    .button { display:inline-block; margin-top:10px; padding:9px 13px; border:1px solid #55769f; border-radius:999px; text-decoration:none; font-weight:700; }
+    .experimental { color:#f4cc7a; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+  </style>
+</head>
+<body><main>
+  <a class="back" href="/">← Navy Lily</a>
+  <h1>Projects</h1><p class="intro">Small tools, experiments, and things I’m making outside the main course.</p>
+  <section class="grid">
+    <article><h2>🖼️ Pictogrep</h2><p>A local-first image browser and visual collection tool.</p><a class="button" href="https://github.com/tiagohierath/pictogrep">Open project</a></article>
+    <article><span class="experimental">Very experimental game</span><h2>🐾 Catorigin</h2><p>A daily cat geography game: study a cat, place a pin, and guess its origin.</p><a class="button" href="https://catorigin.vercel.app">Play Catorigin</a></article>
+  </section>
+</main></body></html>
